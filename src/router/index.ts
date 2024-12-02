@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 //import HomeView from '../views/HomeView.vue'
-import BookForm from '../components/BookForm.vue'
-import BookStatus from '@/components/BookStatus.vue'
+import BookFormStudent from '../components/student/BookFormStudent.vue'
+import BookStatusStudent from '@/components/student/BookStatusStudent.vue'
 import HomeStudent from '@/components/student/HomeStudent.vue'
 
 const router = createRouter({
@@ -13,14 +13,14 @@ const router = createRouter({
       component: HomeStudent,
     },
     {
-      path: '/book-form',
-      name: 'bookForm',
-      component: BookForm,
+      path: '/book-form-student',
+      name: 'bookFormStudent',
+      component: BookFormStudent,
     },
     {
-      path: '/book-status',
-      name: 'bookstatus',
-      component: BookStatus,
+      path: '/book-status-student',
+      name: 'bookstatusStudent',
+      component: BookStatusStudent,
     },
   ],
 })

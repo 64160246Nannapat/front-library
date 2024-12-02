@@ -36,10 +36,18 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
+// export default {
+//   name: 'HomeStudent',
+// }
+
 const drawer = ref(false)
 
 const items = [
-  { title: 'แบบฟอร์มการเสนองานหนังสือ', icon: 'mdi-book', link: '/book-form-student' },
+  { title: 'จัดการงบประมาณคณะ', icon: 'mdi-book', link: '/book-form-student' },
+  { title: 'สรุปงบประมาณคณะ', icon: 'mdi-library-books', link: '/book-status-student' },
+  { title: 'แบบฟอร์มการเสนอหนังสือ', icon: 'mdi-book', link: '/book-form-student' },
+  { title: 'E-Coupon', icon: 'mdi-library-books', link: '/book-status-student' },
+  { title: 'ประวัติการใช้คูปอง', icon: 'mdi-book', link: '/book-form-student' },
   { title: 'สถานะการเสนอซื้อหนังสือ', icon: 'mdi-library-books', link: '/book-status-student' },
   { title: 'LOGOUT', icon: 'mdi-logout', link: '/logout' },
 ]

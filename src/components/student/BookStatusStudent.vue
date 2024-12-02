@@ -1,9 +1,13 @@
 <template>
   <v-app>
     <!-- App Bar -->
-    <v-app-bar color="pink" prominent>
-      <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
-      <v-toolbar-title>BUU LIBRARY</v-toolbar-title>
+    <v-app-bar color="#f8c9d3" prominent height="96">
+      <v-app-bar-nav-icon @click.stop="drawer = !drawer">
+        <v-icon size="36">mdi-menu</v-icon>
+      </v-app-bar-nav-icon>
+      <v-toolbar-title class="d-flex align-center">
+        <img src="@/assets/logo_buu_library.png" alt="BUU Library Logo" class="logo" />
+      </v-toolbar-title>
       <v-spacer></v-spacer>
     </v-app-bar>
 
@@ -12,9 +16,8 @@
       <v-list>
         <v-list-item v-for="item in items" :key="item.title">
           <v-list-item-icon>
-            <v-icon>{{ item.icon }}</v-icon>
+            <v-icon size="24">{{ item.icon }}</v-icon>
           </v-list-item-icon>
-          <!-- ใช้ router-link แทน v-list-item -->
           <v-list-item-title>
             <router-link :to="item.link">{{ item.title }}</router-link>
           </v-list-item-title>
@@ -29,7 +32,7 @@
           <v-col>
             <v-card>
               <v-card-title>Book Status</v-card-title>
-              <v-card-subtitle> ตรวจสอบสถานะการอนุมัติหนังสือ </v-card-subtitle>
+              <v-card-subtitle> ตรวจสอบการอนุมัติหนังสือ </v-card-subtitle>
             </v-card>
           </v-col>
         </v-row>
@@ -44,8 +47,8 @@ import { ref } from 'vue'
 const drawer = ref(false)
 
 const items = [
-  { title: 'แบบฟอร์มการเสนองานหนังสือ', icon: 'mdi-book', link: '/book-form' }, // เพิ่มลิงค์สำหรับ BookForm
-  { title: 'สถานะการเสนอซื้อหนังสือ', icon: 'mdi-library-books', link: '/status' },
+  { title: 'แบบฟอร์มการเสนองานหนังสือ', icon: 'mdi-book', link: '/book-form' },
+  { title: 'สถานะการเสนอซื้อหนังสือ', icon: 'mdi-library-books', link: '/book-status' },
 ]
 </script>
 
