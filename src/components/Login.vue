@@ -1,52 +1,42 @@
 <template>
-  <div id="login">
-    <h1>เข้าสู่ระบบ</h1>
-    <div class="form-group">
-      <input v-model="username" type="text" placeholder="ชื่อผู้ใช้" required />
-    </div>
-    <div class="form-group">
-      <input v-model="password" type="password" placeholder="รหัสผ่าน" required />
-    </div>
-    <button @click="login">เข้าสู่ระบบ</button>
-    <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
-  </div>
+  <v-main class="pink-background">
+    <img class="image" src="@/assets/login.png" alt="Login Image" />
+    <div class="heading">Book Suggestion for Purchase</div>
+  </v-main>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-
-const username = ref('')
-const password = ref('')
-const errorMessage = ref('')
-
-// ข้อมูล mock ผู้ใช้
-const mockUsers = [
-  { username: 'admin', password: '123456' },
-  { username: 'user1', password: 'password' },
-]
-
-// ใช้ router จาก vue-router
-const router = useRouter()
-
-// ฟังก์ชันในการเข้าสู่ระบบ
-const login = () => {
-  const user = mockUsers.find(
-    (user) => user.username === username.value && user.password === password.value,
-  )
-
-  if (user) {
-    router.push('/qrcode') // นำไปที่หน้า QR Code
-  } else {
-    errorMessage.value = 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง'
-  }
-}
+// ไม่มีอะไรใน Script เนื่องจากเป็นหน้าเปล่า
 </script>
 
-<style>
-/* CSS เหมือนตัวอย่างก่อนหน้า */
-#errorMessage {
-  color: red;
-  font-size: 14px;
+<style scoped>
+.pink-background {
+  background-color: #ffe9e5; /* สีชมพู */
+  height: 100vh; /* ให้ครอบคลุมทั้งหน้าจอ */
+  display: flex; /* ใช้ Flexbox */
+  align-items: center; /* จัดให้อยู่กึ่งกลางแนวตั้ง */
+  justify-content: center; /* จัดให้อยู่กึ่งกลางแนวนอน */
+  position: relative; /* ใช้สำหรับจัดตำแหน่ง */
+}
+
+.image {
+  position: absolute; /* ตั้งตำแหน่งแบบ Absolute */
+  top: 50%; /* ให้อยู่กึ่งกลางแนวตั้ง */
+  left: 20px; /* ขยับออกจากขอบซ้าย (เพิ่มระยะห่างจากขอบ) */
+  transform: translateY(-50%); /* ปรับให้อยู่กึ่งกลางแนวตั้ง */
+  max-width: 1000px; /* เพิ่มขนาดรูปให้ใหญ่ขึ้น */
+  height: auto; /* รักษาอัตราส่วนของรูปภาพ */
+}
+
+.heading {
+  position: absolute; /* ตั้งตำแหน่งแบบ Absolute */
+  top: 50%; /* ให้อยู่กึ่งกลางแนวตั้ง */
+  left: 50%; /* ให้อยู่กึ่งกลางแนวนอน */
+  transform: translate(-50%, -50%); /* ปรับให้กลางหน้าจอ */
+  font-size: 32px; /* ขนาดฟอนต์ */
+  font-weight: bold; /* ทำให้ฟอนต์หนา */
+  color: #333; /* สีของข้อความ */
+  text-align: center; /* จัดข้อความให้อยู่กลาง */
+  padding-left: 150px; /* เพิ่มระยะห่างจากรูป */
 }
 </style>

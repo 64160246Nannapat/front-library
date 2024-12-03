@@ -8,46 +8,38 @@
           <img class="header-image" src="@/assets/check-list (1).png" alt="Library Image" />
           <h1>สถานะการเสนอซื้อหนังสือ</h1>
 
-          <!-- จัดตำแหน่ง date picker ขวาสุดโดยไม่ทับกับส่วนอื่น -->
-          <v-row align="center" class="date-status-row" justify="space-between">
+          <!-- Date Picker Section -->
+          <v-row align="center" class="date-status-row" justify="end">
             <v-col cols="auto">
-              <!-- ใส่คอนเทนต์อื่นๆ เช่น หัวข้อ หรือ ข้อความ ถ้าจำเป็น -->
-            </v-col>
-
-            <v-col cols="auto">
-              <!-- ใช้ v-menu เพื่อแสดงและซ่อน v-date-picker -->
+              <!-- ใช้ v-menu เพื่อแสดงปฏิทิน -->
               <v-menu
                 v-model="menuDate"
                 :close-on-content-click="false"
-                transition="slide-x-reverse-transition"
+                transition="scale-transition"
+                max-width="290px"
               >
                 <template v-slot:activator="{ on, props }">
-                  <!-- แสดงกรอบวันที่ที่เลือก -->
                   <v-text-field
                     v-bind="props"
                     v-on="on"
                     v-model="selectedDate"
-                    label="เลือกวันที่"
+                    placeholder="dd/mm/yyyy"
                     readonly
-                    class="date-picker-input"
-                    dense
-                    outlined
+                    class="custom-date-picker"
                   />
                 </template>
-
-                <!-- ตัวเลือกวันที่ -->
                 <v-date-picker
                   v-model="selectedDate"
                   @input="menuDate = false"
                   :max="maxDate"
                   locale="th"
-                  class="date-picker-calendar"
                 />
               </v-menu>
             </v-col>
           </v-row>
         </div>
 
+        <!-- Table Section -->
         <v-simple-table>
           <thead>
             <tr>
@@ -81,11 +73,12 @@
 import { ref, computed } from 'vue'
 import HomeStudent from '@/components/student/HomeStudent.vue'
 
+// Variables
 const selectedDate = ref(null)
 const menuDate = ref(false)
 const maxDate = '2024-12-31'
 
-// ข้อมูลรายการหนังสือ
+// Sample Data
 const desserts = ref([
   {
     id: 1,
@@ -116,7 +109,7 @@ const desserts = ref([
   },
 ])
 
-// กรองข้อมูลตามวันที่เลือก
+// Filter Books by Selected Date
 const filteredDesserts = computed(() => {
   if (!selectedDate.value) return desserts.value
   return desserts.value.filter((item) => item.date === selectedDate.value)
@@ -143,6 +136,40 @@ h1 {
   margin: 0;
 }
 
+.date-status-row {
+  margin-bottom: 20px;
+}
+
+.custom-date-picker {
+  max-width: 350px; /* เพิ่มความกว้างของกรอบ */
+  height: 60px; /* เพิ่มความสูงของกรอบ */
+  border: 2px solid #000; /* กรอบสีดำ */
+  border-radius: 12px; /* มุมโค้งมากขึ้น */
+  background-color: #fff; /* สีพื้นหลัง */
+  cursor: pointer;
+  font-size: 18px; /* ขนาดฟอนต์ภายในกรอบ */
+  padding: 10px 20px; /* เพิ่มพื้นที่ด้านในกรอบ */
+  box-sizing: border-box; /* ป้องกันการขยายเกินกรอบ */
+  display: flex; /* จัดตำแหน่ง */
+  align-items: center; /* จัดข้อความให้อยู่กึ่งกลางแนวตั้ง */
+  justify-content: center; /* จัดข้อความให้อยู่กึ่งกลางแนวนอน */
+  transition: all 0.3s ease; /* เพิ่มการเคลื่อนไหว */
+}
+
+.custom-date-picker:hover {
+  border-color: #707478; /* เปลี่ยนสีกรอบตอนชี้ */
+}
+
+.custom-date-picker input {
+  font-size: 16px; /* ขนาดข้อความ */
+  border: none; /* ลบเส้นขอบของ input */
+  outline: none; /* ลบเส้นโฟกัส */
+  width: 100%; /* ให้ข้อความใช้พื้นที่เต็ม */
+  height: 100%; /* ให้ข้อความครอบคลุมความสูง */
+  text-align: center; /* จัดข้อความให้อยู่ตรงกลาง */
+  background-color: transparent; /* พื้นหลังโปร่งใส */
+}
+
 .v-simple-table {
   width: 100%;
   max-height: 600px;
@@ -159,50 +186,5 @@ td {
 th {
   font-weight: bold;
   font-size: 20px;
-}
-
-/* การจัดแถวสำหรับเลือกวันที่และสถานะ */
-.date-status-row {
-  margin-bottom: 20px;
-}
-
-/* ปรับความกว้างของส่วนเลือกวันที่และสถานะ */
-.v-row {
-  display: flex;
-  justify-content: space-between;
-}
-
-.v-col {
-  max-width: 300px;
-}
-
-/* เพิ่มกรอบให้กับ input ของ date picker */
-.date-picker-input {
-  position: relative;
-  max-width: 250px; /* กำหนดขนาดความกว้างของกรอบ */
-}
-
-/* ปรับสไตล์ให้กับ input */
-.date-picker-input input {
-  cursor: pointer;
-  padding: 10px;
-  font-size: 16px;
-  border: 2px solid #000000; /* กำหนดสีกรอบ */
-  border-radius: 8px; /* มุมโค้ง */
-  background-color: #f5f5f5;
-  transition: all 0.3s ease;
-}
-
-/* เพิ่มกรอบเมื่อเลือกวันที่ */
-.date-picker-input input:focus {
-  border-color: #000000; /* สีของกรอบเมื่อโฟกัส */
-  background-color: #ffffff;
-}
-
-/* เพิ่มกรอบล้อมรอบทั้งปฏิทิน */
-.date-picker-calendar {
-  border: 2px solid #000000; /* กำหนดกรอบสำหรับปฏิทิน */
-  border-radius: 8px; /* ทำมุมโค้ง */
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* เพิ่มเงา */
 }
 </style>
