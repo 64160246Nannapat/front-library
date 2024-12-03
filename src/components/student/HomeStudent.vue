@@ -27,7 +27,7 @@
     <v-list>
       <v-list-item v-for="item in items" :key="item.title">
         <v-list-item-icon>
-          <v-icon size="24">{{ item.icon }}</v-icon>
+          <v-img :src="item.icon" height="24px" width="24px" />
         </v-list-item-icon>
         <v-list-item-title>
           <router-link :to="item.link" class="custom-link">{{ item.title }}</router-link>
@@ -39,12 +39,13 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import libraryImage from '@/assets/library.png'
 
 const drawer = ref(false)
 
 const items = [
-  { title: 'แบบฟอร์มการเสนองานหนังสือ', icon: 'mdi-book', link: '/book-form-student' },
-  { title: 'สถานะการเสนอซื้อหนังสือ', icon: 'mdi-library-books', link: '/book-status-student' },
+  { title: 'แบบฟอร์มการเสนอหนังสือ', icon: libraryImage, link: '/book-form' },
+  { title: 'สถานะการเสนอซื้อหนังสือ', icon: 'mdi-library-books', link: '/book-status' },
   { title: 'LOGOUT', icon: 'mdi-logout', link: '/logout' },
 ]
 </script>
