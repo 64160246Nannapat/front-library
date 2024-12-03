@@ -27,11 +27,17 @@
     <v-list>
       <v-list-item v-for="item in items" :key="item.title">
         <v-list-item-icon>
-          <v-img :src="item.icon" height="24px" width="24px" />
+          <!-- Horizontal Layout for Icon and Title -->
+          <v-row align="center" no-gutters>
+            <v-col class="d-flex justify-center" cols="auto">
+              <v-img :src="item.icon" height="30px" width="30px" />
+            </v-col>
+            <v-col class="ml-2">
+              <!-- เพิ่ม margin-left -->
+              <router-link :to="item.link" class="custom-link">{{ item.title }}</router-link>
+            </v-col>
+          </v-row>
         </v-list-item-icon>
-        <v-list-item-title>
-          <router-link :to="item.link" class="custom-link">{{ item.title }}</router-link>
-        </v-list-item-title>
       </v-list-item>
     </v-list>
   </v-navigation-drawer>
@@ -40,13 +46,15 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import libraryImage from '@/assets/library.png'
+import logout from '@/assets/logout.png'
+import checklist from '@/assets/check-list.png'
 
 const drawer = ref(false)
 
 const items = [
   { title: 'แบบฟอร์มการเสนอหนังสือ', icon: libraryImage, link: '/book-form' },
-  { title: 'สถานะการเสนอซื้อหนังสือ', icon: 'mdi-library-books', link: '/book-status' },
-  { title: 'LOGOUT', icon: 'mdi-logout', link: '/logout' },
+  { title: 'สถานะการเสนอซื้อหนังสือ', icon: checklist, link: '/book-status' },
+  { title: 'LOGOUT', icon: logout, link: '/logout' },
 ]
 </script>
 
