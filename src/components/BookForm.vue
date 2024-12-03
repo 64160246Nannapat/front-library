@@ -196,7 +196,7 @@ h1 {
   background-color: #eed3d9 !important; /* ตั้งสีพื้นหลัง */
   color: #000000 !important; /* ตั้งสีตัวอักษร */
   font-size: 18px; /* ขนาดตัวอักษร */
-  padding: 12px 24px; /* ขยายขนาดปุ่ม */
+  padding: 22px 30px; /* ขยายขนาดปุ่ม */
   border-radius: 8px; /* เพิ่มมุมโค้ง */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* เพิ่มเงา */
   transition:
