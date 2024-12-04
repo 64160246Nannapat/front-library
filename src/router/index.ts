@@ -5,6 +5,8 @@ import BookStatus from '@/components/BookStatus.vue'
 import HomeStudent from '@/components/student/HomeStudent.vue'
 import Login from '@/components/Login.vue'
 import HomeTeacher from '@/components/teacher/HomeTeacher.vue'
+import HomeShop from '@/components/shop/HomeShop.vue'
+import HomeFaculty from '@/components/faculty/HomeFaculty.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -33,6 +35,16 @@ const router = createRouter({
       path: '/home-teachr',
       name: 'homeTeacher',
       component: HomeTeacher,
+    },
+    {
+      path: '/home-shop',
+      name: 'homeShop',
+      component: HomeShop,
+    },
+    {
+      path: '/home-faculty',
+      name: 'homeFaculty',
+      component: HomeFaculty,
     },
   ],
 })
