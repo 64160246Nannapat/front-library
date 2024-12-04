@@ -9,14 +9,14 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path: '/',
-      name: 'home-student',
-      component: HomeStudent,
-    },
-    {
       path: '/login',
       name: 'login',
       component: Login,
+    },
+    {
+      path: '/home-student',
+      name: 'homestudent',
+      component: HomeStudent,
     },
     {
       path: '/book-form',
