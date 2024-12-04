@@ -76,7 +76,7 @@ const login = () => {
   )
 
   if (user) {
-    router.push('/book-form')
+    router.push('/home-teachr')
   } else {
     errorMessage.value = 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง'
   }

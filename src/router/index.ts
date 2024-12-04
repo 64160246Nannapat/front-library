@@ -4,6 +4,7 @@ import BookForm from '../components/BookForm.vue'
 import BookStatus from '@/components/BookStatus.vue'
 import HomeStudent from '@/components/student/HomeStudent.vue'
 import Login from '@/components/Login.vue'
+import HomeTeacher from '@/components/teacher/HomeTeacher.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -27,6 +28,11 @@ const router = createRouter({
       path: '/book-status',
       name: 'bookstatus',
       component: BookStatus,
+    },
+    {
+      path: '/home-teachr',
+      name: 'homeTeacher',
+      component: HomeTeacher,
     },
   ],
 })

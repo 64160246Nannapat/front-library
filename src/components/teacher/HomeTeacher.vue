@@ -1,53 +1,64 @@
 <template>
-  <v-app>
-    <!-- App Bar -->
-    <v-app-bar color="#f8c9d3" prominent height="96">
-      <v-app-bar-nav-icon @click.stop="drawer = !drawer">
-        <v-icon size="36">mdi-menu</v-icon>
-      </v-app-bar-nav-icon>
-      <v-toolbar-title class="d-flex align-center">
-        <img src="@/assets/logo_buu_library.png" alt="BUU Library Logo" class="logo" />
-      </v-toolbar-title>
-      <v-spacer></v-spacer>
-      <v-toolbar-items class="d-flex align-center">
-        <v-btn class="d-flex flex-column align-end">
-          <span class="name">นันท์ณภัทร สอนสุภาพ</span>
-          <span class="position">วิทยาการสารสนเทศ</span>
-        </v-btn>
-      </v-toolbar-items>
-    </v-app-bar>
+  <!-- App Bar -->
+  <v-app-bar color="#f8c9d3" prominent height="96">
+    <v-app-bar-nav-icon @click.stop="drawer = !drawer">
+      <v-icon size="36">mdi-menu</v-icon>
+    </v-app-bar-nav-icon>
+    <v-toolbar-title class="d-flex align-center">
+      <img src="@/assets/logo_buu_library.png" alt="BUU Library Logo" class="logo" />
+    </v-toolbar-title>
+    <v-spacer></v-spacer>
+    <v-toolbar-items class="d-flex align-center">
+      <div class="d-flex flex-column align-end" style="margin-right: 20px">
+        <span class="name">นันท์ณภัทร สอนสุภาพ</span>
+        <span class="position" style="margin-top: 5px">วิทยาการสารสนเทศ</span>
+      </div>
+    </v-toolbar-items>
+  </v-app-bar>
 
-    <!-- Navigation Drawer -->
-    <v-navigation-drawer v-model="drawer" temporary class="custom-sidebar">
-      <v-list>
-        <v-list-item v-for="item in items" :key="item.title">
-          <v-list-item-icon>
-            <v-icon size="24">{{ item.icon }}</v-icon>
-          </v-list-item-icon>
-          <v-list-item-title>
-            <router-link :to="item.link" class="custom-link">{{ item.title }}</router-link>
-          </v-list-item-title>
-        </v-list-item>
-      </v-list>
-    </v-navigation-drawer>
-  </v-app>
+  <!-- Navigation Drawer -->
+  <v-navigation-drawer
+    v-model="drawer"
+    temporary
+    app
+    :style="drawer ? 'width: 300px;' : 'width: 80px;'"
+    class="custom-sidebar"
+  >
+    <v-list>
+      <v-list-item v-for="item in items" :key="item.title">
+        <v-list-item-icon>
+          <!-- Horizontal Layout for Icon and Title -->
+          <v-row align="center" no-gutters>
+            <v-col class="d-flex justify-center" cols="auto">
+              <v-img :src="item.icon" height="30px" width="30px" />
+            </v-col>
+            <v-col class="ml-2">
+              <!-- เพิ่ม margin-left -->
+              <router-link :to="item.link" class="custom-link">{{ item.title }}</router-link>
+            </v-col>
+          </v-row>
+        </v-list-item-icon>
+      </v-list-item>
+    </v-list>
+  </v-navigation-drawer>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
-
-// export default {
-//   name: 'HomeStudent',
-// }
+import libraryImage from '@/assets/library.png'
+import logout from '@/assets/logout.png'
+import checklist from '@/assets/check-list.png'
+import coupon from '@/assets/coupon.png'
+import historyCoupon from '@/assets/history-coupon.png'
 
 const drawer = ref(false)
 
 const items = [
-  { title: 'E-Coupon', icon: 'mdi-book', link: '/book-form-student' },
-  { title: 'ประวัติการใช้คูปอง', icon: 'mdi-library-books', link: '/book-status-student' },
-  { title: 'แบบฟอร์มการเสนองานหนังสือ', icon: 'mdi-book', link: '/book-form-student' },
-  { title: 'สถานะการเสนอซื้อหนังสือ', icon: 'mdi-library-books', link: '/book-status-student' },
-  { title: 'LOGOUT', icon: 'mdi-logout', link: '/logout' },
+  { title: 'E-Coupon', icon: coupon, link: '/book-form' },
+  { title: 'ประวัติการใช้คูปอง', icon: historyCoupon, link: '/book-status' },
+  { title: 'แบบฟอร์มการเสนอหนังสือ', icon: libraryImage, link: '/book-form' },
+  { title: 'สถานะการเสนอซื้อหนังสือ', icon: checklist, link: '/book-status' },
+  { title: 'LOGOUT', icon: logout, link: '/login' },
 ]
 </script>
 
@@ -57,15 +68,10 @@ const items = [
   height: 96px;
 }
 
-.title {
-  font-size: 24px;
-  font-weight: bold;
-}
-
 .custom-sidebar {
   background-color: #f5e4e5;
-  width: 300px !important;
   max-width: 300px !important;
+  transition: width 0.3s ease;
 }
 
 .custom-link {
@@ -77,7 +83,7 @@ const items = [
 }
 
 .custom-link:hover {
-  color: #a2a2a2; /* สีข้อความตอนชี้ */
+  color: #a2a2a2;
 }
 
 .v-icon {
