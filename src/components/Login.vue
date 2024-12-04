@@ -13,11 +13,10 @@
               label="Username"
               v-model="username"
               density="compact"
-              placeholder="Email address"
+              placeholder="username"
               prepend-inner-icon="mdi-account"
               variant="outlined"
               class="mt-5 custom-field"
-              style="height: 100%"
             ></v-text-field>
           </v-col>
 
@@ -29,17 +28,24 @@
               :append-inner-icon="visible ? 'mdi-eye-off' : 'mdi-eye'"
               :type="visible ? 'text' : 'password'"
               density="compact"
-              placeholder="Enter your password"
+              placeholder="password"
               prepend-inner-icon="mdi-lock"
               variant="outlined"
               @click:append-inner="visible = !visible"
               class="mt-2 custom-field"
-              style="height: 100%"
             ></v-text-field>
           </v-col>
 
-          <v-btn class="mb-8 custom-btn" variant="tonal" block @click="login"> Log In </v-btn>
-          <v-text style="text-align: center">
+          <v-btn
+            class="mb-8 custom-btn"
+            style="width: 40px; height: 50px"
+            variant="tonal"
+            block
+            @click="login"
+          >
+            Log In
+          </v-btn>
+          <v-text style="text-align: center; color: #a87e60">
             ***USERNAME และ PASSWORD ที่เข้าใช้เครือข่ายอินเทอร์เน็ตของมหาวิทยาลัย***
           </v-text>
         </v-row>
@@ -126,12 +132,12 @@ const login = () => {
 
 .v-text-field .v-input__control {
   margin-top: 15px;
-  height: 80px; /* เพิ่มความสูงให้กรอบ */
+  height: 100px; /* เพิ่มความสูงให้กรอบ */
 }
 
 .custom-field .v-input__control {
   width: 400px; /* ปรับความกว้างกรอบให้เท่ากับความยาวของข้อความ Book Suggestion for Purchase */
-  height: 80px; /* เพิ่มความสูงให้กรอบ */
+  height: 100px; /* เพิ่มความสูงให้กรอบ */
 }
 
 .custom-field .v-input__slot {
@@ -140,21 +146,22 @@ const login = () => {
 
 .v-text-field input {
   height: 100%; /* ให้กรอกข้อมูลเต็มกรอบ */
-  padding-top: 20px; /* เพิ่มระยะห่างจากด้านบน */
-  font-size: 16px; /* ปรับขนาดตัวอักษร */
+  padding-top: 20; /* เอาระยะห่างบนออก */
+  font-size: 18px; /* ปรับขนาดตัวอักษร */
+  text-align: center; /* ทำให้ข้อความอยู่กลางกรอบ */
 }
 
 .custom-btn {
+  width: 40px;
+  height: 50px;
   font-size: 20px;
   font-weight: bold;
-  background-color: #f3beba; /* เปลี่ยนสีพื้นหลัง */
-  color: #ffffff; /* เปลี่ยนสีข้อความ */
-  width: 100%;
-  height: 60px; /* กำหนดความสูงของปุ่ม */
-  max-width: 100%; /* จำกัดความกว้างให้ไม่เกินขนาดของคอนเทนเนอร์ */
-  text-transform: uppercase; /* ทำให้ข้อความในปุ่มเป็นตัวพิมพ์ใหญ่ */
+  background-color: #f3beba;
+  color: #ffffff;
+  text-transform: uppercase;
   display: flex;
-  align-items: center; /* จัดตำแหน่งข้อความในปุ่มให้อยู่กลางแนวตั้ง */
-  justify-content: center; /* จัดตำแหน่งข้อความในปุ่มให้อยู่กลางแนวนอน */
+  align-items: center;
+  justify-content: center;
+  border-radius: 15px;
 }
 </style>

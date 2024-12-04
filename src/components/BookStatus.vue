@@ -8,10 +8,8 @@
           <img class="header-image" src="@/assets/check-list (1).png" alt="Library Image" />
           <h1>สถานะการเสนอซื้อหนังสือ</h1>
 
-          <!-- Date Picker Section -->
           <v-row align="center" class="date-status-row" justify="end">
             <v-col cols="auto">
-              <!-- ใช้ v-menu เพื่อแสดงปฏิทิน -->
               <v-menu
                 v-model="menuDate"
                 :close-on-content-click="false"
@@ -141,19 +139,20 @@ h1 {
 }
 
 .custom-date-picker {
-  max-width: 350px; /* เพิ่มความกว้างของกรอบ */
-  height: 60px; /* เพิ่มความสูงของกรอบ */
+  max-width: 500px; /* ขยายความกว้างสูงสุดของกรอบ */
+  width: 100%; /* ทำให้กรอบขยายเต็มที่ตามพื้นที่ที่กำหนด */
+  height: 60px; /* ความสูงของกรอบ */
   border: 2px solid #000; /* กรอบสีดำ */
-  border-radius: 12px; /* มุมโค้งมากขึ้น */
-  background-color: #fff; /* สีพื้นหลัง */
+  border-radius: 12px; /* มุมโค้ง */
+  background-color: #fff; /* พื้นหลังขาว */
   cursor: pointer;
-  font-size: 18px; /* ขนาดฟอนต์ภายในกรอบ */
-  padding: 10px 20px; /* เพิ่มพื้นที่ด้านในกรอบ */
-  box-sizing: border-box; /* ป้องกันการขยายเกินกรอบ */
-  display: flex; /* จัดตำแหน่ง */
-  align-items: center; /* จัดข้อความให้อยู่กึ่งกลางแนวตั้ง */
-  justify-content: center; /* จัดข้อความให้อยู่กึ่งกลางแนวนอน */
-  transition: all 0.3s ease; /* เพิ่มการเคลื่อนไหว */
+  font-size: 18px; /* ขนาดฟอนต์ */
+  padding: 10px 20px; /* เพิ่มพื้นที่ภายในกรอบ */
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
 }
 
 .custom-date-picker:hover {
