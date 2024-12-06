@@ -8,12 +8,13 @@ import HomeTeacher from '@/components/teacher/HomeTeacher.vue'
 import HomeShop from '@/components/shop/HomeShop.vue'
 import HomeFaculty from '@/components/faculty/HomeFaculty.vue'
 import HomeLibrary from '@/components/library/HomeLibrary.vue'
+import HomeExecutive from '@/components/executive/HomeExecutive.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path: '/login',
+      path: '/',
       name: 'login',
       component: Login,
     },
@@ -51,6 +52,11 @@ const router = createRouter({
       path: '/home-library',
       name: 'homeLibrary',
       component: HomeLibrary,
+    },
+    {
+      path: '/home-executive',
+      name: 'homeExecutive',
+      component: HomeExecutive,
     },
   ],
 })
