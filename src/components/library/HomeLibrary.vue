@@ -48,13 +48,12 @@ import { ref } from 'vue'
 import libraryImage from '@/assets/library.png'
 import logout from '@/assets/logout.png'
 import checklist from '@/assets/check-list.png'
-import libraryImage from '@/assets/library.png'
 import confirmBook from '@/assets/confirm-book.png'
 import checkbook from '@/assets/checkbook.png'
-import budget2 from '@/assets/budget2.png'
+import budget from '@/assets/budget2.png'
 import list from '@/assets/list.png'
-import checklist from '@/assets/check-list.png'
-import checklist from '@/assets/check-list.png'
+import addShop from '@/assets/add-shop.png'
+import store from '@/assets/store (1).png'
 
 const drawer = ref(false)
 
@@ -64,10 +63,10 @@ const items = [
   { title: 'แบบฟอร์มการเสนอหนังสือ', icon: libraryImage, link: '/book-form' },
   { title: 'สถานะการเสนอซื้อหนังสือ', icon: checklist, link: '/book-status' },
   { title: 'แบบฟอร์มการเสนอหนังสือแทน', icon: libraryImage, link: '/book-form' },
-  { title: 'ประมาณงบการซื้อหนังสือ', icon: budget2, link: '/book-status' },
+  { title: 'ประมาณงบการซื้อหนังสือ', icon: budget, link: '/book-status' },
   { title: 'รายชื่อผู้เสนอหนังสือ', icon: list, link: '/book-form' },
-  { title: 'จัดการร้านค้า', icon: checklist, link: '/book-status' },
-  { title: 'ร้านค้า', icon: checklist, link: '/book-status' },
+  { title: 'จัดการร้านค้า', icon: addShop, link: '/book-status' },
+  { title: 'ร้านค้า', icon: store, link: '/book-status' },
   { title: 'LOGOUT', icon: logout, link: '/login' },
 ]
 </script>
