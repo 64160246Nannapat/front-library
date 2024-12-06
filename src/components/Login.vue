@@ -17,6 +17,7 @@
               prepend-inner-icon="mdi-account"
               variant="outlined"
               class="mt-5 custom-field"
+              :error-messages="usernameError"
             ></v-text-field>
           </v-col>
 
@@ -33,6 +34,7 @@
               variant="outlined"
               @click:append-inner="visible = !visible"
               class="mt-2 custom-field"
+              :error-messages="passwordError"
             ></v-text-field>
           </v-col>
 
@@ -57,18 +59,25 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { setAuthData } from '@/services/authService' // Import authService เพื่อจัดการ localStorage
+import { setAuthData } from '@/services/authService'
 
 const router = useRouter() // ใช้สำหรับเปลี่ยนหน้า
 const username = ref('')
 const password = ref('')
 const visible = ref(false)
 const errorMessage = ref('')
+const usernameError = ref<string | null>(null)
+const passwordError = ref<string | null>(null)
 
 // ฟังก์ชัน Mock Login
 const login = () => {
+  usernameError.value = null
+  passwordError.value = null
+
+  // ตรวจสอบกรอกข้อมูลหรือไม่
   if (!username.value || !password.value) {
-    errorMessage.value = 'กรุณากรอกชื่อผู้ใช้และรหัสผ่าน'
+    if (!username.value) usernameError.value = 'ชื่อผู้ใช้ไม่ถูกต้อง'
+    if (!password.value) passwordError.value = 'รหัสผ่านไม่ถูกต้อง'
     return
   }
 
@@ -85,7 +94,12 @@ const login = () => {
 
   // ตรวจสอบ Username และ Password
   if (mockUsers[username.value] !== password.value) {
-    errorMessage.value = 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง'
+    if (mockUsers[username.value] === undefined) {
+      usernameError.value = 'ชื่อผู้ใช้ไม่ถูกต้อง'
+    }
+    if (mockUsers[username.value] && mockUsers[username.value] !== password.value) {
+      passwordError.value = 'รหัสผ่านไม่ถูกต้อง'
+    }
     return
   }
 
@@ -108,9 +122,6 @@ const login = () => {
     role = 'faculty'
   } else if (username.value === 'executive') {
     role = 'executive'
-  } else {
-    errorMessage.value = 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง'
-    return
   }
 
   // บันทึก Token และ Role ลงใน localStorage
@@ -196,6 +207,7 @@ const login = () => {
 .v-text-field .v-input__control {
   margin-top: 15px;
   height: 100px; /* เพิ่มความสูงให้กรอบ */
+  position: relative; /* เพิ่ม position relative เพื่อใช้กับตำแหน่งของข้อความ error */
 }
 
 .custom-field .v-input__control {
@@ -226,5 +238,18 @@ const login = () => {
   align-items: center;
   justify-content: center;
   border-radius: 15px;
+}
+
+.field-container {
+  position: relative; /* ทำให้เป็นจุดอ้างอิงสำหรับข้อความ error */
+}
+
+.error-message {
+  color: red;
+  font-size: 14px;
+  position: absolute;
+  bottom: -20px; /* ทำให้ข้อความอยู่ด้านล่างช่องกรอก */
+  left: 10px; /* ขยับข้อความให้ห่างจากขอบซ้าย */
+  white-space: nowrap; /* ป้องกันข้อความยาวเกินไป */
 }
 </style>
