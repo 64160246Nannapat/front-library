@@ -75,7 +75,7 @@ const items = [
   { title: 'จัดการร้านค้า', icon: addShop, link: '/book-status' },
   { title: 'ร้านค้า', icon: store, link: '/book-form' },
   { title: 'สรุปร้านค้า', icon: shop, link: '/book-status' },
-  { title: 'LOGOUT', icon: logout, link: '/book-status' },
+  { title: 'LOGOUT', icon: logout, link: '/' },
 ]
 </script>
 

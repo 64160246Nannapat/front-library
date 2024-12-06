@@ -57,28 +57,91 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { setAuthData } from '@/services/authService' // Import authService เพื่อจัดการ localStorage
 
-const username = ref('') // ประกาศตัวแปร username
-const password = ref('') // ประกาศตัวแปร password
+const router = useRouter() // ใช้สำหรับเปลี่ยนหน้า
+const username = ref('')
+const password = ref('')
 const visible = ref(false)
 const errorMessage = ref('')
 
-const mockUsers = [
-  { username: 'admin', password: '123456' },
-  { username: 'user1', password: 'password' },
-]
-
-const router = useRouter()
-
+// ฟังก์ชัน Mock Login
 const login = () => {
-  const user = mockUsers.find(
-    (user) => user.username === username.value && user.password === password.value,
-  )
+  if (!username.value || !password.value) {
+    errorMessage.value = 'กรุณากรอกชื่อผู้ใช้และรหัสผ่าน'
+    return
+  }
 
-  if (user) {
-    router.push('/book-form')
+  // Mock User
+  const mockUsers = {
+    student: 'password123',
+    teacher: 'password123',
+    admin: 'admin123',
+    shop: 'shop123',
+    library: 'library123',
+    faculty: 'faculty123',
+    executive: 'executive123',
+  }
+
+  // ตรวจสอบ Username และ Password
+  if (mockUsers[username.value] !== password.value) {
+    errorMessage.value = 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง'
+    return
+  }
+
+  // Mock Token และ Role
+  const token = 'mock-token-12345'
+  let role = ''
+
+  // กำหนด role ตาม username
+  if (username.value === 'student') {
+    role = 'student'
+  } else if (username.value === 'teacher') {
+    role = 'teacher'
+  } else if (username.value === 'admin') {
+    role = 'admin'
+  } else if (username.value === 'shop') {
+    role = 'shop'
+  } else if (username.value === 'library') {
+    role = 'library'
+  } else if (username.value === 'faculty') {
+    role = 'faculty'
+  } else if (username.value === 'executive') {
+    role = 'executive'
   } else {
     errorMessage.value = 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง'
+    return
+  }
+
+  // บันทึก Token และ Role ลงใน localStorage
+  setAuthData(token, role)
+
+  // เปลี่ยนเส้นทางไปยังหน้า Home ตาม Role
+  switch (role) {
+    case 'student':
+      router.push('/home-student')
+      break
+    case 'teacher':
+      router.push('/home-teacher')
+      break
+    case 'admin':
+      router.push('/home-admin')
+      break
+    case 'shop':
+      router.push('/home-shop')
+      break
+    case 'library':
+      router.push('/home-library')
+      break
+    case 'faculty':
+      router.push('/home-faculty')
+      break
+    case 'executive':
+      router.push('/home-executive')
+      break
+    default:
+      errorMessage.value = 'ไม่สามารถเข้าสู่ระบบได้'
+      return
   }
 }
 </script>

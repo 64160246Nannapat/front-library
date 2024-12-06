@@ -54,7 +54,7 @@ const drawer = ref(false)
 const items = [
   { title: 'จัดการหนังสือ', icon: book, link: '/book-form' },
   { title: 'ประวัติการขาย', icon: file, link: '/book-status' },
-  { title: 'LOGOUT', icon: logout, link: '/login' },
+  { title: 'LOGOUT', icon: logout, link: '/' },
 ]
 </script>
 

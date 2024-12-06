@@ -1,14 +1,34 @@
-// auth.ts (หรือ store/auth.ts)
-import { ref } from 'vue'
+import Vuex from 'vuex'
 
-export const isAuthenticated = ref(false) // ตัวแปรนี้ใช้เก็บสถานะการเข้าสู่ระบบ
-
-// ฟังก์ชันในการเข้าสู่ระบบ
-export const login = () => {
-  isAuthenticated.value = true
-}
-
-// ฟังก์ชันในการออกจากระบบ
-export const logout = () => {
-  isAuthenticated.value = false
-}
+export default new Vuex.Store({
+  state: {
+    token: localStorage.getItem('token') || null,
+    role: localStorage.getItem('role') || null,
+  },
+  mutations: {
+    SET_AUTH(state, { token, role }) {
+      state.token = token
+      state.role = role
+      localStorage.setItem('token', token)
+      localStorage.setItem('role', role)
+    },
+    CLEAR_AUTH(state) {
+      state.token = null
+      state.role = null
+      localStorage.removeItem('token')
+      localStorage.removeItem('role')
+    },
+  },
+  actions: {
+    login({ commit }, { token, role }) {
+      commit('SET_AUTH', { token, role })
+    },
+    logout({ commit }) {
+      commit('CLEAR_AUTH')
+    },
+  },
+  getters: {
+    isAuthenticated: (state) => !!state.token,
+    userRole: (state) => state.role,
+  },
+})

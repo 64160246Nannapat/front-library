@@ -62,7 +62,7 @@ const items = [
   { title: 'E-Coupon', icon: coupon, link: '/book-form' },
   { title: 'ประวัติการใช้คูปอง', icon: historyCoupon, link: '/book-status' },
   { title: 'สถานะการเสนอซื้อหนังสือ', icon: checklist, link: '/book-status' },
-  { title: 'LOGOUT', icon: logout, link: '/login' },
+  { title: 'LOGOUT', icon: logout, link: '/' },
 ]
 </script>
 

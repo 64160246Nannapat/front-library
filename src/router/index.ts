@@ -23,6 +23,7 @@ const router = createRouter({
       path: '/home-student',
       name: 'homestudent',
       component: HomeStudent,
+      meta: { requiresAuth: true, role: 'student' },
     },
     {
       path: '/book-form',
@@ -35,36 +36,58 @@ const router = createRouter({
       component: BookStatus,
     },
     {
-      path: '/home-teachr',
+      path: '/home-teacher',
       name: 'homeTeacher',
       component: HomeTeacher,
+      meta: { requiresAuth: true, role: 'teacher' },
     },
     {
       path: '/home-shop',
       name: 'homeShop',
       component: HomeShop,
+      meta: { requiresAuth: true, role: 'shop' },
     },
     {
       path: '/home-faculty',
       name: 'homeFaculty',
       component: HomeFaculty,
+      meta: { requiresAuth: true, role: 'faculty' },
     },
     {
       path: '/home-library',
       name: 'homeLibrary',
       component: HomeLibrary,
+      meta: { requiresAuth: true, role: 'library' },
     },
     {
       path: '/home-executive',
       name: 'homeExecutive',
       component: HomeExecutive,
+      meta: { requiresAuth: true, role: 'executive' },
     },
     {
       path: '/home-admin',
       name: 'homeAdmin',
       component: HomeAdmin,
+      meta: { requiresAuth: true, role: 'admin' },
     },
   ],
+})
+
+// Middleware ตรวจ role ก่อนเข้าสู่ระบบ
+router.beforeEach((to, from, next) => {
+  const isAuthenticated = !!localStorage.getItem('token') // ตรวจสอบ token
+  const userRole = localStorage.getItem('role') // รับ role ของผู้ใช้จาก storage
+
+  if (to.meta.requiresAuth) {
+    if (!isAuthenticated) {
+      return next({ name: 'login' })
+    }
+    if (to.meta.role && to.meta.role !== userRole) {
+      return next({ name: 'login' }) // หรือเปลี่ยนเป็นหน้า Error 403
+    }
+  }
+  next()
 })
 
 export default router

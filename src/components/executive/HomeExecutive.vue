@@ -68,7 +68,7 @@ const items = [
   { title: 'สรุปงบประมาณ', icon: salary, link: '/book-form' },
   { title: 'ร้านค้า', icon: store, link: '/book-status' },
   { title: 'สรุปร้านค้า', icon: sumShop, link: '/login' },
-  { title: 'LOGOUT', icon: logout, link: '/logout' },
+  { title: 'LOGOUT', icon: logout, link: '/' },
 ]
 </script>
 

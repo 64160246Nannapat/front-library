@@ -67,7 +67,7 @@ const items = [
   { title: 'รายชื่อผู้เสนอหนังสือ', icon: list, link: '/book-form' },
   { title: 'จัดการร้านค้า', icon: addShop, link: '/book-status' },
   { title: 'ร้านค้า', icon: store, link: '/book-status' },
-  { title: 'LOGOUT', icon: logout, link: '/login' },
+  { title: 'LOGOUT', icon: logout, link: '/' },
 ]
 </script>
 
