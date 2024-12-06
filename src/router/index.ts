@@ -9,6 +9,7 @@ import HomeShop from '@/components/shop/HomeShop.vue'
 import HomeFaculty from '@/components/faculty/HomeFaculty.vue'
 import HomeLibrary from '@/components/library/HomeLibrary.vue'
 import HomeExecutive from '@/components/executive/HomeExecutive.vue'
+import HomeAdmin from '@/components/admin/HomeAdmin.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -57,6 +58,11 @@ const router = createRouter({
       path: '/home-executive',
       name: 'homeExecutive',
       component: HomeExecutive,
+    },
+    {
+      path: '/home-admin',
+      name: 'homeAdmin',
+      component: HomeAdmin,
     },
   ],
 })
