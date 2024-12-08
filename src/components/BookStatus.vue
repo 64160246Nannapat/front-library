@@ -14,7 +14,6 @@
                 v-model="menuDate"
                 :close-on-content-click="false"
                 transition="scale-transition"
-                max-width="290px"
               >
                 <template v-slot:activator="{ on, props }">
                   <v-text-field

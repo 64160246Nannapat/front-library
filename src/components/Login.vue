@@ -16,7 +16,7 @@
               placeholder="username"
               prepend-inner-icon="mdi-account"
               variant="outlined"
-              class="mt-5 custom-field"
+              class="mt-16 custom-field custom-usepass"
               :error-messages="usernameError"
             ></v-text-field>
           </v-col>
@@ -29,27 +29,30 @@
               :append-inner-icon="visible ? 'mdi-eye-off' : 'mdi-eye'"
               :type="visible ? 'text' : 'password'"
               density="compact"
-              placeholder="password"
               prepend-inner-icon="mdi-lock"
               variant="outlined"
               @click:append-inner="visible = !visible"
-              class="mt-2 custom-field"
+              class="custom-field custom-usepass mg-ps"
               :error-messages="passwordError"
             ></v-text-field>
           </v-col>
 
-          <v-btn
-            class="mb-8 custom-btn"
-            style="width: 40px; height: 50px"
-            variant="tonal"
-            block
-            @click="login"
-          >
-            Log In
-          </v-btn>
-          <v-text style="text-align: center; color: #a87e60">
-            ***USERNAME และ PASSWORD ที่เข้าใช้เครือข่ายอินเทอร์เน็ตของมหาวิทยาลัย***
-          </v-text>
+          <v-col cols="8">
+            <v-btn
+              height="50px"
+              class="mb-8 custom-btn custom-login"
+              variant="tonal"
+              block
+              @click="login"
+            >
+              Log In
+            </v-btn>
+          </v-col>
+          <v-col>
+            <v-text class="custom-text" style="color: #a87e60">
+              ***USERNAME และ PASSWORD ที่เข้าใช้เครือข่ายอินเทอร์เน็ตของมหาวิทยาลัย***
+            </v-text>
+          </v-col>
         </v-row>
       </div>
     </div>
@@ -85,11 +88,11 @@ const login = () => {
   const mockUsers = {
     student: 'password123',
     teacher: 'password123',
-    admin: 'admin123',
-    shop: 'shop123',
-    library: 'library123',
-    faculty: 'faculty123',
-    executive: 'executive123',
+    admin: 'password123',
+    shop: 'password123',
+    library: 'password123',
+    faculty: 'password123',
+    executive: 'password123',
   }
 
   // ตรวจสอบ Username และ Password
@@ -177,7 +180,7 @@ const login = () => {
   max-width: 800px; /* เพิ่มขนาดสูงสุดของรูปภาพ */
   width: 100%; /* ให้รูปภาพขยายเต็มความกว้างของคอนเทนเนอร์ */
   height: auto; /* รักษาสัดส่วนของรูป */
-  margin-right: 30px; /* เพิ่มระยะห่างจากข้อความ */
+  margin-left: 250px; /* เพิ่มระยะห่างจากข้อความ */
 }
 
 .heading-container {
@@ -214,6 +217,25 @@ const login = () => {
   width: 400px; /* ปรับความกว้างกรอบให้เท่ากับความยาวของข้อความ Book Suggestion for Purchase */
   height: 100px; /* เพิ่มความสูงให้กรอบ */
 }
+.custom-usepass {
+  margin-left: 180px;
+  width: 500px; /* ปรับความกว้างกรอบให้เท่ากับความยาวของข้อความ Book Suggestion for Purchase */
+  height: 100px; /* เพิ่มความสูงให้กรอบ */
+}
+
+.custom-login {
+  width: 200px; /* ปรับความกว้างกรอบให้เท่ากับความยาวของข้อความ Book Suggestion for Purchase */
+  height: 100px; /* เพิ่มความสูงให้กรอบ */
+  margin-left: 180px;
+}
+
+.custom-text {
+  margin-left: 270px;
+}
+
+.mg-ps {
+  margin-top: -50px;
+}
 
 .custom-field .v-input__slot {
   height: 100%; /* ทำให้กรอบกรอกข้อมูลเต็มความสูง */
@@ -227,8 +249,7 @@ const login = () => {
 }
 
 .custom-btn {
-  width: 40px;
-  height: 50px;
+  width: 50px;
   font-size: 20px;
   font-weight: bold;
   background-color: #f3beba;
