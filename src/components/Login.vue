@@ -18,6 +18,9 @@
               class="mt-16 custom-field custom-usepass"
               :error-messages="usernameError"
             ></v-text-field>
+            <div v-if="usernameError" class="error-message">
+              {{ usernameError }}
+            </div>
           </v-col>
 
           <!-- Password -->
@@ -34,6 +37,9 @@
               class="custom-field custom-usepass mg-ps"
               :error-messages="passwordError"
             ></v-text-field>
+            <div v-if="passwordError" class="error-message">
+              {{ passwordError }}
+            </div>
           </v-col>
 
           <v-col cols="8">
@@ -100,11 +106,18 @@ const login = () => {
   if (mockUsers[username.value] !== password.value) {
     if (mockUsers[username.value] === undefined) {
       usernameError.value = 'ชื่อผู้ใช้ไม่ถูกต้อง'
+      passwordError.value = 'รหัสผ่านไม่ถูกต้อง'
+      username.value = ''
+      password.value = ''
     }
     if (mockUsers[username.value] && mockUsers[username.value] !== password.value) {
       passwordError.value = 'รหัสผ่านไม่ถูกต้อง'
+      password.value = ''
     }
-    return
+
+    if (usernameError.value || passwordError.value) {
+      return
+    }
   }
 
   // Mock Token และ Role
@@ -112,52 +125,38 @@ const login = () => {
   let role = ''
 
   // กำหนด role ตาม username
-  if (username.value === 'student') {
-    role = 'student'
-  } else if (username.value === 'teacher') {
-    role = 'teacher'
-  } else if (username.value === 'admin') {
-    role = 'admin'
-  } else if (username.value === 'shop') {
-    role = 'shop'
-  } else if (username.value === 'library') {
-    role = 'library'
-  } else if (username.value === 'faculty') {
-    role = 'faculty'
-  } else if (username.value === 'executive') {
-    role = 'executive'
+  switch (username.value) {
+    case 'student':
+      role = 'student'
+      break
+    case 'teacher':
+      role = 'teacher'
+      break
+    case 'admin':
+      role = 'admin'
+      break
+    case 'shop':
+      role = 'shop'
+      break
+    case 'library':
+      role = 'library'
+      break
+    case 'faculty':
+      role = 'faculty'
+      break
+    case 'executive':
+      role = 'executive'
+      break
+    default:
+      errorMessage.value = 'ไม่สามารถเข้าสู่ระบบได้'
+      return
   }
 
   // บันทึก Token และ Role ลงใน localStorage
   setAuthData(token, role)
 
   // เปลี่ยนเส้นทางไปยังหน้า Home ตาม Role
-  switch (role) {
-    case 'student':
-      router.push('/home-student')
-      break
-    case 'teacher':
-      router.push('/home-teacher')
-      break
-    case 'admin':
-      router.push('/home-admin')
-      break
-    case 'shop':
-      router.push('/home-shop')
-      break
-    case 'library':
-      router.push('/home-library')
-      break
-    case 'faculty':
-      router.push('/home-faculty')
-      break
-    case 'executive':
-      router.push('/home-executive')
-      break
-    default:
-      errorMessage.value = 'ไม่สามารถเข้าสู่ระบบได้'
-      return
-  }
+  router.push(`/home-${role}`)
 }
 </script>
 
@@ -214,6 +213,7 @@ const login = () => {
   height: 100%; /* เพิ่มความสูงให้กรอบ */
   position: relative;
   align-items: center;
+  justify-content: center;
 }
 
 .custom-field .v-input__control {
@@ -251,7 +251,7 @@ const login = () => {
 /* ข้อความในช่องกรอก */
 .v-text-field input {
   height: 100%;
-  padding: 0;
+  padding: 0 16px;
   margin: 0;
   display: flex;
   align-items: center;
@@ -259,6 +259,7 @@ const login = () => {
   padding-left: 40px;
   box-sizing: border-box;
   font-size: 18px; /* ปรับขนาดตัวอักษรให้ชัดเจน */
+  line-height: normal;
 }
 
 .custom-btn {
@@ -281,8 +282,9 @@ const login = () => {
   color: red;
   font-size: 14px;
   position: absolute;
-  bottom: -5px;
+  top: 100%;
   left: 0;
+  margin-top: 2px;
   text-align: left;
   white-space: nowrap; /* ป้องกันข้อความยาวเกินไป */
 }
