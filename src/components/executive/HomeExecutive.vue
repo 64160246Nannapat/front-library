@@ -11,7 +11,7 @@
     <v-toolbar-items class="d-flex align-center">
       <div class="d-flex flex-column align-end" style="margin-right: 20px">
         <span class="name">นันท์ณภัทร สอนสุภาพ</span>
-        <span class="position" style="margin-top: 5px">วิทยาการสารสนเทศ</span>
+        <span class="position" style="margin-top: 5px">ผู้บริหาร</span>
       </div>
     </v-toolbar-items>
   </v-app-bar>
