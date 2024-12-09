@@ -2,7 +2,7 @@
   <v-main class="pink-background">
     <div class="container">
       <img class="image" src="@/assets/login.png" alt="Login Image" />
-      <div class="heading-container">
+      <div class="text">
         <div class="heading">Book Suggestion for Purchase</div>
         <div class="subheading">Burapha University</div>
 
@@ -13,7 +13,6 @@
               label="Username"
               v-model="username"
               density="compact"
-              placeholder="username"
               prepend-inner-icon="mdi-account"
               variant="outlined"
               class="mt-16 custom-field custom-usepass"
@@ -39,6 +38,7 @@
 
           <v-col cols="8">
             <v-btn
+              width="20px"
               height="50px"
               class="mb-8 custom-btn custom-login"
               variant="tonal"
@@ -48,6 +48,7 @@
               Log In
             </v-btn>
           </v-col>
+
           <v-col>
             <v-text class="custom-text" style="color: #a87e60">
               ***USERNAME และ PASSWORD ที่เข้าใช้เครือข่ายอินเทอร์เน็ตของมหาวิทยาลัย***
@@ -177,22 +178,23 @@ const login = () => {
 }
 
 .image {
-  max-width: 800px; /* เพิ่มขนาดสูงสุดของรูปภาพ */
+  max-width: 1200px; /* เพิ่มขนาดสูงสุดของรูปภาพ */
   width: 100%; /* ให้รูปภาพขยายเต็มความกว้างของคอนเทนเนอร์ */
   height: auto; /* รักษาสัดส่วนของรูป */
-  margin-left: 250px; /* เพิ่มระยะห่างจากข้อความ */
+  margin-left: 200px; /* เพิ่มระยะห่างจากข้อความ */
 }
 
-.heading-container {
+.text {
   display: flex;
   flex-direction: column; /* เรียงข้อความให้เป็นคอลัมน์ */
   align-items: center; /* จัดให้อยู่กลางในแนวนอน */
   justify-content: center; /* จัดให้อยู่กลางในแนวตั้ง */
   text-align: center; /* จัดข้อความให้อยู่กลาง */
+  margin-right: 120px;
 }
 
 .heading {
-  font-size: 38px;
+  font-size: 50px;
   font-weight: bold;
   color: #d6bd98;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
@@ -200,7 +202,7 @@ const login = () => {
 }
 
 .subheading {
-  font-size: 30px;
+  font-size: 40px;
   font-weight: bold;
   color: #d6bd98;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
@@ -208,9 +210,10 @@ const login = () => {
 }
 
 .v-text-field .v-input__control {
-  margin-top: 15px;
-  height: 100px; /* เพิ่มความสูงให้กรอบ */
-  position: relative; /* เพิ่ม position relative เพื่อใช้กับตำแหน่งของข้อความ error */
+  display: flex;
+  height: 100%; /* เพิ่มความสูงให้กรอบ */
+  position: relative;
+  align-items: center;
 }
 
 .custom-field .v-input__control {
@@ -219,42 +222,51 @@ const login = () => {
 }
 .custom-usepass {
   margin-left: 180px;
-  width: 500px; /* ปรับความกว้างกรอบให้เท่ากับความยาวของข้อความ Book Suggestion for Purchase */
+  width: 600px; /* ปรับความกว้างกรอบให้เท่ากับความยาวของข้อความ Book Suggestion for Purchase */
   height: 100px; /* เพิ่มความสูงให้กรอบ */
 }
 
 .custom-login {
-  width: 200px; /* ปรับความกว้างกรอบให้เท่ากับความยาวของข้อความ Book Suggestion for Purchase */
-  height: 100px; /* เพิ่มความสูงให้กรอบ */
   margin-left: 180px;
 }
 
 .custom-text {
   margin-left: 270px;
+  display: flex;
+  flex-direction: column; /* เรียงข้อความให้เป็นคอลัมน์ */
+  align-items: center; /* จัดให้อยู่กลางในแนวนอน */
+  justify-content: center; /* จัดให้อยู่กลางในแนวตั้ง */
+  text-align: center; /* จัดข้อความให้อยู่กลาง */
+  margin-right: 300px;
 }
 
 .mg-ps {
-  margin-top: -50px;
+  margin-top: -20px;
 }
 
 .custom-field .v-input__slot {
   height: 100%; /* ทำให้กรอบกรอกข้อมูลเต็มความสูง */
 }
 
+/* ข้อความในช่องกรอก */
 .v-text-field input {
-  height: 100%; /* ให้กรอกข้อมูลเต็มกรอบ */
-  padding-top: 20; /* เอาระยะห่างบนออก */
-  font-size: 18px; /* ปรับขนาดตัวอักษร */
-  text-align: center; /* ทำให้ข้อความอยู่กลางกรอบ */
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  text-align: center;
+  padding-left: 40px;
+  box-sizing: border-box;
+  font-size: 18px; /* ปรับขนาดตัวอักษรให้ชัดเจน */
 }
 
 .custom-btn {
-  width: 50px;
   font-size: 20px;
   font-weight: bold;
   background-color: #f3beba;
   color: #ffffff;
-  text-transform: uppercase;
+  text-transform: uppercase; /* ให่ตัวอักษรเป็นพิมพ์ใหญ่หมด */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -269,8 +281,9 @@ const login = () => {
   color: red;
   font-size: 14px;
   position: absolute;
-  bottom: -20px; /* ทำให้ข้อความอยู่ด้านล่างช่องกรอก */
-  left: 10px; /* ขยับข้อความให้ห่างจากขอบซ้าย */
+  bottom: -5px;
+  left: 0;
+  text-align: left;
   white-space: nowrap; /* ป้องกันข้อความยาวเกินไป */
 }
 </style>
