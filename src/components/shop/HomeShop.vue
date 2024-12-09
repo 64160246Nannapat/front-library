@@ -52,7 +52,7 @@ import logout from '@/assets/logout.png'
 const drawer = ref(false)
 
 const items = [
-  { title: 'จัดการหนังสือ', icon: book, link: '/book-form' },
+  { title: 'จัดการหนังสือ', icon: book, link: '/manage-book' },
   { title: 'ประวัติการขาย', icon: file, link: '/book-status' },
   { title: 'LOGOUT', icon: logout, link: '/' },
 ]

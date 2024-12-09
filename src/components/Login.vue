@@ -15,7 +15,7 @@
               density="compact"
               prepend-inner-icon="mdi-account"
               variant="outlined"
-              class="mt-16 custom-field custom-usepass"
+              class="mt-16 custom-field custom-usepass text-justify"
               :error-messages="usernameError"
             ></v-text-field>
             <div v-if="usernameError" class="error-message">
@@ -24,7 +24,7 @@
           </v-col>
 
           <!-- Password -->
-          <v-col cols="12">
+          <v-col cols="12" style="text-align: center">
             <v-text-field
               label="Password"
               v-model="password"
@@ -44,7 +44,7 @@
 
           <v-col cols="8">
             <v-btn
-              width="20px"
+              width="50px"
               height="50px"
               class="mb-8 custom-btn custom-login"
               variant="tonal"
@@ -209,11 +209,11 @@ const login = () => {
 }
 
 .v-text-field .v-input__control {
-  display: flex;
-  height: 100%; /* เพิ่มความสูงให้กรอบ */
-  position: relative;
-  align-items: center;
-  justify-content: center;
+  display: flex; /* ใช้ flexbox สำหรับจัดตำแหน่ง */
+  align-items: center; /* จัดให้อยู่กึ่งกลางแนวตั้ง */
+  height: 100%; /* ความสูงของช่อง */
+  padding: 0 16px; /* ระยะห่างจากขอบซ้ายและขวา */
+  box-sizing: border-box; /* ใช้ box-sizing เพื่อควบคุมขนาด */
 }
 
 .custom-field .v-input__control {
@@ -227,7 +227,7 @@ const login = () => {
 }
 
 .custom-login {
-  margin-left: 180px;
+  margin-left: 170px;
 }
 
 .custom-text {
@@ -250,16 +250,16 @@ const login = () => {
 
 /* ข้อความในช่องกรอก */
 .v-text-field input {
-  height: 100%;
-  padding: 0 16px;
-  margin: 0;
+  height: auto; /* ปรับให้พอดีกับเนื้อหา */
+  margin: 0; /* ยกเลิกระยะขอบ */
   display: flex;
-  align-items: center;
-  text-align: center;
-  padding-left: 40px;
-  box-sizing: border-box;
-  font-size: 18px; /* ปรับขนาดตัวอักษรให้ชัดเจน */
-  line-height: normal;
+  align-items: center; /* จัดให้อยู่กึ่งกลางแนวตั้ง */
+  font-size: 16px; /* ปรับขนาดตัวอักษร */
+  line-height: normal; /* ปรับ line-height */
+}
+
+.text-justify {
+  justify-content: center;
 }
 
 .custom-btn {
@@ -272,6 +272,11 @@ const login = () => {
   align-items: center;
   justify-content: center;
   border-radius: 15px;
+}
+
+.custom-btn input {
+  text-align: center;
+  align-items: center;
 }
 
 .field-container {

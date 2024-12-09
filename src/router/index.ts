@@ -10,6 +10,7 @@ import HomeFaculty from '@/components/faculty/HomeFaculty.vue'
 import HomeLibrary from '@/components/library/HomeLibrary.vue'
 import HomeExecutive from '@/components/executive/HomeExecutive.vue'
 import HomeAdmin from '@/components/admin/HomeAdmin.vue'
+import ManageBook from '@/components/shop/ManageBook.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -70,6 +71,11 @@ const router = createRouter({
       name: 'homeAdmin',
       component: HomeAdmin,
       meta: { requiresAuth: true, role: 'admin' },
+    },
+    {
+      path: '/manage-book',
+      name: 'manageBook',
+      component: ManageBook,
     },
   ],
 })
