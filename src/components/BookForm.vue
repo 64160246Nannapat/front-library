@@ -168,7 +168,11 @@
           </div>
 
           <!-- ปุ่ม -->
-          <v-btn class="custom-btn mt-4 confirm-btn" :color="'pink'" @click="submitForm">
+          <v-btn
+            class="mt-4 confirm-btn confirm-btnheight"
+            style="background-color: #eed3d9"
+            @click="submitForm"
+          >
             ยืนยัน
           </v-btn>
         </v-form>
@@ -279,6 +283,7 @@ h1 {
   display: flex;
   align-items: center;
   margin-bottom: 16px;
+  font-size: 18px;
 }
 
 .form-row label {
@@ -294,14 +299,18 @@ h1 {
 }
 
 .confirm-btn {
-  width: 200px;
-  height: 50px;
-  font-size: 16px;
+  font-size: 20px;
+  font-weight: bold;
   text-align: center;
   justify-content: center;
   display: flex;
   align-items: center;
   margin-left: auto;
   transition: background-color 0.3s ease; /* เพิ่ม transition เพื่อเปลี่ยนสีที่เรียบง่าย */
+}
+
+.confirm-btnheight {
+  width: 150px;
+  height: 200px;
 }
 </style>

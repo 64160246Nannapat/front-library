@@ -10,11 +10,13 @@
 
           <v-row align="center" class="date-status-row" justify="end">
             <v-col cols="auto">
+              <!-- ที่อยู่ตาราง -->
               <v-menu
                 v-model="menuDate"
                 :close-on-content-click="false"
                 transition="scale-transition"
               >
+                <!-- รูปแบบกรอบ input วันที่-->
                 <template v-slot:activator="{ on, props }">
                   <v-text-field
                     v-bind="props"
@@ -22,9 +24,10 @@
                     v-model="selectedDate"
                     placeholder="dd/mm/yyyy"
                     readonly
-                    class="custom-date-picker"
+                    class="custom-date-picker custom-width"
                   />
                 </template>
+                <!-- ตารางวันที่ -->
                 <v-date-picker
                   v-model="selectedDate"
                   @input="menuDate = false"
@@ -137,42 +140,64 @@ h1 {
   margin-bottom: 20px;
 }
 
+/* เลือกวันที่และข้อมูลในตารางวันที่*/
 .custom-date-picker {
-  max-width: 500px; /* ขยายความกว้างสูงสุดของกรอบ */
-  width: 100%; /* ทำให้กรอบขยายเต็มที่ตามพื้นที่ที่กำหนด */
-  height: 60px; /* ความสูงของกรอบ */
   border: 2px solid #000; /* กรอบสีดำ */
   border-radius: 12px; /* มุมโค้ง */
   background-color: #fff; /* พื้นหลังขาว */
   cursor: pointer;
-  font-size: 18px; /* ขนาดฟอนต์ */
-  padding: 10px 20px; /* เพิ่มพื้นที่ภายในกรอบ */
+  font-size: 18px;
   box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.3s ease;
+  overflow: visible;
+  padding-left: 10px;
+}
+
+.custom-width {
+  width: 250px;
 }
 
 .custom-date-picker:hover {
   border-color: #707478; /* เปลี่ยนสีกรอบตอนชี้ */
 }
 
+/* ข้อความในกรอบ */
 .custom-date-picker input {
-  font-size: 16px; /* ขนาดข้อความ */
+  font-size: 18px; /* ขนาดข้อความ */
   border: none; /* ลบเส้นขอบของ input */
   outline: none; /* ลบเส้นโฟกัส */
   width: 100%; /* ให้ข้อความใช้พื้นที่เต็ม */
   height: 100%; /* ให้ข้อความครอบคลุมความสูง */
-  text-align: center; /* จัดข้อความให้อยู่ตรงกลาง */
-  background-color: transparent; /* พื้นหลังโปร่งใส */
+  text-align: center; /* จัดข้อความให้อยู่กลาง */
+  background-color: transparent;
+  white-space: nowrap; /* ป้องกันการหักบรรทัด */
+  overflow: visible; /* ป้องกันการแสดงข้อความเกินกรอบ */
+  padding: 0; /* ลบระยะห่างใน input */
 }
 
+.custom-textdate {
+  font-size: 20px; /* ขนาดข้อความ */
+  border: none; /* ลบเส้นขอบ */
+  outline: none; /* ลบเส้นโฟกัส */
+  width: 100%; /* ให้ข้อความใช้พื้นที่เต็ม */
+  height: 100%; /* ให้ข้อความครอบคลุมความสูง */
+  text-align: center; /* จัดข้อความให้อยู่กลาง */
+  background-color: transparent;
+  white-space: normal; /* ป้องกันการหักบรรทัด */
+  overflow: visible;
+}
+
+/* ตาราง */
 .v-simple-table {
-  width: 100%;
-  max-height: 600px;
-  overflow: auto;
+  width: 100%; /* ขยายตารางให้เต็มความกว้างคอนเทนเนอร์ */
+  max-width: 100%; /* กำหนดให้ไม่เกินความกว้างของหน้าจอ */
+  margin: 0 auto; /* จัดตารางให้อยู่กลางหน้าจอ */
   font-size: 18px;
+  border-collapse: collapse; /* รวมเส้นขอบตาราง */
+  overflow-x: auto;
 }
 
 th,
