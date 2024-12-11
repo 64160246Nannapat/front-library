@@ -9,6 +9,19 @@
           <h1>แบบฟอร์มการเสนอหนังสือ</h1>
         </div>
         <v-form ref="bookForm" v-model="valid">
+          <!-- คำนำหน้าชื่อ -->
+          <div class="form-row">
+            <label for="name">คำนำหน้า:</label>
+            <v-text-field
+              id="name"
+              v-model="formData.Prefix"
+              :rules="[rules.required]"
+              variant="outlined"
+              class="text-feild-top"
+              dense
+            ></v-text-field>
+          </div>
+
           <!-- ชื่อ -->
           <div class="form-row">
             <label for="name">ชื่อผู้เสนอ:</label>
@@ -16,7 +29,8 @@
               id="name"
               v-model="formData.Name"
               :rules="[rules.required]"
-              outlined
+              variant="outlined"
+              class="text-feild-top"
               dense
             ></v-text-field>
           </div>
@@ -29,7 +43,8 @@
               v-model="formData.Role"
               :items="roles"
               :rules="[rules.required]"
-              outlined
+              variant="outlined"
+              class="text-feild-top"
               dense
             ></v-select>
           </div>
@@ -41,7 +56,8 @@
               id="faculty"
               v-model="formData.Faculty"
               :rules="[rules.required]"
-              outlined
+              variant="outlined"
+              class="text-feild-top"
               dense
             ></v-text-field>
           </div>
@@ -53,7 +69,8 @@
               id="course"
               v-model="formData.Course"
               :rules="[rules.required]"
-              outlined
+              variant="outlined"
+              class="text-feild-top"
               dense
             ></v-text-field>
           </div>
@@ -65,7 +82,8 @@
               id="phone"
               v-model="formData.Phone"
               :rules="[rules.required, rules.phone]"
-              outlined
+              variant="outlined"
+              class="text-feild-top"
               dense
             ></v-text-field>
           </div>
@@ -77,7 +95,8 @@
               id="email"
               v-model="formData.Email"
               :rules="[rules.required, rules.email]"
-              outlined
+              variant="outlined"
+              class="text-feild-top"
               dense
             ></v-text-field>
           </div>
@@ -90,7 +109,8 @@
               v-model="formData.Store"
               :items="stores"
               :rules="[rules.required]"
-              outlined
+              variant="outlined"
+              class="text-feild-top"
               dense
             ></v-select>
           </div>
@@ -102,7 +122,8 @@
               id="title"
               v-model="formData.Title"
               :rules="[rules.required]"
-              outlined
+              variant="outlined"
+              class="text-feild-top"
               dense
             ></v-text-field>
           </div>
@@ -110,13 +131,25 @@
           <!-- ผู้แต่ง -->
           <div class="form-row">
             <label for="author">ผู้ชื่อแต่ง:</label>
-            <v-text-field id="author" v-model="formData.Author" outlined dense></v-text-field>
+            <v-text-field
+              id="author"
+              v-model="formData.Author"
+              variant="outlined"
+              class="text-feild-top"
+              dense
+            ></v-text-field>
           </div>
 
           <!-- ปีพิมพ์ -->
           <div class="form-row">
             <label for="year">ปีพิมพ์:</label>
-            <v-text-field id="year" v-model="formData.Year" outlined dense></v-text-field>
+            <v-text-field
+              id="year"
+              v-model="formData.Year"
+              variant="outlined"
+              class="text-feild-top"
+              dense
+            ></v-text-field>
           </div>
 
           <!-- ISBN -->
@@ -126,7 +159,8 @@
               id="isbn"
               v-model="formData.isbn"
               :rules="[rules.required, rules.isbn]"
-              outlined
+              variant="outlined"
+              class="text-feild-top"
               dense
             ></v-text-field>
           </div>
@@ -137,8 +171,9 @@
             <v-text-field
               id="subject"
               v-model="formData.Subject"
-              :rules="[rules.number]"
-              outlined
+              :rules="[rules.required]"
+              variant="outlined"
+              class="text-feild-top"
               dense
             ></v-text-field>
           </div>
@@ -146,13 +181,14 @@
           <!-- ราคาสุทธิ -->
           <div class="form-row">
             <label for="price">ราคาสุทธิ:</label>
-            <v-select
+            <v-text-field
               id="price"
               v-model="formData.Price"
               :rules="[rules.required, rules.number]"
-              outlined
+              variant="outlined"
+              class="text-feild-top"
               dense
-            ></v-select>
+            ></v-text-field>
           </div>
 
           <!-- จำนวนเล่ม -->
@@ -162,13 +198,15 @@
               id="count"
               v-model="formData.Count"
               :rules="[rules.required, rules.number]"
-              outlined
+              variant="outlined"
+              class="text-feild-top"
               dense
             ></v-text-field>
           </div>
 
           <!-- ปุ่ม -->
           <v-btn
+            elevation="8"
             class="mt-4 confirm-btn confirm-btnheight"
             style="background-color: #eed3d9"
             @click="submitForm"
@@ -187,6 +225,7 @@ import HomeStudent from '@/components/student/HomeStudent.vue'
 
 // ข้อมูลในฟอร์ม
 const formData = ref({
+  Prefix: '',
   Name: '',
   Role: '',
   Faculty: '',
@@ -223,6 +262,7 @@ const submitForm = () => {
 
     // ล้างข้อมูลฟอร์มหลังจากการส่ง
     formData.value = {
+      Prefix: '',
       Name: '',
       Role: '',
       Faculty: '',
@@ -283,14 +323,22 @@ h1 {
   display: flex;
   align-items: center;
   margin-bottom: 16px;
-  font-size: 18px;
+  font-size: 20px;
+  justify-content: space-between;
 }
 
 .form-row label {
   min-width: 120px; /* กำหนดความกว้างขั้นต่ำให้ข้อความ */
   margin-right: 10px;
   font-weight: bold;
-  text-align: right;
+  text-align: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+.text-feild-top {
+  margin-top: 20px;
+  min-height: 50px;
 }
 
 .v-text-field,

@@ -3,7 +3,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import BookForm from '../components/BookForm.vue'
 import BookStatus from '@/components/BookStatus.vue'
 import HomeStudent from '@/components/student/HomeStudent.vue'
-import Login from '@/components/Login.vue'
+import Login from '@/views/LoginView.vue'
 import HomeTeacher from '@/components/teacher/HomeTeacher.vue'
 import HomeShop from '@/components/shop/HomeShop.vue'
 import HomeFaculty from '@/components/faculty/HomeFaculty.vue'
@@ -11,6 +11,7 @@ import HomeLibrary from '@/components/library/HomeLibrary.vue'
 import HomeExecutive from '@/components/executive/HomeExecutive.vue'
 import HomeAdmin from '@/components/admin/HomeAdmin.vue'
 import ManageBook from '@/components/shop/ManageBook.vue'
+import LoginView2 from '@/views/LoginView2.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -80,20 +81,20 @@ const router = createRouter({
   ],
 })
 
-// Middleware ตรวจ role ก่อนเข้าสู่ระบบ
-router.beforeEach((to, from, next) => {
-  const isAuthenticated = !!localStorage.getItem('token') // ตรวจสอบ token
-  const userRole = localStorage.getItem('role') // รับ role ของผู้ใช้จาก storage
+// // Middleware ตรวจ role ก่อนเข้าสู่ระบบ
+// router.beforeEach((to, from, next) => {
+//   const isAuthenticated = !!localStorage.getItem('token') // ตรวจสอบ token
+//   const userRole = localStorage.getItem('role') // รับ role ของผู้ใช้จาก storage
 
-  if (to.meta.requiresAuth) {
-    if (!isAuthenticated) {
-      return next({ name: 'login' })
-    }
-    if (to.meta.role && to.meta.role !== userRole) {
-      return next({ name: 'login' }) // หรือเปลี่ยนเป็นหน้า Error 403
-    }
-  }
-  next()
-})
+//   if (to.meta.requiresAuth) {
+//     if (!isAuthenticated) {
+//       return next({ name: 'login' })
+//     }
+//     if (to.meta.role && to.meta.role !== userRole) {
+//       return next({ name: 'login' }) // หรือเปลี่ยนเป็นหน้า Error 403
+//     }
+//   }
+//   next()
+// })
 
 export default router
