@@ -34,7 +34,7 @@
               prepend-inner-icon="mdi-lock"
               variant="outlined"
               @click:append-inner="visible = !visible"
-              class="custom-field custom-usepass mg-ps"
+              class="custom-field custom-usepass mg-ps text-justify"
               :error-messages="passwordError"
             ></v-text-field>
             <div v-if="passwordError" class="error-message">
@@ -210,11 +210,16 @@ const login = () => {
 }
 
 .v-text-field .v-input__control {
-  display: flex; /* ใช้ flexbox สำหรับจัดตำแหน่ง */
-  align-items: center; /* จัดให้อยู่กึ่งกลางแนวตั้ง */
-  height: 100%; /* ความสูงของช่อง */
-  padding: 0 16px; /* ระยะห่างจากขอบซ้ายและขวา */
-  box-sizing: border-box; /* ใช้ box-sizing เพื่อควบคุมขนาด */
+  display: flex; /* ใช้ flexbox */
+  align-items: center; /* จัดให้อยู่ตรงกลางแนวตั้ง */
+  justify-content: center; /* จัดให้อยู่ตรงกลางแนวนอน */
+  height: 56px; /* ปรับความสูงให้พอดี */
+  box-sizing: border-box; /* ให้ขนาดรวม padding */
+}
+
+.v-input__prepend-inner {
+  display: flex;
+  align-items: center;
 }
 
 .custom-field .v-input__control {
@@ -229,6 +234,12 @@ const login = () => {
 
 .custom-login {
   margin-left: 170px;
+}
+
+.felid-text input {
+  align-items: center;
+  text-align: center;
+  justify-content: center;
 }
 
 .custom-text {
@@ -261,6 +272,7 @@ const login = () => {
 
 .text-justify {
   justify-content: center;
+  margin-top: 2px;
 }
 
 .custom-btn {

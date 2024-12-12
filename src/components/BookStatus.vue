@@ -178,6 +178,10 @@ h1 {
   padding: 0; /* ลบระยะห่างใน input */
 }
 
+.v-date input {
+  outline: none;
+}
+
 .custom-textdate {
   font-size: 20px; /* ขนาดข้อความ */
   border: none; /* ลบเส้นขอบ */

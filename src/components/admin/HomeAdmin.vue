@@ -65,7 +65,7 @@ const items = [
   { title: 'จัดการเสนอซื้อหนังสือ', icon: confirmBook, link: '/book-form' },
   { title: 'ตรวจสอบหนังสือ', icon: checkbook, link: '/book-status' },
   { title: 'แบบฟอร์มการเสนอหนังสือ', icon: libraryImage, link: '/book-form' },
-  { title: 'สถานะการเสนอซื้อหนังสือ', icon: checklist, link: '/book-status' },
+  { title: 'สถานะการเสนอซื้อหนังสือ', icon: checklist, link: '/book-form' },
   { title: 'แบบฟอร์มการเสนอหนังสือแทน', icon: libraryImage, link: '/book-form' },
   { title: 'จัดการงบประมาณ', icon: pieChart, link: '/book-status' },
   { title: 'สรุปงบประมาณ', icon: salary, link: '/book-form' },
