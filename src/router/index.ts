@@ -12,6 +12,7 @@ import HomeExecutive from '@/components/executive/HomeExecutive.vue'
 import HomeAdmin from '@/components/admin/HomeAdmin.vue'
 import ManageBook from '@/components/shop/ManageBook.vue'
 import Coupon from '@/components/Coupon.vue'
+import HistoryCoupon from '@/components/HistoryCoupon.vue'
 import LoginView2 from '@/views/LoginView2.vue'
 
 const router = createRouter({
@@ -83,6 +84,11 @@ const router = createRouter({
       path: '/coupon',
       name: 'coupon',
       component: Coupon,
+    },
+    {
+      path: '/history-coupon',
+      name: 'historyCoupon',
+      component: HistoryCoupon,
     },
   ],
 })
