@@ -54,7 +54,7 @@ import historyCoupon from '@/assets/history-coupon.png'
 const drawer = ref(false)
 
 const items = [
-  { title: 'E-Coupon', icon: coupon, link: '/book-form' },
+  { title: 'E-Coupon', icon: coupon, link: '/coupon' },
   { title: 'ประวัติการใช้คูปอง', icon: historyCoupon, link: '/book-status' },
   { title: 'แบบฟอร์มการเสนอหนังสือ', icon: libraryImage, link: '/book-form' },
   { title: 'สถานะการเสนอซื้อหนังสือ', icon: checklist, link: '/book-status' },
