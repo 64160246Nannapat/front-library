@@ -50,6 +50,7 @@ import logout from '@/assets/logout.png'
 import checklist from '@/assets/check-list.png'
 import coupon from '@/assets/coupon.png'
 import historyCoupon from '@/assets/history-coupon.png'
+import '@/assets/fonts.css'
 
 const drawer = ref(false)
 

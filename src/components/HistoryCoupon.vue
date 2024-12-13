@@ -191,16 +191,19 @@ h1 {
 
 /* ตาราง */
 .v-simple-table {
-  margin: 0 auto; /* จัดตารางให้อยู่กลางหน้าจอ */
-  font-size: 18px;
-  border-collapse: collapse; /* รวมเส้นขอบตาราง */
-  overflow-x: auto;
+  width: auto; /* ให้ตารางขยายตามเนื้อหา */
+  max-width: 80%; /* จำกัดขนาดสูงสุด */
+  margin: 0 auto; /* จัดให้อยู่กลาง */
+  border-radius: 8px; /* มุมโค้ง */
+  overflow: hidden; /* ป้องกันการล้น */
 }
 
 th,
 td {
   padding: 16px;
   text-align: left;
+  text-align: center; /* จัดข้อความในตารางให้อยู่ตรงกลาง */
+  vertical-align: middle; /* จัดให้อยู่กลางในแนวตั้ง */
 }
 
 th {
@@ -210,5 +213,7 @@ th {
 
 .table-width {
   width: 200px;
+  align-items: center; /* จัดให้อยู่กึ่งกลางในแนวตั้ง */
+  justify-content: center; /* จัดให้อยู่กึ่งกลางในแนวนอน */
 }
 </style>
