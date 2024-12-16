@@ -13,6 +13,7 @@ import HomeAdmin from '@/components/admin/HomeAdmin.vue'
 import ManageBook from '@/components/shop/ManageBook.vue'
 import Coupon from '@/components/Coupon.vue'
 import HistoryCoupon from '@/components/HistoryCoupon.vue'
+import HistorySell from '@/components/shop/HistorySell.vue'
 import LoginView2 from '@/views/LoginView2.vue'
 
 const router = createRouter({
@@ -79,6 +80,11 @@ const router = createRouter({
       path: '/manage-book',
       name: 'manageBook',
       component: ManageBook,
+    },
+    {
+      path: '/history-sell',
+      name: 'historySell',
+      component: HistorySell,
     },
     {
       path: '/coupon',

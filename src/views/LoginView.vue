@@ -15,7 +15,7 @@
               density="compact"
               prepend-inner-icon="mdi-account"
               variant="outlined"
-              class="mt-16 custom-field custom-usepass text-justify"
+              class="mt-16 custom-field custom-usepass text-justify text-input v-text-field"
               :error-messages="usernameError"
             ></v-text-field>
             <div v-if="usernameError" class="error-message">
@@ -34,7 +34,7 @@
               prepend-inner-icon="mdi-lock"
               variant="outlined"
               @click:append-inner="visible = !visible"
-              class="custom-field custom-usepass mg-ps text-justify"
+              class="custom-field custom-usepass mg-ps text-justify text-input v-text-field"
               :error-messages="passwordError"
             ></v-text-field>
             <div v-if="passwordError" class="error-message">
@@ -266,7 +266,7 @@ const login = () => {
   margin: 0; /* ยกเลิกระยะขอบ */
   display: flex;
   align-items: center; /* จัดให้อยู่กึ่งกลางแนวตั้ง */
-  font-size: 16px; /* ปรับขนาดตัวอักษร */
+  font-size: 20px;
   line-height: normal; /* ปรับ line-height */
 }
 
@@ -305,5 +305,10 @@ const login = () => {
   margin-top: 2px;
   text-align: left;
   white-space: nowrap; /* ป้องกันข้อความยาวเกินไป */
+}
+
+.text-input .v-input__control {
+  font-size: 20px !important; /* ตั้งขนาดตัวหนังสือ */
+  height: auto; /* รักษาความสูงของช่อง */
 }
 </style>

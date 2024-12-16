@@ -13,8 +13,7 @@
           <div class="form-row">
             <label for="name">คำนำหน้า:</label>
             <v-text-field
-              id="name"
-              v-model="formData.Prefix"
+              v-model="book.Prefix"
               :rules="[rules.required]"
               variant="outlined"
               class="text-feild-top"
@@ -26,8 +25,7 @@
           <div class="form-row">
             <label for="name">ชื่อผู้เสนอ:</label>
             <v-text-field
-              id="name"
-              v-model="formData.Name"
+              v-model="book.Name"
               :rules="[rules.required]"
               variant="outlined"
               class="text-feild-top"
@@ -39,8 +37,7 @@
           <div class="form-row">
             <label for="role">ตำแหน่ง:</label>
             <v-select
-              id="role"
-              v-model="formData.Role"
+              v-model="book.Role"
               :items="roles"
               :rules="[rules.required]"
               variant="outlined"
@@ -52,35 +49,34 @@
           <!-- คณะ -->
           <div class="form-row">
             <label for="faculty">คณะ:</label>
-            <v-text-field
-              id="faculty"
-              v-model="formData.Faculty"
+            <v-select
+              v-model="book.Faculty"
+              :items="faculty"
               :rules="[rules.required]"
               variant="outlined"
               class="text-feild-top"
               dense
-            ></v-text-field>
+            ></v-select>
           </div>
 
           <!-- สาขา -->
           <div class="form-row">
-            <label for="course">สาขา:</label>
-            <v-text-field
-              id="course"
-              v-model="formData.Course"
+            <label for="major">สาขา:</label>
+            <v-select
+              v-model="book.Major"
+              :items="major"
               :rules="[rules.required]"
               variant="outlined"
               class="text-feild-top"
               dense
-            ></v-text-field>
+            ></v-select>
           </div>
 
           <!-- เบอร์ -->
           <div class="form-row">
             <label for="phone">เบอร์:</label>
             <v-text-field
-              id="phone"
-              v-model="formData.Phone"
+              v-model="book.Phone"
               :rules="[rules.required, rules.phone]"
               variant="outlined"
               class="text-feild-top"
@@ -92,8 +88,7 @@
           <div class="form-row">
             <label for="email">E-mail:</label>
             <v-text-field
-              id="email"
-              v-model="formData.Email"
+              v-model="book.Email"
               :rules="[rules.required, rules.email]"
               variant="outlined"
               class="text-feild-top"
@@ -105,8 +100,7 @@
           <div class="form-row">
             <label for="store">ชื่อร้านค้า:</label>
             <v-select
-              id="store"
-              v-model="formData.Store"
+              v-model="book.Store"
               :items="stores"
               :rules="[rules.required]"
               variant="outlined"
@@ -119,8 +113,7 @@
           <div class="form-row">
             <label for="title">ชื่อหนังสือ:</label>
             <v-text-field
-              id="title"
-              v-model="formData.Title"
+              v-model="book.Title"
               :rules="[rules.required]"
               variant="outlined"
               class="text-feild-top"
@@ -132,8 +125,7 @@
           <div class="form-row">
             <label for="author">ผู้ชื่อแต่ง:</label>
             <v-text-field
-              id="author"
-              v-model="formData.Author"
+              v-model="book.Author"
               variant="outlined"
               class="text-feild-top"
               dense
@@ -144,8 +136,7 @@
           <div class="form-row">
             <label for="year">ปีพิมพ์:</label>
             <v-text-field
-              id="year"
-              v-model="formData.Year"
+              v-model="book.Year"
               variant="outlined"
               class="text-feild-top"
               dense
@@ -156,8 +147,7 @@
           <div class="form-row">
             <label for="isbn">ISBN:</label>
             <v-text-field
-              id="isbn"
-              v-model="formData.isbn"
+              v-model="book.isbn"
               :rules="[rules.required, rules.isbn]"
               variant="outlined"
               class="text-feild-top"
@@ -169,8 +159,7 @@
           <div class="form-row">
             <label for="subject">รายวิชา:</label>
             <v-text-field
-              id="subject"
-              v-model="formData.Subject"
+              v-model="book.Subject"
               :rules="[rules.required]"
               variant="outlined"
               class="text-feild-top"
@@ -182,8 +171,7 @@
           <div class="form-row">
             <label for="price">ราคาสุทธิ:</label>
             <v-text-field
-              id="price"
-              v-model="formData.Price"
+              v-model="book.Price"
               :rules="[rules.required, rules.number]"
               variant="outlined"
               class="text-feild-top"
@@ -195,8 +183,7 @@
           <div class="form-row">
             <label for="count">จำนวนเล่ม:</label>
             <v-text-field
-              id="count"
-              v-model="formData.Count"
+              v-model="book.Count"
               :rules="[rules.required, rules.number]"
               variant="outlined"
               class="text-feild-top"
@@ -204,16 +191,22 @@
             ></v-text-field>
           </div>
 
-          <!-- ปุ่ม -->
+          <!-- ปุ่มยืนยัน -->
           <v-btn
+            :disabled="!valid"
             elevation="8"
             class="mt-4 confirm-btn confirm-btnheight"
             style="background-color: #eed3d9"
-            @click="submitForm"
+            @click="submitForm(bookForm)"
           >
             ยืนยัน
           </v-btn>
         </v-form>
+
+        <!-- Success Message -->
+        <v-alert v-if="submitted" type="success" dismissible class="mt-3">
+          ส่งข้อมูลสำเร็จ!
+        </v-alert>
       </v-container>
     </v-main>
   </v-main>
@@ -223,14 +216,17 @@
 import { ref } from 'vue'
 import HomeStudent from '@/components/student/HomeStudent.vue'
 
+const bookForm = ref(null)
+const formValid = ref(false)
+const submitted = ref(false)
 // ข้อมูลในฟอร์ม
-const formData = ref({
+const book = ref({
   Prefix: '',
   Name: '',
   Role: '',
   Faculty: '',
   Phone: '',
-  Course: '',
+  Major: '',
   Email: '',
   Store: '',
   Title: '',
@@ -251,47 +247,53 @@ const rules = {
     /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value) || 'รูปแบบอีเมลไม่ถูกต้อง',
   phone: (value: string) => /^[0-9]{10}$/.test(value) || 'หมายเลขโทรศัพท์ต้องมี 10 หลัก',
   isbn: (value: string) => /^(97(8|9))?\d{9}(\d|X)$/.test(value) || 'รูปแบบ ISBN ไม่ถูกต้อง',
-  number: (value: string) => /^[0-9]+$/.test(value) || 'ต้องเป็นตัวเลขเท่านั้น',
+  number: (value: string) => /^[1-9]+$/.test(value) || 'ต้องเป็นตัวเลขเท่านั้น',
 }
 
-const submitForm = () => {
-  const form = $refs.bookForm as any
-  if (form.validate()) {
-    console.log('ข้อมูลฟอร์ม:', formData.value)
-    alert('ส่งข้อมูลสำเร็จ!')
+const submitForm = (bookForm: any) => {
+  const invalidFields = bookForm.validate() // ตรวจสอบข้อผิดพลาดของฟอร์ม
 
-    // ล้างข้อมูลฟอร์มหลังจากการส่ง
-    formData.value = {
-      Prefix: '',
-      Name: '',
-      Role: '',
-      Faculty: '',
-      Phone: '',
-      Course: '',
-      Email: '',
-      Store: '',
-      Title: '',
-      Author: '',
-      Year: '',
-      isbn: '',
-      Subject: '',
-      Price: '',
-      Count: '',
-    }
-
-    // รีเซ็ตการตรวจสอบฟอร์ม
-    valid.value = false
-
-    // รีเซ็ตฟอร์มทั้งหมด (รวมทั้ง validation)
-    form.reset()
-
-    // เพิ่มการรีเซ็ตค่า valid ในฟอร์มเพื่อให้สามารถกรอกข้อมูลใหม่ได้
-    valid.value = false
+  if (invalidFields.length > 0) {
+    formValid.value = false // ไม่แสดง valid (ข้อความ error) หากยังมีข้อผิดพลาด
+  } else {
+    submitted.value = true // ตั้งค่าให้ฟอร์มถูกส่งข้อมูลแล้ว
+    resetForm(bookForm) // รีเซ็ตฟอร์มหลังจากส่งสำเร็จ
   }
+}
+
+const resetForm = (bookForm: any) => {
+  book.value = {
+    Prefix: '',
+    Name: '',
+    Role: '',
+    Faculty: '',
+    Phone: '',
+    Major: '',
+    Email: '',
+    Store: '',
+    Title: '',
+    Author: '',
+    Year: '',
+    isbn: '',
+    Subject: '',
+    Price: '',
+    Count: '',
+  }
+  formValid.value = false // ปิดการแสดง valid หลังจากรีเซ็ตฟอร์ม
+  bookForm.reset() // รีเซ็ตฟอร์ม
+  bookForm.clearValidation() // ล้างข้อผิดพลาดของฟิลด์
+  submitted.value = false // ไม่แสดงข้อความสำเร็จอีกครั้งหลังจากรีเซ็ตฟอร์ม
 }
 
 const stores = ['ร้าน A', 'ร้าน B', 'ร้าน C']
 const roles = ['อาจารย์', 'นิสิต', 'บุคลากร', 'นักวิจัย']
+const faculty = ['คณะวิทยาศาสตร์', 'คณะบริหาร', 'คณะวิทยาการสารสนเทศ', 'คณะวิศวกรรมศาสตร์']
+const major = [
+  'สาขาวิชาวิทยาการคอมพิวเตอร์',
+  'สาขาวิชาเทคโนโลยีสารสนเทศเพื่ออุตสาหกรรมดิจิทัล',
+  'สาขาวิชาวิศวกรรมซอฟต์แวร์',
+  'สาขาวิชาปัญญาประดิษฐ์ประยุกต์และเทคโนโลยีอัจฉริยะ',
+]
 </script>
 
 <style scoped>
@@ -359,6 +361,6 @@ h1 {
 
 .confirm-btnheight {
   width: 150px;
-  height: 200px;
+  height: 50px;
 }
 </style>

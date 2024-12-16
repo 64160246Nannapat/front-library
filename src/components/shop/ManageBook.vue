@@ -7,6 +7,9 @@
         <div class="header">
           <img class="header-image" src="@/assets/book (1).png" alt="Book" />
           <h1>จัดการหนังสือ</h1>
+          <v-col col="100px">
+            <v-btn class="header-btn" color="primary" @click="addBook">เพิ่มหนังสือ</v-btn>
+          </v-col>
         </div>
 
         <!-- Table Section -->
@@ -63,6 +66,16 @@ const desserts = ref([
     quantity: 3,
   },
 ])
+
+// const addBook = () => {
+//   desserts.value.push({
+//     id: Date.now(),
+//     title: '',
+//     isbn: '',
+//     price: 0,
+//     quantity: 1,
+//   })
+// }
 </script>
 
 <style scoped>
@@ -70,6 +83,10 @@ const desserts = ref([
   display: flex;
   align-items: center;
   margin-bottom: 20px;
+}
+
+.header-btn {
+  justify-content: space-between; /* จัดปุ่มให้ชิดขอบขวา */
 }
 
 .header-image {
