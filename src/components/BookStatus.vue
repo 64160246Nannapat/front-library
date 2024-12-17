@@ -16,17 +16,23 @@
                 :close-on-content-click="false"
                 transition="scale-transition"
               >
-                <!-- รูปแบบกรอบ input วันที่-->
+                <!-- รูปแบบกรอบ input วันที่ -->
                 <template v-slot:activator="{ on, props }">
                   <v-text-field
                     v-bind="props"
                     v-on="on"
-                    v-model="selectedDate"
+                    v-model="formattedDate"
                     placeholder="dd/mm/yyyy"
+                    class="custom-date-picker custom-border"
+                    hide-details
                     readonly
-                    class="custom-date-picker custom-width"
+                    flat
+                    solo
+                    style="width: 100%; min-width: 200px; text-align: center; overflow: visible"
+                    suffix-icon="mdi-calendar"
                   />
                 </template>
+
                 <!-- ตารางวันที่ -->
                 <v-date-picker
                   v-model="selectedDate"
@@ -109,10 +115,15 @@ const desserts = ref([
   },
 ])
 
-// Filter Books by Selected Date
+const formattedDate = computed(() => {
+  if (!selectedDate.value) return ''
+  const date = new Date(selectedDate.value)
+  return date.toLocaleDateString('th-TH', { day: '2-digit', month: '2-digit', year: 'numeric' })
+})
+
 const filteredDesserts = computed(() => {
   if (!selectedDate.value) return desserts.value
-  return desserts.value.filter((item) => item.date === selectedDate.value)
+  return desserts.value.filter((item) => item.date === formattedDate.value)
 })
 </script>
 
@@ -140,42 +151,31 @@ h1 {
   margin-bottom: 20px;
 }
 
-/* เลือกวันที่และข้อมูลในตารางวันที่*/
+/* เลือกวันที่และข้อมูลในตารางวันที่ */
 .custom-date-picker {
-  border: 2px solid #000; /* กรอบสีดำ */
-  border-radius: 12px; /* มุมโค้ง */
-  background-color: #fff; /* พื้นหลังขาว */
-  cursor: pointer;
   font-size: 18px;
   box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s ease;
-  overflow: visible;
-  padding-left: 10px;
+  white-space: nowrap; /* ห้ามตัดข้อความขึ้นบรรทัดใหม่ */
+  overflow: visible; /* แสดงข้อความที่เกิน */
+  text-overflow: unset; /* ปิด ellipsis (...) */
+  width: 100px;
+  min-width: 250px;
+  text-align: center; /* จัดข้อความอยู่กลาง */
+}
+
+.custom-border {
+  border: 2px solid #707478; /* เพิ่มกรอบสีเทาเข้ม */
+  border-radius: 15px; /* ทำให้มุมโค้ง */
+  padding: 4px 8px; /* เพิ่มพื้นที่ภายในให้ข้อความไม่ชิดขอบ */
+  box-sizing: border-box; /* ให้ padding ไม่กระทบกับความกว้าง */
 }
 
 .custom-width {
-  width: 250px;
+  width: 250px; /* กำหนดความกว้างของ input */
 }
 
 .custom-date-picker:hover {
   border-color: #707478; /* เปลี่ยนสีกรอบตอนชี้ */
-}
-
-/* ข้อความในกรอบ */
-.custom-date-picker input {
-  font-size: 18px; /* ขนาดข้อความ */
-  border: none; /* ลบเส้นขอบของ input */
-  outline: none; /* ลบเส้นโฟกัส */
-  width: 100%; /* ให้ข้อความใช้พื้นที่เต็ม */
-  height: 100%; /* ให้ข้อความครอบคลุมความสูง */
-  text-align: center; /* จัดข้อความให้อยู่กลาง */
-  background-color: transparent;
-  white-space: nowrap; /* ป้องกันการหักบรรทัด */
-  overflow: visible; /* ป้องกันการแสดงข้อความเกินกรอบ */
-  padding: 0; /* ลบระยะห่างใน input */
 }
 
 .v-date input {
@@ -202,12 +202,14 @@ h1 {
   font-size: 18px;
   border-collapse: collapse; /* รวมเส้นขอบตาราง */
   overflow-x: auto;
+  table-layout: auto; /* ช่วยให้ตารางขยายได้ตามขนาดข้อมูล */
 }
 
 th,
 td {
   padding: 16px;
   text-align: left;
+  width: 16%; /* ปรับความกว้างให้แต่ละคอลัมน์สมดุล */
 }
 
 th {

@@ -10,13 +10,11 @@
 
           <v-row align="center" class="date-status-row" justify="end">
             <v-col cols="auto">
-              <!-- ที่อยู่ตาราง -->
               <v-menu
                 v-model="menuDate"
                 :close-on-content-click="false"
                 transition="scale-transition"
               >
-                <!-- รูปแบบกรอบ input วันที่-->
                 <template v-slot:activator="{ on, props }">
                   <v-text-field
                     v-bind="props"
@@ -27,7 +25,6 @@
                     class="custom-date-picker custom-width"
                   />
                 </template>
-                <!-- ตารางวันที่ -->
                 <v-date-picker
                   v-model="selectedDate"
                   @input="menuDate = false"
@@ -39,7 +36,6 @@
           </v-row>
         </div>
 
-        <!-- Table Section -->
         <v-simple-table class="table-width">
           <thead>
             <tr>
