@@ -191,6 +191,11 @@
             ></v-text-field>
           </div>
 
+          <v-radio-group v-model="inline" :rules="[rules.radio]" inline>
+            <v-radio label="มีคูปอง" value="radio-1"></v-radio>
+            <v-radio label="ไม่มีคูปอง" value="radio-2"></v-radio>
+          </v-radio-group>
+
           <!-- ปุ่มยืนยัน -->
           <v-btn
             :disabled="!valid"
@@ -202,11 +207,20 @@
             ยืนยัน
           </v-btn>
         </v-form>
-
-        <!-- Success Message -->
-        <v-alert v-if="submitted" type="success" dismissible class="mt-3">
-          ส่งข้อมูลสำเร็จ!
-        </v-alert>
+        <!-- dialog ยืนยันการส่งข้อมูล-->
+        <v-dialog v-model="dialog" max-width="400px">
+          <v-card class="dialog">
+            <v-card-title class="text-center" style="font-weight: bold; font-size: 22px">
+              🎉 ส่งข้อมูลสำเร็จ!
+            </v-card-title>
+            <v-card-text class="text-center" style="font-size: 18px">
+              ข้อมูลของคุณถูกส่งเรียบร้อยแล้ว
+            </v-card-text>
+            <v-card-actions justify-center>
+              <v-btn class="btn-dialog" @click="confirmReset(bookForm)"> ตกลง </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
       </v-container>
     </v-main>
   </v-main>
@@ -219,6 +233,9 @@ import HomeStudent from '@/components/student/HomeStudent.vue'
 const bookForm = ref(null)
 const formValid = ref(false)
 const submitted = ref(false)
+const valid = ref(false) //ใช้กับ v-form
+const dialog = ref(false)
+const inline = ref(null)
 // ข้อมูลในฟอร์ม
 const book = ref({
   Prefix: '',
@@ -238,7 +255,6 @@ const book = ref({
   Count: '',
 })
 
-const valid = ref(false)
 const rules = {
   required: (value: string) => {
     return !value ? 'ต้องกรอกข้อมูล' : true
@@ -248,17 +264,28 @@ const rules = {
   phone: (value: string) => /^[0-9]{10}$/.test(value) || 'หมายเลขโทรศัพท์ต้องมี 10 หลัก',
   isbn: (value: string) => /^(97(8|9))?\d{9}(\d|X)$/.test(value) || 'รูปแบบ ISBN ไม่ถูกต้อง',
   number: (value: string) => /^[1-9]+$/.test(value) || 'ต้องเป็นตัวเลขเท่านั้น',
+  radio: (value) => !!value || 'กรุณาเลือกหนึ่งตัวเลือก',
 }
 
-const submitForm = (bookForm: any) => {
-  const invalidFields = bookForm.validate() // ตรวจสอบข้อผิดพลาดของฟอร์ม
-
-  if (invalidFields.length > 0) {
-    formValid.value = false // ไม่แสดง valid (ข้อความ error) หากยังมีข้อผิดพลาด
-  } else {
-    submitted.value = true // ตั้งค่าให้ฟอร์มถูกส่งข้อมูลแล้ว
-    resetForm(bookForm) // รีเซ็ตฟอร์มหลังจากส่งสำเร็จ
+// ปุ่มยืนยัน
+const submitForm = async (bookForm: any) => {
+  if (bookForm) {
+    const { valid: isValid } = await bookForm.validate() // ตรวจสอบ validate
+    if (isValid) {
+      submitted.value = true // ตั้งค่าสำเร็จ
+      dialog.value = true // แสดง Dialog
+      resetForm(bookForm) // รีเซ็ตฟอร์ม
+    } else {
+      submitted.value = false
+      console.log('Validation Failed')
+    }
   }
+}
+
+//dialog ตกลง
+const confirmReset = (bookForm: any) => {
+  dialog.value = false // ปิด Dialog
+  resetForm(bookForm) // รีเซ็ตค่าฟอร์ม
 }
 
 const resetForm = (bookForm: any) => {
@@ -279,10 +306,9 @@ const resetForm = (bookForm: any) => {
     Price: '',
     Count: '',
   }
-  formValid.value = false // ปิดการแสดง valid หลังจากรีเซ็ตฟอร์ม
-  bookForm.reset() // รีเซ็ตฟอร์ม
-  bookForm.clearValidation() // ล้างข้อผิดพลาดของฟิลด์
-  submitted.value = false // ไม่แสดงข้อความสำเร็จอีกครั้งหลังจากรีเซ็ตฟอร์ม
+
+  bookForm.reset() // รีเซ็ต v-form
+  submitted.value = false
 }
 
 const stores = ['ร้าน A', 'ร้าน B', 'ร้าน C']
@@ -362,5 +388,29 @@ h1 {
 .confirm-btnheight {
   width: 150px;
   height: 50px;
+}
+
+.dialog {
+  background-color: #eed3d9;
+}
+
+.btn-dialog {
+  font-size: 16px;
+  font-weight: bold; /* ตัวหนา */
+  border-radius: 25px; /* ขอบมน */
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3); /* เงา */
+  background-color: #e0e6f0; /* สีพื้นหลังปุ่ม */
+  color: black; /* สีตัวอักษร */
+}
+
+.v-radio-group {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.v-radio {
+  margin-right: 16px;
 }
 </style>
