@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <!-- App Bar -->
-    <v-app-bar color="#f8c9d3" prominent height="96">
+    <v-app-bar color="#f8c9d3" prominent height="96" fixed>
       <v-app-bar-nav-icon @click.stop="drawer = !drawer">
         <v-icon size="36">mdi-menu</v-icon>
       </v-app-bar-nav-icon>
@@ -22,6 +22,7 @@
       v-model="drawer"
       temporary
       app
+      fixed
       :style="drawer ? 'width: 300px;' : 'width: 80px;'"
       class="custom-sidebar"
     >
@@ -43,7 +44,7 @@
       </v-list>
     </v-navigation-drawer>
     <!-- Main Content -->
-    <v-main>
+    <v-main class="full-height-container">
       <router-view />
     </v-main>
   </v-app>
@@ -66,12 +67,30 @@ const items = [
 </script>
 
 <style scoped>
+.v-main {
+  overflow-y: auto;
+  height: 100vh;
+}
+
+.full-height-container {
+  height: 100%; /* ทำให้คอนเทนเนอร์ครอบคลุมพื้นที่ของ v-main */
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* จัดตำแหน่งฟอร์มให้อยู่ตรงกลาง */
+  padding: 20px;
+}
+
 .v-app-bar {
+  z-index: 10;
   background-color: #f8c9d3;
   height: 96px;
 }
 
 .custom-sidebar {
+  position: fixed;
+  top: 96px;
+  height: calc(100vh - 96px); /* ปรับความสูงให้อยู่ในกรอบหน้าจอ */
+  overflow-y: auto;
   background-color: #f5e4e5;
   max-width: 300px !important;
   transition: width 0.3s ease;

@@ -1,7 +1,6 @@
 <template>
-  <v-main style="height: 500px; margin-top: -100px">
+  <v-main style="height: 500px; margin-top: -60px">
     <!-- <HomeStudent /> -->
-
     <v-main>
       <v-container>
         <div class="header">
@@ -190,7 +189,6 @@
               dense
             ></v-text-field>
           </div>
-
           <v-radio-group v-model="inline" :rules="[rules.radio]" inline>
             <v-radio label="มีคูปอง" value="radio-1"></v-radio>
             <v-radio label="ไม่มีคูปอง" value="radio-2"></v-radio>

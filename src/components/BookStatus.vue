@@ -1,88 +1,72 @@
 <template>
-  <v-main style="height: 500px; margin-top: -100px">
-    <!-- <HomeStudent /> -->
+  <v-main style="height: 500px; margin-top: 55px">
+    <v-container>
+      <div class="header">
+        <img class="header-image" src="@/assets/check-list (1).png" alt="Library Image" />
+        <h1>สถานะการเสนอซื้อหนังสือ</h1>
 
-    <v-main>
-      <v-container>
-        <div class="header">
-          <img class="header-image" src="@/assets/check-list (1).png" alt="Library Image" />
-          <h1>สถานะการเสนอซื้อหนังสือ</h1>
-
-          <v-row align="center" class="date-status-row" justify="end">
-            <v-col cols="auto">
-              <!-- ที่อยู่ตาราง -->
-              <v-menu
-                v-model="menuDate"
-                :close-on-content-click="false"
-                transition="scale-transition"
-              >
-                <!-- รูปแบบกรอบ input วันที่ -->
-                <template v-slot:activator="{ on, props }">
-                  <v-text-field
-                    v-bind="props"
-                    v-on="on"
-                    v-model="formattedDate"
-                    placeholder="dd/mm/yyyy"
-                    class="custom-date-picker custom-border"
-                    hide-details
-                    readonly
-                    flat
-                    solo
-                    style="width: 100%; min-width: 200px; text-align: center; overflow: visible"
-                    suffix-icon="mdi-calendar"
-                  />
-                </template>
-
-                <!-- ตารางวันที่ -->
-                <v-date-picker
-                  v-model="selectedDate"
-                  @input="menuDate = false"
-                  :max="maxDate"
-                  locale="th"
+        <v-row align="center" class="date-status-row" justify="end">
+          <v-col cols="auto">
+            <v-menu
+              v-model="menuDate"
+              :close-on-content-click="false"
+              transition="scale-transition"
+            >
+              <template v-slot:activator="{ on, props }">
+                <v-text-field
+                  v-bind="props"
+                  v-on="on"
+                  v-model="formattedDate"
+                  placeholder="dd/mm/yyyy"
+                  class="custom-date-picker custom-border"
+                  hide-details
+                  readonly
+                  flat
+                  solo
+                  style="width: 100%; min-width: 200px; text-align: center; overflow: visible"
+                  suffix-icon="mdi-calendar"
                 />
-              </v-menu>
-            </v-col>
-          </v-row>
-        </div>
+              </template>
 
-        <!-- Table Section -->
-        <v-simple-table>
-          <thead>
-            <tr>
-              <th class="text-left">ลำดับ</th>
-              <th class="text-left">วันที่</th>
-              <th class="text-left">ชื่อหนังสือ</th>
-              <th class="text-left">ISBN</th>
-              <th class="text-left">ราคาสุทธิ</th>
-              <th class="text-left">จำนวน</th>
-              <th class="text-left">สถานะ</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="item in filteredDesserts" :key="item.id">
-              <td>{{ item.id }}</td>
-              <td>{{ item.date }}</td>
-              <td>{{ item.title }}</td>
-              <td>{{ item.isbn }}</td>
-              <td>{{ item.price }}</td>
-              <td>{{ item.quantity }}</td>
-              <td>{{ item.status }}</td>
-            </tr>
-          </tbody>
-        </v-simple-table>
-      </v-container>
-    </v-main>
+              <v-date-picker v-model="selectedDate" @input="menuDate = false" locale="th" />
+            </v-menu>
+          </v-col>
+        </v-row>
+      </div>
+
+      <v-simple-table>
+        <thead>
+          <tr>
+            <th class="text-left">ลำดับ</th>
+            <th class="text-left">วันที่</th>
+            <th class="text-left">ชื่อหนังสือ</th>
+            <th class="text-left">ISBN</th>
+            <th class="text-left">ราคาสุทธิ</th>
+            <th class="text-left">จำนวน</th>
+            <th class="text-left">สถานะ</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="item in filteredDesserts" :key="item.id">
+            <td>{{ item.id }}</td>
+            <td>{{ item.date }}</td>
+            <td>{{ item.title }}</td>
+            <td>{{ item.isbn }}</td>
+            <td>{{ item.price }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>{{ item.status }}</td>
+          </tr>
+        </tbody>
+      </v-simple-table>
+    </v-container>
   </v-main>
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import HomeStudent from '@/components/student/HomeStudent.vue'
 
-// Variables
-const selectedDate = ref(null)
+const selectedDate = ref(new Date()) // ใช้ Date แทน string
 const menuDate = ref(false)
-const maxDate = '2024-12-31'
 
 // Sample Data
 const desserts = ref([
@@ -117,13 +101,24 @@ const desserts = ref([
 
 const formattedDate = computed(() => {
   if (!selectedDate.value) return ''
+
   const date = new Date(selectedDate.value)
-  return date.toLocaleDateString('th-TH', { day: '2-digit', month: '2-digit', year: 'numeric' })
+  const options: Intl.DateTimeFormatOptions = {
+    timeZone: 'Asia/Bangkok',
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  }
+
+  return new Intl.DateTimeFormat('th-TH', options).format(date)
 })
 
 const filteredDesserts = computed(() => {
   if (!selectedDate.value) return desserts.value
-  return desserts.value.filter((item) => item.date === formattedDate.value)
+
+  // ใช้การเปรียบเทียบ format yyyy-mm-dd
+  const selectedDateStr = selectedDate.value.toISOString().split('T')[0]
+  return desserts.value.filter((item) => item.date === selectedDateStr)
 })
 </script>
 

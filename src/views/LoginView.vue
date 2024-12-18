@@ -155,9 +155,13 @@ const login = () => {
 
   // บันทึก Token และ Role ลงใน localStorage
   setAuthData(token, role)
-
-  // เปลี่ยนเส้นทางไปยังหน้า Home ตาม Role
-  router.push(`/home-${role}`)
+  // เปลี่ยนเส้นทางไปยังหน้า /home-student/book-form
+  if (role === 'student') {
+    router.push('/home-student/book-form')
+  } else {
+    // สำหรับ role อื่น ๆ (กรณี admin, teacher)
+    router.push(`/home-${role}`)
+  }
 }
 </script>
 
