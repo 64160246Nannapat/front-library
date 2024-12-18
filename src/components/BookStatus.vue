@@ -1,6 +1,6 @@
 <template>
-  <v-main style="height: 500px">
-    <HomeStudent />
+  <v-main style="height: 500px; margin-top: -100px">
+    <!-- <HomeStudent /> -->
 
     <v-main>
       <v-container>

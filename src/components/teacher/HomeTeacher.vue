@@ -59,7 +59,7 @@ const items = [
   { title: 'ประวัติการใช้คูปอง', icon: historyCoupon, link: '/history-coupon' },
   { title: 'แบบฟอร์มการเสนอหนังสือ', icon: libraryImage, link: '/book-form' },
   { title: 'สถานะการเสนอซื้อหนังสือ', icon: checklist, link: '/book-status' },
-  { title: 'LOGOUT', icon: logout, link: '/login' },
+  { title: 'LOGOUT', icon: logout, link: '/' },
 ]
 </script>
 

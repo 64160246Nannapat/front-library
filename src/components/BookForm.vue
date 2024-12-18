@@ -1,6 +1,6 @@
 <template>
-  <v-main style="height: 500px">
-    <HomeStudent />
+  <v-main style="height: 500px; margin-top: -100px">
+    <!-- <HomeStudent /> -->
 
     <v-main>
       <v-container>
@@ -229,6 +229,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import HomeStudent from '@/components/student/HomeStudent.vue'
+import { useRoute } from 'vue-router'
+import RoleLayout from '@/components/RoleLayout.vue'
+import BookForm from '@/components/BookForm.vue'
 
 const bookForm = ref(null)
 const formValid = ref(false)
@@ -236,6 +239,11 @@ const submitted = ref(false)
 const valid = ref(false) //ใช้กับ v-form
 const dialog = ref(false)
 const inline = ref(null)
+
+const route = useRoute()
+// Get role from meta
+const role = route.meta.role || 'default'
+
 // ข้อมูลในฟอร์ม
 const book = ref({
   Prefix: '',
