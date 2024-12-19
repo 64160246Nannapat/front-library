@@ -23,7 +23,7 @@
                   readonly
                   flat
                   solo
-                  style="width: 100%; min-width: 200px; text-align: center; overflow: visible"
+                  prepend-inner-icon="$calendar"
                   suffix-icon="mdi-calendar"
                 />
               </template>
@@ -65,14 +65,13 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 
-const selectedDate = ref(new Date()) // ใช้ Date แทน string
-const menuDate = ref(false)
+const selectedDate = ref(new Date()) // วันที่ที่เลือก
+const menuDate = ref(false) // ควบคุมการเปิด/ปิดเมนูเลือกวันที่
 
-// Sample Data
 const desserts = ref([
   {
     id: 1,
-    date: '2024-12-01',
+    date: '01/12/2567',
     title: 'หนังสือ A',
     isbn: '978-3-16-148410-0',
     price: 250,
@@ -81,7 +80,7 @@ const desserts = ref([
   },
   {
     id: 2,
-    date: '2024-12-02',
+    date: '02/12/2567',
     title: 'หนังสือ B',
     isbn: '978-0-306-40615-7',
     price: 350,
@@ -90,7 +89,7 @@ const desserts = ref([
   },
   {
     id: 3,
-    date: '2024-12-03',
+    date: '03/12/2567',
     title: 'หนังสือ C',
     isbn: '978-1-4028-9462-6',
     price: 500,
@@ -99,26 +98,20 @@ const desserts = ref([
   },
 ])
 
+// แปลงวันที่ที่เลือกให้เป็นฟอร์แมต dd/mm/yyyy
 const formattedDate = computed(() => {
   if (!selectedDate.value) return ''
-
   const date = new Date(selectedDate.value)
-  const options: Intl.DateTimeFormatOptions = {
-    timeZone: 'Asia/Bangkok',
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  }
-
-  return new Intl.DateTimeFormat('th-TH', options).format(date)
+  const day = String(date.getDate()).padStart(2, '0')
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const year = date.getFullYear() + 543
+  return `${day}/${month}/${year}`
 })
 
+// กรองข้อมูลตามวันที่ที่เลือก
 const filteredDesserts = computed(() => {
-  if (!selectedDate.value) return desserts.value
-
-  // ใช้การเปรียบเทียบ format yyyy-mm-dd
-  const selectedDateStr = selectedDate.value.toISOString().split('T')[0]
-  return desserts.value.filter((item) => item.date === selectedDateStr)
+  if (!formattedDate.value) return desserts.value
+  return desserts.value.filter((item) => item.date === formattedDate.value)
 })
 </script>
 
@@ -148,18 +141,25 @@ h1 {
 
 /* เลือกวันที่และข้อมูลในตารางวันที่ */
 .custom-date-picker {
-  font-size: 18px;
+  font-size: 20px;
   box-sizing: border-box;
   white-space: nowrap; /* ห้ามตัดข้อความขึ้นบรรทัดใหม่ */
   overflow: visible; /* แสดงข้อความที่เกิน */
   text-overflow: unset; /* ปิด ellipsis (...) */
   width: 100px;
-  min-width: 250px;
+  min-width: 300px;
   text-align: center; /* จัดข้อความอยู่กลาง */
 }
 
+.v-input--is-prepended .v-input__prepend-inner-icon {
+  font-size: 28px; /* ขนาดไอคอน */
+}
+
+.v-input--is-prepended.v-input--has-icon.v-input--is-dirty .v-input__prepend-inner-icon {
+  font-size: 28px; /* ไอคอนขนาดใหญ่เมื่อ input มีค่าเปลี่ยนแปลง */
+}
+
 .custom-border {
-  border: 2px solid #707478; /* เพิ่มกรอบสีเทาเข้ม */
   border-radius: 15px; /* ทำให้มุมโค้ง */
   padding: 4px 8px; /* เพิ่มพื้นที่ภายในให้ข้อความไม่ชิดขอบ */
   box-sizing: border-box; /* ให้ padding ไม่กระทบกับความกว้าง */

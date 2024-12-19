@@ -189,10 +189,13 @@
               dense
             ></v-text-field>
           </div>
-          <v-radio-group v-model="inline" :rules="[rules.radio]" inline>
-            <v-radio label="มีคูปอง" value="radio-1"></v-radio>
-            <v-radio label="ไม่มีคูปอง" value="radio-2"></v-radio>
-          </v-radio-group>
+
+          <div class="form-row">
+            <v-radio-group inline :rules="[rules.required, rules.radio]" class="custom-radio">
+              <v-radio label="มีคูปอง" value="one" class="text-radiio"></v-radio>
+              <v-radio label="ไม่มีคูปอง" value="two" class="text-radiio"></v-radio>
+            </v-radio-group>
+          </div>
 
           <!-- ปุ่มยืนยัน -->
           <v-btn
@@ -273,14 +276,14 @@ const rules = {
   radio: (value) => !!value || 'กรุณาเลือกหนึ่งตัวเลือก',
 }
 
-// ปุ่มยืนยัน
 const submitForm = async (bookForm: any) => {
   if (bookForm) {
     const { valid: isValid } = await bookForm.validate() // ตรวจสอบ validate
+
     if (isValid) {
       submitted.value = true // ตั้งค่าสำเร็จ
       dialog.value = true // แสดง Dialog
-      resetForm(bookForm) // รีเซ็ตฟอร์ม
+      // ไม่รีเซ็ตฟอร์มที่นี่
     } else {
       submitted.value = false
       console.log('Validation Failed')
@@ -288,10 +291,9 @@ const submitForm = async (bookForm: any) => {
   }
 }
 
-//dialog ตกลง
 const confirmReset = (bookForm: any) => {
   dialog.value = false // ปิด Dialog
-  resetForm(bookForm) // รีเซ็ตค่าฟอร์ม
+  resetForm(bookForm) // รีเซ็ตค่าฟอร์มหลังจากกด "ตกลง"
 }
 
 const resetForm = (bookForm: any) => {
@@ -418,5 +420,18 @@ h1 {
 
 .v-radio {
   margin-right: 16px;
+  font-size: 24px; /* เพิ่มขนาดฟอนต์ให้ใหญ่ขึ้น */
+  color: black;
+}
+
+.custom-radio {
+  font-size: 24px; /* เพิ่มขนาดฟอนต์ให้ใหญ่ขึ้น */
+  color: black;
+}
+
+.text-radiio {
+  font-weight: bold;
+  font-size: 24px; /* เพิ่มขนาดฟอนต์ให้ใหญ่ขึ้น */
+  color: black;
 }
 </style>

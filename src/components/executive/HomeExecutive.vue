@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <!-- App Bar -->
-    <v-app-bar color="#f8c9d3" prominent height="96" fixed>
+    <v-app-bar color="#f8c9d3" prominent height="96">
       <v-app-bar-nav-icon @click.stop="drawer = !drawer">
         <v-icon size="36">mdi-menu</v-icon>
       </v-app-bar-nav-icon>
@@ -20,9 +20,8 @@
     <!-- Navigation Drawer -->
     <v-navigation-drawer
       v-model="drawer"
-      persistent
+      temporary
       app
-      fi
       :style="drawer ? 'width: 300px;' : 'width: 80px;'"
       class="custom-sidebar"
     >

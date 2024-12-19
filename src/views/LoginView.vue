@@ -151,8 +151,9 @@ const login = () => {
   // เปลี่ยนเส้นทางไปยังหน้า /home-student/book-form
   if (role === 'student') {
     router.push('/home-student/book-form')
+  } else if (role === 'executive') {
+    router.push('/sum-book')
   } else {
-    // สำหรับ role อื่น ๆ (กรณี admin, teacher)
     router.push(`/home-${role}`)
   }
 }
