@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <!-- App Bar -->
-    <v-app-bar color="#f8c9d3" prominent height="96">
+    <v-app-bar color="#f8c9d3" prominent height="96" fixed>
       <v-app-bar-nav-icon @click.stop="drawer = !drawer">
         <v-icon size="36">mdi-menu</v-icon>
       </v-app-bar-nav-icon>
@@ -20,8 +20,9 @@
     <!-- Navigation Drawer -->
     <v-navigation-drawer
       v-model="drawer"
-      temporary
+      persistent
       app
+      fi
       :style="drawer ? 'width: 300px;' : 'width: 80px;'"
       class="custom-sidebar"
     >
@@ -65,7 +66,7 @@ import sumShop from '@/assets/shop.png'
 const drawer = ref(false)
 
 const items = [
-  { title: 'สรุปการซื้อหนังสือ', icon: sumBook, link: '/book-form' },
+  { title: 'สรุปการซื้อหนังสือ', icon: sumBook, link: '/sum-book' },
   { title: 'แบบฟอร์มการเสนอหนังสือ', icon: libraryImage, link: '/home-executive/book-form' },
   { title: 'สถานะการเสนอซื้อหนังสือ', icon: checklist, link: '/home-executive/book-status' },
   { title: 'E-Coupon', icon: coupon, link: '/book-form' },
@@ -93,7 +94,7 @@ const items = [
 }
 
 .v-app-bar {
-  z-index: 10;
+  z-index: 1200;
   background-color: #f8c9d3;
   height: 96px;
 }

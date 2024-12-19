@@ -43,14 +43,7 @@
           </v-col>
 
           <v-col cols="8">
-            <v-btn
-              width="50px"
-              height="50px"
-              class="mb-8 custom-btn custom-login"
-              variant="tonal"
-              block
-              @click="login"
-            >
+            <v-btn class="mb-8 custom-btn custom-login" variant="tonal" block @click="login">
               Log In
             </v-btn>
           </v-col>
@@ -221,9 +214,18 @@ const login = () => {
   box-sizing: border-box; /* ให้ขนาดรวม padding */
 }
 
+.v-input__control {
+  display: flex;
+  align-items: center; /* จัดให้อยู่กึ่งกลางแนวตั้ง */
+  justify-content: flex-start; /* จัดข้อความและไอคอนในแนวเดียวกัน */
+  height: 56px; /* ความสูงที่ Vuetify ใช้เป็นค่าเริ่มต้น */
+  padding: 0 12px; /* ระยะขอบในกรอบ */
+}
+
 .v-input__prepend-inner {
   display: flex;
-  align-items: center;
+  align-items: center; /* จัดไอคอนให้อยู่กึ่งกลางแนวตั้ง */
+  margin-right: 8px; /* ระยะห่างระหว่างไอคอนและข้อความ */
 }
 
 .custom-field .v-input__control {
@@ -266,12 +268,16 @@ const login = () => {
 
 /* ข้อความในช่องกรอก */
 .v-text-field input {
-  height: auto; /* ปรับให้พอดีกับเนื้อหา */
-  margin: 0; /* ยกเลิกระยะขอบ */
+  line-height: normal; /* ป้องกันการเลื่อนข้อความ */
+  height: 100%; /* ขยายความสูงให้เต็ม */
+  margin: 0; /* ยกเลิก margin */
   display: flex;
-  align-items: center; /* จัดให้อยู่กึ่งกลางแนวตั้ง */
-  font-size: 20px;
-  line-height: normal; /* ปรับ line-height */
+  align-items: center; /* จัดข้อความให้อยู่ตรงกลาง */
+  font-size: 16px; /* ขนาดตัวอักษร */
+}
+
+.v-text-field {
+  height: 65px; /* ความสูงของกรอบ text field */
 }
 
 .text-justify {
@@ -280,15 +286,18 @@ const login = () => {
 }
 
 .custom-btn {
-  font-size: 20px;
-  font-weight: bold;
-  background-color: #f3beba;
-  color: #ffffff;
-  text-transform: uppercase; /* ให่ตัวอักษรเป็นพิมพ์ใหญ่หมด */
+  font-size: 20px; /* ขนาดตัวอักษร */
+  font-weight: bold; /* ตัวอักษรหนา */
+  background-color: #f3beba; /* สีพื้นหลัง */
+  color: #ffffff; /* สีตัวอักษร */
+  text-transform: uppercase; /* ให้ตัวอักษรเป็นพิมพ์ใหญ่ทั้งหมด */
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 15px;
+  border-radius: 15px; /* ความโค้งของมุม */
+  width: 300px; /* กำหนดความกว้าง */
+  height: 60px; /* กำหนดความสูง */
+  padding: 10px 20px; /* ระยะห่างภายใน */
 }
 
 .custom-btn input {

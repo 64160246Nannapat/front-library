@@ -13,6 +13,7 @@ import ManageBook from '@/components/shop/ManageBook.vue'
 import Coupon from '@/components/Coupon.vue'
 import HistoryCoupon from '@/components/HistoryCoupon.vue'
 import HistorySell from '@/components/shop/HistorySell.vue'
+import SumBook from '@/components/executive/SumBook.vue'
 
 const routes = [
   {
@@ -163,6 +164,11 @@ const routes = [
     path: '/history-coupon',
     name: 'historyCoupon',
     component: HistoryCoupon,
+  },
+  {
+    path: '/sum-book',
+    name: 'sumBook',
+    component: SumBook,
   },
 ]
 
