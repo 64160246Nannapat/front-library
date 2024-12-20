@@ -3,8 +3,8 @@
     <v-container>
       <!-- Header Section -->
       <div class="header">
-        <img class="header-image" src="@/assets/check-list (1).png" alt="Library Image" />
-        <h1>สถานะการเสนอซื้อหนังสือ</h1>
+        <img class="header-image" src="@/assets/bookLibrary.png" alt="Library Image" />
+        <h1>จัดการเสนอซื้อหนังสือ</h1>
 
         <!-- Date Picker -->
         <v-row align="center" class="date-status-row" justify="end">

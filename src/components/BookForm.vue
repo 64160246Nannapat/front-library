@@ -233,6 +233,7 @@ import HomeStudent from '@/components/student/HomeStudent.vue'
 import { useRoute } from 'vue-router'
 import RoleLayout from '@/components/RoleLayout.vue'
 import BookForm from '@/components/BookForm.vue'
+import axios from 'axios';
 
 const bookForm = ref(null)
 const formValid = ref(false)
@@ -281,6 +282,9 @@ const submitForm = async (bookForm: any) => {
     const { valid: isValid } = await bookForm.validate() // ตรวจสอบ validate
 
     if (isValid) {
+      // try {
+      //   // ส่งข้อมูลไปยัง API
+      //   await axios.post('http://http://localhost:3000/', book.value);
       submitted.value = true // ตั้งค่าสำเร็จ
       dialog.value = true // แสดง Dialog
       // ไม่รีเซ็ตฟอร์มที่นี่

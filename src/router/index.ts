@@ -16,6 +16,7 @@ import HistorySell from '@/components/shop/HistorySell.vue'
 import SumBook from '@/components/executive/SumBook.vue'
 import ManageSellBook from '@/components/library/ManageSellBook.vue';
 import CheckBook from '@/components/library/CkeckBook.vue'
+import LoginView2 from '@/views/LoginView2.vue'
 
 const routes = [
   {
@@ -66,6 +67,16 @@ const routes = [
         name: 'bookstatusTeacher',
         component: BookStatus,
       },
+      {
+        path: 'coupon',
+        name: 'couponTeacher',
+        component: Coupon,
+      },
+      {
+        path: 'history-coupon',
+        name: 'historyCouponTeacher',
+        component: HistoryCoupon,
+      },
     ],
     meta: { requiresAuth: true, role: 'teacher' },
   },
@@ -90,6 +101,16 @@ const routes = [
         name: 'bookstatusFaculty',
         component: BookStatus,
       },
+      {
+        path: 'coupon',
+        name: 'couponFaculty',
+        component: Coupon,
+      },
+      {
+        path: 'history-coupon',
+        name: 'historyCouponFaculty',
+        component: HistoryCoupon,
+      },
     ],
     meta: { requiresAuth: true, role: 'faculty' },
   },
@@ -110,12 +131,12 @@ const routes = [
       },
       {
         path: 'manage-sell-book',
-        name: 'ManageSellBook',
+        name: 'ManageSellBookLibrary',
         component: ManageSellBook,
       },
       {
         path: 'check-book',
-        name: 'checkBook',
+        name: 'checkBookLibrary',
         component: CheckBook,
       },
     ],
@@ -138,8 +159,18 @@ const routes = [
       },
       {
         path: 'sum-book',
-        name: 'sumBook',
+        name: 'sumBookExecutive',
         component: SumBook,
+      },
+      {
+        path: 'coupon',
+        name: 'couponExecutive',
+        component: Coupon,
+      },
+      {
+        path: 'history-coupon',
+        name: 'historyCouponExecutive',
+        component: HistoryCoupon,
       },
     ],
     meta: { requiresAuth: true, role: 'executive' },
@@ -197,6 +228,7 @@ const routes = [
     name: 'checkBook',
     component: CheckBook,
   },
+
 ]
 
 const router = createRouter({

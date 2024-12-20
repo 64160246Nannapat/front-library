@@ -1,7 +1,5 @@
 <template>
   <v-main style="height: 500px">
-    <HomeTeacher />
-
     <v-main>
       <v-container class="ecoupon-container">
         <!-- Header -->

@@ -1,6 +1,5 @@
 <template>
   <v-main style="height: 500px">
-    <HomeExecutive />
 
     <v-main>
       <v-container>

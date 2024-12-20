@@ -1,109 +1,135 @@
 <template>
-  <v-main style="height: 500px">
-    <HomeTeacher />
+  <v-main style="height: 500px; margin-top: 55px">
+    <v-container>
+      <div class="header">
+        <img class="header-image" src="@/assets/history-coupon (1).png" alt="Library Image" />
+        <h1>ประวัติการใช้คูปอง</h1>
 
-    <v-main>
-      <v-container>
-        <div class="header">
-          <img class="header-image" src="@/assets/history-coupon (1).png" alt="History Coupon" />
-          <h1>ประวัติการใช้คูปอง</h1>
-
-          <v-row align="center" class="date-status-row" justify="end">
-            <v-col cols="auto">
-              <v-menu
-                v-model="menuDate"
-                :close-on-content-click="false"
-                transition="scale-transition"
-              >
-                <template v-slot:activator="{ on, props }">
-                  <v-text-field
-                    v-bind="props"
-                    v-on="on"
-                    v-model="selectedDate"
-                    placeholder="dd/mm/yyyy"
-                    readonly
-                    class="custom-date-picker custom-width"
-                  />
-                </template>
-                <v-date-picker
-                  v-model="selectedDate"
-                  @input="menuDate = false"
-                  :max="maxDate"
-                  locale="th"
+        <v-row align="center" class="date-status-row" justify="end">
+          <v-col cols="auto">
+            <v-menu
+              v-model="menuDate"
+              :close-on-content-click="false"
+              transition="scale-transition"
+            >
+              <template v-slot:activator="{ on, props }">
+                <v-text-field
+                  v-bind="props"
+                  v-on="on"
+                  v-model="formattedDate"
+                  placeholder="dd/mm/yyyy"
+                  class="custom-date-picker"
+                  hide-details
+                  readonly
+                  flat
+                  solo
+                  variant="outlined"
+                  prepend-inner-icon="$calendar"
+                  suffix-icon="mdi-calendar"
                 />
-              </v-menu>
-            </v-col>
-          </v-row>
-        </div>
+              </template>
 
-        <v-simple-table class="table-width">
-          <thead>
-            <tr>
-              <th class="text-left">ลำดับ</th>
-              <th class="text-left">วันที่</th>
-              <th class="text-left">ชื่อหนังสือ</th>
-              <th class="text-left">ร้านค้า</th>
-              <th class="text-left">ราคาสุทธิ</th>
-              <th class="text-left">จำนวน</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="item in filteredDesserts" :key="item.id">
-              <td>{{ item.id }}</td>
-              <td>{{ item.date }}</td>
-              <td>{{ item.title }}</td>
-              <td>{{ item.shop }}</td>
-              <td>{{ item.price }}</td>
-              <td>{{ item.quantity }}</td>
-            </tr>
-          </tbody>
-        </v-simple-table>
-      </v-container>
-    </v-main>
+              <v-date-picker v-model="selectedDate" @input="menuDate = false" locale="th" />
+            </v-menu>
+          </v-col>
+        </v-row>
+      </div>
+
+      <v-simple-table>
+        <thead>
+          <tr>
+            <th class="text-left">ลำดับ</th>
+            <th class="text-left">ชื่อหนังสือ</th>
+            <th class="text-left">ISBN</th>
+            <th class="text-left">ร้านค้า</th>
+            <th class="text-left">ราคาสุทธิ</th>
+            <th class="text-left">จำนวน</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="item in filteredDesserts" :key="item.id">
+            <td>{{ item.id }}</td>
+            <td>{{ item.title }}</td>
+            <td>{{ item.isbn }}</td>
+            <td>{{ item.shop }}</td>
+            <td>{{ item.price }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>{{ item.status }}</td>
+          </tr>
+        </tbody>
+      </v-simple-table>
+    </v-container>
   </v-main>
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import HomeTeacher from '@/components/teacher/HomeTeacher.vue'
 
-// Variables
-const selectedDate = ref(null)
-const menuDate = ref(false)
-const maxDate = '2024-12-31'
+const selectedDate = ref(new Date()) // วันที่ที่เลือก
+const menuDate = ref(false) // ควบคุมการเปิด/ปิดเมนูเลือกวันที่
 
-// Sample Data
 const desserts = ref([
   {
     id: 1,
-    date: '2024-12-01',
-    title: 'ความรู้สึกของเราสำคัญที่สุด',
-    shop: 'แจ่มใส',
+    date: '01/12/2567',
+    title: 'หนังสือ A',
+    isbn: '978-3-16-148410-0',
+    shop: 'นายอินทร์',
     price: 250,
     quantity: 2,
   },
   {
-    id: 2,
-    date: '2024-12-02',
-    title: 'ร่างกายไม่เคยโกหก',
-    shop: '11 มิลลิเมตร',
+    id: 1,
+    date: '02/12/2567',
+    title: 'หนังสือ B',
+    isbn: '978-0-306-40615-7',
+    shop: 'นายอินทร์',
     price: 350,
     quantity: 1,
   },
   {
-    id: 3,
-    date: '2024-12-03',
-    title: 'หัวไม่ดีก็มีวิธีสอบผ่าน',
+    id: 1,
+    date: '03/12/2567',
+    title: 'หนังสือ C',
+    isbn: '978-1-4028-9462-6',
     shop: 'นายอินทร์',
     price: 500,
     quantity: 3,
   },
+  {
+    id: 1,
+    date: '20/12/2567',
+    title: 'ความรู้สึกของเราสำคัญที่สุด',
+    isbn: '978-1-4028-9462-6',
+    shop: 'นายอินทร์',
+    price: 500,
+    quantity: 1,
+  },
+  {
+    id: 2,
+    date: '20/12/2567',
+    title: 'คุณคางคกไปพบนักจิตบำบัด',
+    isbn: '978-1-4028-9462-6',
+    shop: 'นายอินทร์',
+    price: 500,
+    quantity: 1,
+  },
 ])
 
-// Filter Books by Selected Date
+// แปลงวันที่ที่เลือกให้เป็นฟอร์แมต dd/mm/yyyy
+const formattedDate = computed(() => {
+  if (!selectedDate.value) return ''
+  const date = new Date(selectedDate.value)
+  const day = String(date.getDate()).padStart(2, '0')
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const year = date.getFullYear() + 543
+  return `${day}/${month}/${year}`
+})
+
+// กรองข้อมูลตามวันที่ที่เลือก
 const filteredDesserts = computed(() => {
-  if (!selectedDate.value) return desserts.value
-  return desserts.value.filter((item) => item.date === selectedDate.value)
+  if (!formattedDate.value) return desserts.value
+  return desserts.value.filter((item) => item.date === formattedDate.value)
 })
 </script>
 
@@ -131,42 +157,39 @@ h1 {
   margin-bottom: 20px;
 }
 
-/* เลือกวันที่และข้อมูลในตารางวันที่*/
+/* เลือกวันที่และข้อมูลในตารางวันที่ */
 .custom-date-picker {
-  border: 2px solid #000; /* กรอบสีดำ */
-  border-radius: 12px; /* มุมโค้ง */
-  background-color: #fff; /* พื้นหลังขาว */
-  cursor: pointer;
-  font-size: 18px;
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
+  font-size: 20px;
+  white-space: nowrap; /* ห้ามตัดข้อความขึ้นบรรทัดใหม่ */
+  overflow: visible; /* แสดงข้อความที่เกิน */
+  text-overflow: unset; /* ปิด ellipsis (...) */
+  width: 100px;
+  min-width: 300px;
+  text-align: center; /* จัดข้อความอยู่กลาง */
   justify-content: center;
-  transition: all 0.3s ease;
-  overflow: visible;
-  padding-left: 10px;
+  align-content: center;
+}
+
+.v-input--is-prepended .v-input__prepend-inner-icon {
+  font-size: 28px; /* ขนาดไอคอน */
+}
+
+.v-input--is-prepended.v-input--has-icon.v-input--is-dirty .v-input__prepend-inner-icon {
+  font-size: 28px; /* ไอคอนขนาดใหญ่เมื่อ input มีค่าเปลี่ยนแปลง */
+}
+
+.custom-border {
+  border-radius: 15px; /* ทำให้มุมโค้ง */
+  padding: 4px 8px; /* เพิ่มพื้นที่ภายในให้ข้อความไม่ชิดขอบ */
+  box-sizing: border-box; /* ให้ padding ไม่กระทบกับความกว้าง */
 }
 
 .custom-width {
-  width: 250px;
+  width: 250px; /* กำหนดความกว้างของ input */
 }
 
 .custom-date-picker:hover {
   border-color: #707478; /* เปลี่ยนสีกรอบตอนชี้ */
-}
-
-/* ข้อความในกรอบ */
-.custom-date-picker input {
-  font-size: 18px; /* ขนาดข้อความ */
-  border: none; /* ลบเส้นขอบของ input */
-  outline: none; /* ลบเส้นโฟกัส */
-  width: 100%; /* ให้ข้อความใช้พื้นที่เต็ม */
-  height: 100%; /* ให้ข้อความครอบคลุมความสูง */
-  text-align: center; /* จัดข้อความให้อยู่กลาง */
-  background-color: transparent;
-  white-space: nowrap; /* ป้องกันการหักบรรทัด */
-  overflow: visible; /* ป้องกันการแสดงข้อความเกินกรอบ */
-  padding: 0; /* ลบระยะห่างใน input */
 }
 
 .v-date input {
@@ -187,29 +210,24 @@ h1 {
 
 /* ตาราง */
 .v-simple-table {
-  width: auto; /* ให้ตารางขยายตามเนื้อหา */
-  max-width: 80%; /* จำกัดขนาดสูงสุด */
-  margin: 0 auto; /* จัดให้อยู่กลาง */
-  border-radius: 8px; /* มุมโค้ง */
-  overflow: hidden; /* ป้องกันการล้น */
+  width: 100%; /* ขยายตารางให้เต็มความกว้างคอนเทนเนอร์ */
+  max-width: 100%; /* กำหนดให้ไม่เกินความกว้างของหน้าจอ */
+  margin: 0 auto; /* จัดตารางให้อยู่กลางหน้าจอ */
+  font-size: 18px;
+  border-collapse: collapse; /* รวมเส้นขอบตาราง */
+  overflow-x: auto;
+  table-layout: auto; /* ช่วยให้ตารางขยายได้ตามขนาดข้อมูล */
 }
 
 th,
 td {
   padding: 16px;
   text-align: left;
-  text-align: center; /* จัดข้อความในตารางให้อยู่ตรงกลาง */
-  vertical-align: middle; /* จัดให้อยู่กลางในแนวตั้ง */
+  width: 16%; /* ปรับความกว้างให้แต่ละคอลัมน์สมดุล */
 }
 
 th {
   font-weight: bold;
   font-size: 20px;
-}
-
-.table-width {
-  width: 200px;
-  align-items: center; /* จัดให้อยู่กึ่งกลางในแนวตั้ง */
-  justify-content: center; /* จัดให้อยู่กึ่งกลางในแนวนอน */
 }
 </style>

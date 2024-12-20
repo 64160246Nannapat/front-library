@@ -18,7 +18,7 @@
                   v-on="on"
                   v-model="formattedDate"
                   placeholder="dd/mm/yyyy"
-                  class="custom-date-picker custom-border"
+                  class="custom-date-picker"
                   hide-details
                   readonly
                   flat
@@ -33,13 +33,21 @@
             </v-menu>
           </v-col>
         </v-row>
+
+        <v-row>
+          <v-col cols="auto">
+            <div class="formatted-date-display">
+              <h2>{{ fullFormattedDate }}</h2>
+            </div>
+          </v-col>
+        </v-row>
       </div>
 
+      <!-- ตารางข้อมูล -->
       <v-simple-table>
         <thead>
           <tr>
             <th class="text-left">ลำดับ</th>
-            <th class="text-left">วันที่</th>
             <th class="text-left">ชื่อหนังสือ</th>
             <th class="text-left">ISBN</th>
             <th class="text-left">ราคาสุทธิ</th>
@@ -50,7 +58,6 @@
         <tbody>
           <tr v-for="item in filteredDesserts" :key="item.id">
             <td>{{ item.id }}</td>
-            <td>{{ item.date }}</td>
             <td>{{ item.title }}</td>
             <td>{{ item.isbn }}</td>
             <td>{{ item.price }}</td>
@@ -80,7 +87,7 @@ const desserts = ref([
     status: 'อนุมัติ',
   },
   {
-    id: 2,
+    id: 1,
     date: '02/12/2567',
     title: 'หนังสือ B',
     isbn: '978-0-306-40615-7',
@@ -89,12 +96,30 @@ const desserts = ref([
     status: 'อนุมัติ',
   },
   {
-    id: 3,
+    id: 1,
     date: '03/12/2567',
     title: 'หนังสือ C',
     isbn: '978-1-4028-9462-6',
     price: 500,
     quantity: 3,
+    status: 'ไม่อนุมัติ',
+  },
+  {
+    id: 1,
+    date: '20/12/2567',
+    title: 'ความรู้สึกของเราสำคัญที่สุด',
+    isbn: '978-1-4028-9462-6',
+    price: 500,
+    quantity: 1,
+    status: 'ไม่อนุมัติ',
+  },
+  {
+    id: 2,
+    date: '20/12/2567',
+    title: 'คุณคางคกไปพบนักจิตบำบัด',
+    isbn: '978-1-4028-9462-6',
+    price: 500,
+    quantity: 1,
     status: 'ไม่อนุมัติ',
   },
 ])
@@ -113,6 +138,42 @@ const formattedDate = computed(() => {
 const filteredDesserts = computed(() => {
   if (!formattedDate.value) return desserts.value
   return desserts.value.filter((item) => item.date === formattedDate.value)
+})
+
+const fullFormattedDate = computed(() => {
+  if (!selectedDate.value) return ''
+  const date = new Date(selectedDate.value)
+
+  const days = [
+    'วันอาทิตย์',
+    'วันจันทร์',
+    'วันอังคาร',
+    'วันพุธ',
+    'วันพฤหัสบดี',
+    'วันศุกร์',
+    'วันเสาร์',
+  ]
+  const months = [
+    'มกราคม',
+    'กุมภาพันธ์',
+    'มีนาคม',
+    'เมษายน',
+    'พฤษภาคม',
+    'มิถุนายน',
+    'กรกฎาคม',
+    'สิงหาคม',
+    'กันยายน',
+    'ตุลาคม',
+    'พฤศจิกายน',
+    'ธันวาคม',
+  ]
+
+  const dayName = days[date.getDay()]
+  const day = date.getDate()
+  const monthName = months[date.getMonth()]
+  const year = date.getFullYear() + 543
+
+  return `${dayName} ที่ ${day} ${monthName} พ.ศ. ${year}`
 })
 </script>
 
@@ -143,7 +204,6 @@ h1 {
 /* เลือกวันที่และข้อมูลในตารางวันที่ */
 .custom-date-picker {
   font-size: 20px;
-  box-sizing: border-box;
   white-space: nowrap; /* ห้ามตัดข้อความขึ้นบรรทัดใหม่ */
   overflow: visible; /* แสดงข้อความที่เกิน */
   text-overflow: unset; /* ปิด ellipsis (...) */
@@ -213,5 +273,16 @@ td {
 th {
   font-weight: bold;
   font-size: 20px;
+}
+
+.formatted-date-display {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.formatted-date-display h2 {
+  font-size: 20px;
+  font-weight: bold;
+  color: #4e484a;
 }
 </style>
