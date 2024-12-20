@@ -1,10 +1,6 @@
 <template>
   <v-main style="height: 500px">
-<<<<<<< HEAD
-=======
-    <HomeTeacher />
 
->>>>>>> master
     <v-main>
       <v-container class="ecoupon-container">
         <!-- Header -->

@@ -24,7 +24,7 @@ defineProps({
 })
 
 // Dynamic AppBar mapping
-<<<<<<< HEAD
+
 // const currentAppBar = computed(() => {
 //   const appBars = {
 //     student: () => import('@/components/AppbarStudent.vue'),
@@ -41,7 +41,7 @@ defineProps({
 //   }
 //   return sidebars[role] || null
 // })
-=======
+
 const currentAppBar = computed(() => {
   const appBars = {
     student: () => import('@/components/AppbarStudent.vue'),
@@ -58,7 +58,7 @@ const currentSidebar = computed(() => {
   }
   return sidebars[role] || null
 })
->>>>>>> master
+
 </script>
 
 <style>

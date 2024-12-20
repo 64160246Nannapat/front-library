@@ -152,15 +152,11 @@ const login = () => {
   if (role === 'student') {
     router.push('/home-student/book-form')
   } else if (role === 'executive') {
-<<<<<<< HEAD
     router.push('/home-executive/sum-book')
   } else if (role === 'teacher') {
     router.push('/home-teacher/coupon')
   } else if (role === 'library') {
     router.push('/home-library/manage-sell-book')
-=======
-    router.push('/sum-book')
->>>>>>> master
   } else {
     router.push(`/home-${role}`)
   }

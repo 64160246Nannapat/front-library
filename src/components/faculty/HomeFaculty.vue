@@ -65,13 +65,8 @@ const drawer = ref(false)
 const items = [
   { title: 'จัดการงบประมาณคณะ', icon: pieCharBudget, link: '/book-form' },
   { title: 'สรุปงบประมาณคณะ', icon: salary, link: '/book-status' },
-<<<<<<< HEAD
   { title: 'E-Coupon', icon: coupon, link: '/home-faculty/book-form' },
   { title: 'ประวัติการใช้คูปอง', icon: historyCoupon, link: '/home-faculty/book-status' },
-=======
-  { title: 'E-Coupon', icon: coupon, link: '/book-form' },
-  { title: 'ประวัติการใช้คูปอง', icon: historyCoupon, link: '/book-status' },
->>>>>>> master
   { title: 'แบบฟอร์มการเสนอหนังสือ', icon: library, link: '/home-faculty/book-form' },
   { title: 'สถานะการเสนอซื้อหนังสือ', icon: checklist, link: '/home-faculty/book-status' },
   { title: 'LOGOUT', icon: logout, link: '/' },

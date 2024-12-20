@@ -65,19 +65,11 @@ import sumShop from '@/assets/shop.png'
 const drawer = ref(false)
 
 const items = [
-<<<<<<< HEAD
   { title: 'สรุปการซื้อหนังสือ', icon: sumBook, link: '/home-executive/sum-book' },
   { title: 'แบบฟอร์มการเสนอหนังสือ', icon: libraryImage, link: '/home-executive/book-form' },
   { title: 'สถานะการเสนอซื้อหนังสือ', icon: checklist, link: '/home-executive/book-status' },
   { title: 'E-Coupon', icon: coupon, link: '/home-executive/coupon' },
   { title: 'ประวัติการใช้คูปอง', icon: history, link: '/home-executive/book-status' },
-=======
-  { title: 'สรุปการซื้อหนังสือ', icon: sumBook, link: '/sum-book' },
-  { title: 'แบบฟอร์มการเสนอหนังสือ', icon: libraryImage, link: '/home-executive/book-form' },
-  { title: 'สถานะการเสนอซื้อหนังสือ', icon: checklist, link: '/home-executive/book-status' },
-  { title: 'E-Coupon', icon: coupon, link: '/book-form' },
-  { title: 'ประวัติการใช้คูปอง', icon: history, link: '/book-status' },
->>>>>>> master
   { title: 'รายชื่อผู้เสนอ', icon: list, link: '/login' },
   { title: 'สรุปงบประมาณ', icon: salary, link: '/book-form' },
   { title: 'ร้านค้า', icon: store, link: '/book-status' },

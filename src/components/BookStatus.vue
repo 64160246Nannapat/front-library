@@ -18,19 +18,12 @@
                   v-on="on"
                   v-model="formattedDate"
                   placeholder="dd/mm/yyyy"
-<<<<<<< HEAD
                   class="custom-date-picker"
-=======
-                  class="custom-date-picker custom-border"
->>>>>>> master
                   hide-details
                   readonly
                   flat
                   solo
-<<<<<<< HEAD
                   variant="outlined"
-=======
->>>>>>> master
                   prepend-inner-icon="$calendar"
                   suffix-icon="mdi-calendar"
                 />
@@ -40,7 +33,6 @@
             </v-menu>
           </v-col>
         </v-row>
-<<<<<<< HEAD
 
         <v-row>
           <v-col cols="auto">
@@ -52,18 +44,10 @@
       </div>
 
       <!-- ตารางข้อมูล -->
-=======
-      </div>
-
->>>>>>> master
       <v-simple-table>
         <thead>
           <tr>
             <th class="text-left">ลำดับ</th>
-<<<<<<< HEAD
-=======
-            <th class="text-left">วันที่</th>
->>>>>>> master
             <th class="text-left">ชื่อหนังสือ</th>
             <th class="text-left">ISBN</th>
             <th class="text-left">ราคาสุทธิ</th>
@@ -74,10 +58,6 @@
         <tbody>
           <tr v-for="item in filteredDesserts" :key="item.id">
             <td>{{ item.id }}</td>
-<<<<<<< HEAD
-=======
-            <td>{{ item.date }}</td>
->>>>>>> master
             <td>{{ item.title }}</td>
             <td>{{ item.isbn }}</td>
             <td>{{ item.price }}</td>
@@ -107,11 +87,7 @@ const desserts = ref([
     status: 'อนุมัติ',
   },
   {
-<<<<<<< HEAD
     id: 1,
-=======
-    id: 2,
->>>>>>> master
     date: '02/12/2567',
     title: 'หนังสือ B',
     isbn: '978-0-306-40615-7',
@@ -120,11 +96,7 @@ const desserts = ref([
     status: 'อนุมัติ',
   },
   {
-<<<<<<< HEAD
     id: 1,
-=======
-    id: 3,
->>>>>>> master
     date: '03/12/2567',
     title: 'หนังสือ C',
     isbn: '978-1-4028-9462-6',
@@ -132,7 +104,6 @@ const desserts = ref([
     quantity: 3,
     status: 'ไม่อนุมัติ',
   },
-<<<<<<< HEAD
   {
     id: 1,
     date: '20/12/2567',
@@ -151,8 +122,6 @@ const desserts = ref([
     quantity: 1,
     status: 'ไม่อนุมัติ',
   },
-=======
->>>>>>> master
 ])
 
 // แปลงวันที่ที่เลือกให้เป็นฟอร์แมต dd/mm/yyyy
@@ -170,7 +139,6 @@ const filteredDesserts = computed(() => {
   if (!formattedDate.value) return desserts.value
   return desserts.value.filter((item) => item.date === formattedDate.value)
 })
-<<<<<<< HEAD
 
 const fullFormattedDate = computed(() => {
   if (!selectedDate.value) return ''
@@ -207,8 +175,6 @@ const fullFormattedDate = computed(() => {
 
   return `${dayName} ที่ ${day} ${monthName} พ.ศ. ${year}`
 })
-=======
->>>>>>> master
 </script>
 
 <style scoped>
@@ -238,21 +204,14 @@ h1 {
 /* เลือกวันที่และข้อมูลในตารางวันที่ */
 .custom-date-picker {
   font-size: 20px;
-<<<<<<< HEAD
-=======
-  box-sizing: border-box;
->>>>>>> master
   white-space: nowrap; /* ห้ามตัดข้อความขึ้นบรรทัดใหม่ */
   overflow: visible; /* แสดงข้อความที่เกิน */
   text-overflow: unset; /* ปิด ellipsis (...) */
   width: 100px;
   min-width: 300px;
   text-align: center; /* จัดข้อความอยู่กลาง */
-<<<<<<< HEAD
   justify-content: center;
   align-content: center;
-=======
->>>>>>> master
 }
 
 .v-input--is-prepended .v-input__prepend-inner-icon {
@@ -315,7 +274,6 @@ th {
   font-weight: bold;
   font-size: 20px;
 }
-<<<<<<< HEAD
 
 .formatted-date-display {
   text-align: center;
@@ -327,6 +285,4 @@ th {
   font-weight: bold;
   color: #4e484a;
 }
-=======
->>>>>>> master
 </style>
