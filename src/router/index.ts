@@ -14,12 +14,10 @@ import Coupon from '@/components/Coupon.vue'
 import HistoryCoupon from '@/components/HistoryCoupon.vue'
 import HistorySell from '@/components/shop/HistorySell.vue'
 import SumBook from '@/components/executive/SumBook.vue'
-<<<<<<< HEAD
 import ManageSellBook from '@/components/library/ManageSellBook.vue';
 import CheckBook from '@/components/library/CkeckBook.vue'
 import LoginView2 from '@/views/LoginView2.vue'
-=======
->>>>>>> master
+
 
 const routes = [
   {
@@ -70,7 +68,6 @@ const routes = [
         name: 'bookstatusTeacher',
         component: BookStatus,
       },
-<<<<<<< HEAD
       {
         path: 'coupon',
         name: 'couponTeacher',
@@ -81,8 +78,7 @@ const routes = [
         name: 'historyCouponTeacher',
         component: HistoryCoupon,
       },
-=======
->>>>>>> master
+
     ],
     meta: { requiresAuth: true, role: 'teacher' },
   },
@@ -107,7 +103,6 @@ const routes = [
         name: 'bookstatusFaculty',
         component: BookStatus,
       },
-<<<<<<< HEAD
       {
         path: 'coupon',
         name: 'couponFaculty',
@@ -118,8 +113,7 @@ const routes = [
         name: 'historyCouponFaculty',
         component: HistoryCoupon,
       },
-=======
->>>>>>> master
+
     ],
     meta: { requiresAuth: true, role: 'faculty' },
   },
@@ -138,7 +132,6 @@ const routes = [
         name: 'bookstatusLibrary',
         component: BookStatus,
       },
-<<<<<<< HEAD
       {
         path: 'manage-sell-book',
         name: 'ManageSellBookLibrary',
@@ -149,8 +142,7 @@ const routes = [
         name: 'checkBookLibrary',
         component: CheckBook,
       },
-=======
->>>>>>> master
+
     ],
     meta: { requiresAuth: true, role: 'library' },
   },
@@ -169,7 +161,7 @@ const routes = [
         name: 'bookstatusExecutive',
         component: BookStatus,
       },
-<<<<<<< HEAD
+
       {
         path: 'sum-book',
         name: 'sumBookExecutive',
@@ -185,8 +177,7 @@ const routes = [
         name: 'historyCouponExecutive',
         component: HistoryCoupon,
       },
-=======
->>>>>>> master
+
     ],
     meta: { requiresAuth: true, role: 'executive' },
   },
@@ -233,7 +224,6 @@ const routes = [
     name: 'sumBook',
     component: SumBook,
   },
-<<<<<<< HEAD
   {
     path: '/manage-sell-book',
     name: 'ManageSellBook',
@@ -245,8 +235,7 @@ const routes = [
     component: CheckBook,
   },
 
-=======
->>>>>>> master
+
 ]
 
 const router = createRouter({
