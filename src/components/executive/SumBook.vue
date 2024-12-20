@@ -1,5 +1,9 @@
 <template>
   <v-main style="height: 500px">
+<<<<<<< HEAD
+=======
+    <HomeExecutive />
+>>>>>>> master
 
     <v-main>
       <v-container>

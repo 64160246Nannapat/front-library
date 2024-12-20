@@ -61,8 +61,13 @@ import '@/assets/fonts.css'
 const drawer = ref(false)
 
 const items = [
+<<<<<<< HEAD
   { title: 'E-Coupon', icon: coupon, link: '/home-teacher/coupon' },
   { title: 'ประวัติการใช้คูปอง', icon: historyCoupon, link: '/home-teacher/history-coupon' },
+=======
+  { title: 'E-Coupon', icon: coupon, link: '/coupon' },
+  { title: 'ประวัติการใช้คูปอง', icon: historyCoupon, link: '/history-coupon' },
+>>>>>>> master
   { title: 'แบบฟอร์มการเสนอหนังสือ', icon: libraryImage, link: '/home-teacher/book-form' },
   { title: 'สถานะการเสนอซื้อหนังสือ', icon: checklist, link: '/home-teacher/book-status' },
   { title: 'LOGOUT', icon: logout, link: '/' },

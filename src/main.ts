@@ -26,6 +26,7 @@ app.use(store)
 app.use(createPinia())
 app.config.globalProperties.$axios = axios
 app.mount('#app')
+<<<<<<< HEAD
 
 // main.ts หรือ file entry point
 // import { createRouter, createWebHistory } from 'vue-router'
@@ -52,3 +53,5 @@ app.mount('#app')
 // })
 
 // export default router
+=======
+>>>>>>> master

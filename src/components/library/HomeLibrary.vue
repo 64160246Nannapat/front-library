@@ -65,8 +65,13 @@ import store from '@/assets/store (1).png'
 const drawer = ref(false)
 
 const items = [
+<<<<<<< HEAD
   { title: 'จัดการเสนอซื้อหนังสือ', icon: confirmBook, link: '/home-library/manage-sell-book' },
   { title: 'ตรวจสอบหนังสือ', icon: checkbook, link: '/home-library/check-book' },
+=======
+  { title: 'จัดการเสนอซื้อหนังสือ', icon: confirmBook, link: '/book-form' },
+  { title: 'ตรวจสอบหนังสือ', icon: checkbook, link: '/book-status' },
+>>>>>>> master
   { title: 'แบบฟอร์มการเสนอหนังสือ', icon: libraryImage, link: '/home-library/book-form' },
   { title: 'สถานะการเสนอซื้อหนังสือ', icon: checklist, link: '/home-library/book-status' },
   { title: 'แบบฟอร์มการเสนอหนังสือแทน', icon: libraryImage, link: '/home-library/book-form' },
