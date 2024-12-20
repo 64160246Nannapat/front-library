@@ -23,9 +23,9 @@
                   readonly
                   flat
                   solo
-                  variant="outlined"
                   prepend-inner-icon="$calendar"
                   suffix-icon="mdi-calendar"
+                  variant="outlined"
                 />
               </template>
 
@@ -33,39 +33,25 @@
             </v-menu>
           </v-col>
         </v-row>
-
-        <v-row>
-          <v-col cols="auto">
-            <div class="formatted-date-display">
-              <h2>{{ fullFormattedDate }}</h2>
-            </div>
-          </v-col>
-        </v-row>
       </div>
 
+      <v-row>
+        <v-col cols="auto">
+          <div class="formatted-date-display">
+            <h2>{{ fullFormattedDate }}</h2>
+          </div>
+        </v-col>
+      </v-row>
+
       <!-- ตารางข้อมูล -->
-      <v-simple-table>
-        <thead>
-          <tr>
-            <th class="text-left">ลำดับ</th>
-            <th class="text-left">ชื่อหนังสือ</th>
-            <th class="text-left">ISBN</th>
-            <th class="text-left">ราคาสุทธิ</th>
-            <th class="text-left">จำนวน</th>
-            <th class="text-left">สถานะ</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="item in filteredDesserts" :key="item.id">
-            <td>{{ item.id }}</td>
-            <td>{{ item.title }}</td>
-            <td>{{ item.isbn }}</td>
-            <td>{{ item.price }}</td>
-            <td>{{ item.quantity }}</td>
-            <td>{{ item.status }}</td>
-          </tr>
-        </tbody>
-      </v-simple-table>
+      <v-data-table-server
+        v-model:items-per-page="itemsPerPage"
+        :headers="headers"
+        :items="serverItems"
+        :items-length="totalItems"
+        :loading="loading"
+        @update:options="loadItems"
+      ></v-data-table-server>
     </v-container>
   </v-main>
 </template>
@@ -73,58 +59,25 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 
-const selectedDate = ref(new Date()) // วันที่ที่เลือก
-const menuDate = ref(false) // ควบคุมการเปิด/ปิดเมนูเลือกวันที่
+// วันที่
+const selectedDate = ref(new Date())
+const menuDate = ref(false)
+const itemsPerPage = ref(5)
+const loading = ref(false)
+const totalItems = ref(0)
+const serverItems = ref([])
 
-const desserts = ref([
-  {
-    id: 1,
-    date: '01/12/2567',
-    title: 'หนังสือ A',
-    isbn: '978-3-16-148410-0',
-    price: 250,
-    quantity: 2,
-    status: 'อนุมัติ',
-  },
-  {
-    id: 1,
-    date: '02/12/2567',
-    title: 'หนังสือ B',
-    isbn: '978-0-306-40615-7',
-    price: 350,
-    quantity: 1,
-    status: 'อนุมัติ',
-  },
-  {
-    id: 1,
-    date: '03/12/2567',
-    title: 'หนังสือ C',
-    isbn: '978-1-4028-9462-6',
-    price: 500,
-    quantity: 3,
-    status: 'ไม่อนุมัติ',
-  },
-  {
-    id: 1,
-    date: '20/12/2567',
-    title: 'ความรู้สึกของเราสำคัญที่สุด',
-    isbn: '978-1-4028-9462-6',
-    price: 500,
-    quantity: 1,
-    status: 'ไม่อนุมัติ',
-  },
-  {
-    id: 2,
-    date: '20/12/2567',
-    title: 'คุณคางคกไปพบนักจิตบำบัด',
-    isbn: '978-1-4028-9462-6',
-    price: 500,
-    quantity: 1,
-    status: 'ไม่อนุมัติ',
-  },
-])
+// Headers สำหรับ v-data-table
+const headers = [
+  { title: 'ลำดับ', key: 'id', align: 'start' },
+  { title: 'ชื่อหนังสือ', key: 'title' },
+  { title: 'ISBN', key: 'isbn' },
+  { title: 'ราคาสุทธิ', key: 'price' },
+  { title: 'จำนวน', key: 'quantity' },
+  { title: 'สถานะ', key: 'status' },
+]
 
-// แปลงวันที่ที่เลือกให้เป็นฟอร์แมต dd/mm/yyyy
+// ฟอร์แมตวันที่
 const formattedDate = computed(() => {
   if (!selectedDate.value) return ''
   const date = new Date(selectedDate.value)
@@ -132,12 +85,6 @@ const formattedDate = computed(() => {
   const month = String(date.getMonth() + 1).padStart(2, '0')
   const year = date.getFullYear() + 543
   return `${day}/${month}/${year}`
-})
-
-// กรองข้อมูลตามวันที่ที่เลือก
-const filteredDesserts = computed(() => {
-  if (!formattedDate.value) return desserts.value
-  return desserts.value.filter((item) => item.date === formattedDate.value)
 })
 
 const fullFormattedDate = computed(() => {
@@ -175,7 +122,43 @@ const fullFormattedDate = computed(() => {
 
   return `${dayName} ที่ ${day} ${monthName} พ.ศ. ${year}`
 })
+
+// API ปลอมเพื่อเลียนแบบการดึงข้อมูล
+const FakeAPI = {
+  async fetch({ page, itemsPerPage }: { page: number; itemsPerPage: number }) {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        const data = [
+          { id: 1, title: 'หนังสือ A', date: '01/12/2567', isbn: '978-3-16-148410-0', price: 250, quantity: 2, status: 'อนุมัติ' },
+          { id: 2, title: 'หนังสือ B', date: '02/12/2567', isbn: '978-0-306-40615-7', price: 350, quantity: 1, status: 'อนุมัติ' },
+          { id: 3, title: 'หนังสือ C', date: '03/12/2567', isbn: '978-1-4028-9462-6', price: 500, quantity: 3, status: 'ไม่อนุมัติ' },
+          { id: 4, title: 'ความรู้สึกของเราสำคัญที่สุด', date: '20/12/2567', isbn: '978-1-4028-9462-6', price: 500, quantity: 1, status: 'ไม่อนุมัติ' },
+          { id: 5, title: 'คุณคางคกไปพบนักจิตบำบัด', date: '20/12/2567', isbn: '978-1-4028-9462-6', price: 500, quantity: 1, status: 'ไม่อนุมัติ' },
+        ]
+
+        const start = (page - 1) * itemsPerPage
+        const end = start + itemsPerPage
+
+        resolve({
+          items: data.slice(start, end),
+          total: data.length,
+        })
+      }, 500)
+    })
+  },
+}
+
+// โหลดข้อมูล
+const loadItems = ({ page, itemsPerPage }: { page: number; itemsPerPage: number }) => {
+  loading.value = true
+  FakeAPI.fetch({ page, itemsPerPage }).then(({ items, total }) => {
+    serverItems.value = items
+    totalItems.value = total
+    loading.value = false
+  })
+}
 </script>
+
 
 <style scoped>
 .header {
