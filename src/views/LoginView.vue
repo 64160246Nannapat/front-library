@@ -6,54 +6,58 @@
         <div class="heading">Book Suggestion for Purchase</div>
         <div class="subheading">Burapha University</div>
 
-        <v-row>
-          <!-- Username -->
-          <v-col cols="12">
-            <v-text-field
-              label="Username"
-              v-model="username"
-              density="compact"
-              prepend-inner-icon="mdi-account"
-              variant="outlined"
-              class="mt-16 custom-field custom-usepass text-justify text-input v-text-field"
-              :error-messages="usernameError"
-            ></v-text-field>
-            <div v-if="usernameError" class="error-message">
-              {{ usernameError }}
-            </div>
-          </v-col>
+        <div class="form-container">
+          <v-row >
+            <!-- Username -->
+            <v-col cols="12">
+              <v-text-field
+                label="Username"
+                v-model="username"
+                density="compact"
+                prepend-inner-icon="mdi-account"
+                variant="outlined"
+                class="mt-16 custom-field custom-usepass text-justify text-input v-text-field form-row"
+                :error-messages="usernameError"
+              ></v-text-field>
+              <div v-if="usernameError" class="error-message">
+                {{ usernameError }}
+              </div>
+            </v-col>
 
-          <!-- Password -->
-          <v-col cols="12" style="text-align: center">
-            <v-text-field
-              label="Password"
-              v-model="password"
-              :append-inner-icon="visible ? 'mdi-eye-off' : 'mdi-eye'"
-              :type="visible ? 'text' : 'password'"
-              density="compact"
-              prepend-inner-icon="mdi-lock"
-              variant="outlined"
-              @click:append-inner="visible = !visible"
-              class="custom-field custom-usepass mg-ps text-justify text-input v-text-field"
-              :error-messages="passwordError"
-            ></v-text-field>
-            <div v-if="passwordError" class="error-message">
-              {{ passwordError }}
-            </div>
-          </v-col>
+            <!-- Password -->
+            <v-col cols="12" style="text-align: center">
+              <v-text-field
+                label="Password"
+                v-model="password"
+                :append-inner-icon="visible ? 'mdi-eye-off' : 'mdi-eye'"
+                :type="visible ? 'text' : 'password'"
+                density="compact"
+                prepend-inner-icon="mdi-lock"
+                variant="outlined"
+                @click:append-inner="visible = !visible"
+                class="custom-field custom-usepass mg-ps text-justify text-input v-text-field form-row"
+                :error-messages="passwordError"
+              ></v-text-field>
+              <div v-if="passwordError" class="error-message">
+                {{ passwordError }}
+              </div>
+            </v-col>
 
-          <v-col cols="8">
-            <v-btn class="mb-8 custom-btn custom-login" variant="tonal" block @click="login">
-              Log In
-            </v-btn>
-          </v-col>
+            <!-- Login Button -->
+            <v-col cols="8">
+              <v-btn class="mb-8 custom-btn custom-login" variant="tonal" block @click="login">
+                Log In
+              </v-btn>
+            </v-col>
 
-          <v-col>
-            <v-text class="custom-text" style="color: #a87e60">
-              ***USERNAME และ PASSWORD ที่เข้าใช้เครือข่ายอินเทอร์เน็ตของมหาวิทยาลัย***
-            </v-text>
-          </v-col>
-        </v-row>
+            <!-- Note -->
+            <v-col>
+              <v-text class="custom-text" style="color: #a87e60">
+                ***USERNAME และ PASSWORD ที่เข้าใช้เครือข่ายอินเทอร์เน็ตของมหาวิทยาลัย***
+              </v-text>
+            </v-col>
+          </v-row>
+        </div>
       </div>
     </div>
   </v-main>
@@ -234,9 +238,10 @@ const login = () => {
 }
 
 .custom-field .v-input__control {
-  width: 400px; /* ปรับความกว้างกรอบให้เท่ากับความยาวของข้อความ Book Suggestion for Purchase */
+  width: 600px; /* ปรับความกว้างกรอบให้เท่ากับความยาวของข้อความ Book Suggestion for Purchase */
   height: 100px; /* เพิ่มความสูงให้กรอบ */
 }
+
 .custom-usepass {
   margin-left: 180px;
   width: 600px; /* ปรับความกว้างกรอบให้เท่ากับความยาวของข้อความ Book Suggestion for Purchase */
@@ -261,6 +266,10 @@ const login = () => {
   justify-content: center; /* จัดให้อยู่กลางในแนวตั้ง */
   text-align: center; /* จัดข้อความให้อยู่กลาง */
   margin-right: 300px;
+}
+
+.form-row {
+  margin-right: 160px;
 }
 
 .mg-ps {
