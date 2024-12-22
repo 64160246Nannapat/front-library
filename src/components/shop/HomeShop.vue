@@ -59,8 +59,8 @@ import logout from '@/assets/logout.png'
 const drawer = ref(false)
 
 const items = [
-  { title: 'จัดการหนังสือ', icon: book, link: '/manage-book' },
-  { title: 'ประวัติการขาย', icon: file, link: '/history-sell' },
+  { title: 'จัดการหนังสือ', icon: book, link: '/home-shop/manage-book' },
+  { title: 'ประวัติการขาย', icon: file, link: '/home-shop/history-sell' },
   { title: 'LOGOUT', icon: logout, link: '/' },
 ]
 </script>

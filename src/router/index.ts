@@ -16,6 +16,7 @@ import HistorySell from '@/components/shop/HistorySell.vue'
 import SumBook from '@/components/executive/SumBook.vue'
 import ManageSellBook from '@/components/library/ManageSellBook.vue';
 import CheckBook from '@/components/library/CkeckBook.vue'
+import PurchaseBudget from '@/components/library/PurchaseBudget.vue'
 import LoginView2 from '@/views/LoginView2.vue'
 
 const routes = [
@@ -84,6 +85,18 @@ const routes = [
     path: '/home-shop',
     name: 'homeShop',
     component: HomeShop,
+    children: [
+      {
+        path: 'history-sell',
+        name: 'historySellShop',
+        component: HistorySell,
+      },
+      {
+        path: 'manage-book',
+        name: 'manageBookShop',
+        component: ManageBook,
+      },
+    ],
     meta: { requiresAuth: true, role: 'shop' },
   },
   {
@@ -138,6 +151,11 @@ const routes = [
         path: 'check-book',
         name: 'checkBookLibrary',
         component: CheckBook,
+      },
+      {
+        path: 'purchase-budget',
+        name: 'purchaseBudgetLibrary',
+        component: PurchaseBudget,
       },
     ],
     meta: { requiresAuth: true, role: 'library' },
@@ -228,6 +246,12 @@ const routes = [
     name: 'checkBook',
     component: CheckBook,
   },
+  {
+    path: '/purchase-budget',
+    name: 'purchaseBudget',
+    component: PurchaseBudget,
+  },
+
 
 ]
 

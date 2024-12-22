@@ -7,7 +7,7 @@
         <div class="subheading">Burapha University</div>
 
         <div class="form-container">
-          <v-row >
+          <v-row>
             <!-- Username -->
             <v-col cols="12">
               <v-text-field
@@ -161,6 +161,8 @@ const login = () => {
     router.push('/home-teacher/coupon')
   } else if (role === 'library') {
     router.push('/home-library/manage-sell-book')
+  } else if (role === 'shop') {
+    router.push('/home-shop/manage-book')
   } else {
     router.push(`/home-${role}`)
   }
