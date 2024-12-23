@@ -1,5 +1,5 @@
 <template>
-  <v-main style="height: 500px">
+  <v-main style="height: 500px; margin-top: -30px">
     <v-main>
       <v-container>
         <div class="header">
@@ -8,112 +8,88 @@
         </div>
         <v-card class="mx-auto my-8 card">
           <!-- Search Section -->
-          <v-row class="search-section" align="center" justify="center">
-            <v-col cols="12" md="4" style="padding-right: 0">
+          <v-row align="center" justify="flex-start" style="gap: 8px">
+            <v-col cols="auto">
               <v-autocomplete
                 :items="['ISBN', 'TITLE', 'AUTHOR']"
                 v-model="searchCategory"
                 class="select-isbn"
                 variant="outlined"
+                rounded="lg"
               ></v-autocomplete>
             </v-col>
 
-            <v-col cols="12" md="6" style="padding-left: 0">
-              <v-text-field class="search-text" v-model="searchInput" variant="outlined" />
+            <v-col cols="auto">
+              <v-text-field
+                class="search-text"
+                v-model="searchInput"
+                variant="outlined"
+                rounded="lg"
+              />
             </v-col>
 
-            <v-col cols="12" md="2">
-              <v-btn color="primary" @click="searchBooks" block>
+            <v-col cols="auto">
+              <v-btn color="#E3E1D9" @click="searchBooks" block rounded="lg" style="margin-top: -25px; height: 50px;">
                 <v-icon left>mdi-magnify</v-icon> ค้นหา
               </v-btn>
             </v-col>
           </v-row>
         </v-card>
 
-        <!-- <v-data-table
+        <!-- Table Data -->
+        <v-data-table
           :headers="headers"
-          :items="serverItems"
+          :items="filteredItems"
           :loading="loading"
           item-key="id"
           :hide-default-footer="true"
+          class="mt-4"
         >
-        </v-data-table> -->
+        </v-data-table>
       </v-container>
     </v-main>
   </v-main>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import HomeLibrary from '@/components/library/HomeLibrary.vue'
+import { ref, computed } from 'vue'
 
 const searchCategory = ref('ISBN')
 const searchInput = ref('')
 const loading = ref(false)
-const serverItems = ref([])
+const serverItems = ref([
+  { id: 1, title: 'หนังสือ A', author: 'นายเอ', publisher: 'สำนักพิมพ์ใจดี', quantity: 5, isbn: '123456' },
+  { id: 2, title: 'หนังสือ B', author: 'นายบี', publisher: 'สำนักพิมพ์ดี', quantity: 3, isbn: '654321' },
+  { id: 3, title: 'หนังสือ C', author: 'นายซี', publisher: 'สำนักพิมพ์อันดี', quantity: 8, isbn: '112233' },
+])
+
+// Search function
 const searchBooks = () => {
   console.log('ค้นหาหนังสือ:', searchCategory.value, searchInput.value)
 }
 
-// const headers = [
-//   { title: 'ลำดับ', key: 'id', align: 'start' },
-//   { title: 'ชื่อหนังสือ', key: 'title' },
-//   { title: 'ชื่อผู้แต่ง', key: 'author' },
-//   { title: 'สำนักพิมพ์', key: 'publisher' },
-//   { title: 'จำนวน', key: 'quantity' },
-//   ,
-// ]
+// Filter items based on search input
+const filteredItems = computed(() => {
+  return serverItems.value.filter(item => {
+    if (searchCategory.value === 'ISBN') {
+      return item.isbn.includes(searchInput.value)
+    } else if (searchCategory.value === 'TITLE') {
+      return item.title.toLowerCase().includes(searchInput.value.toLowerCase())
+    } else if (searchCategory.value === 'AUTHOR') {
+      return item.author.toLowerCase().includes(searchInput.value.toLowerCase())
+    }
+    return true
+  })
+})
 
-// const FakeAPI = {
-//   async fetch({ page }: { page: number; itemsPerPage: number }) {
-//     return new Promise((resolve) => {
-//       setTimeout(() => {
-//         const data = [
-//           {
-//             id: 1,
-//             title: 'หนังสือ A',
-//             author: 'นายเอ',
-//             publisher: 'สำนักพิมพ์ใจดี',
-//             quantity: 2,
-//           },
-//           {
-//             id: 1,
-//             title: 'หนังสือ A',
-//             author: 'นายบี',
-//             publisher: 'สำนักพิมพ์ใจดี',
-//             quantity: 2,
-//           },
-//           {
-//             id: 1,
-//             title: 'หนังสือ A',
-//             author: 'นายซี',
-//             publisher: 'สำนักพิมพ์ใจดี',
-//             quantity: 2,
-//           },
-//           {
-//             id: 1,
-//             title: 'หนังสือ A',
-//             author: 'นายดี',
-//             publisher: 'สำนักพิมพ์ใจดี',
-//             quantity: 2,
-//           },
-//           {
-//             id: 1,
-//             title: 'หนังสือ A',
-//             author: 'นายอี',
-//             publisher: 'สำนักพิมพ์ใจดี',
-//             quantity: 2,
-//           },
-//         ]
-
-//         resolve({
-//           items: data.slice(start, end),
-//           total: data.length,
-//         })
-//       }, 500)
-//     })
-//   },
-// }
+// Table headers
+const headers = [
+  { text: 'ลำดับ', align: 'start', key: 'id' },
+  { text: 'ชื่อหนังสือ', key: 'title' },
+  { text: 'ชื่อผู้แต่ง', key: 'author' },
+  { text: 'สำนักพิมพ์', key: 'publisher' },
+  { text: 'จำนวน', align: 'end', key: 'quantity' },
+]
 </script>
 
 <style scoped>
@@ -141,8 +117,8 @@ h1 {
 }
 
 .card {
-  width: 1200px;
-  height: 160px;
+  width: 1000px;
+  height: 150px;
   display: flex; /* ใช้ Flexbox */
   flex-direction: column; /* จัดแนวเนื้อหาในแนวตั้ง */
   justify-content: center; /* จัดตำแหน่งแนวตั้งให้อยู่กึ่งกลาง */
@@ -153,9 +129,13 @@ h1 {
   padding: 20px;
 }
 
+.dropdown-isbn {
+  text-align: left;
+}
+
 .select-isbn {
   width: 140px;
-  margin-right: 0;
+  margin-left: 0;
 }
 
 .search-title {
