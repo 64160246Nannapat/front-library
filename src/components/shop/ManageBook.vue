@@ -21,11 +21,12 @@
       </div>
 
       <!-- ตารางข้อมูล -->
-      <v-data-table-server
+      <v-data-table
         :headers="headers"
         :items="serverItems"
         :loading="loading"
         show-items-per-page="false"
+        :hide-default-footer="true"
       />
     </v-container>
   </v-main>

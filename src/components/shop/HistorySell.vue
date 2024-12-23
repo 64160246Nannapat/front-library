@@ -44,14 +44,12 @@
       </v-row>
 
       <!-- ตารางข้อมูล -->
-      <v-data-table-server
-        v-model:items-per-page="itemsPerPage"
+      <v-data-table
         :headers="headers"
         :items="serverItems"
-        :items-length="totalItems"
         :loading="loading"
         @update:options="loadItems"
-        show-items-per-page="false"
+        :hide-default-footer="true"
       />
     </v-container>
   </v-main>
@@ -63,9 +61,7 @@ import { ref, computed } from 'vue'
 // วันที่
 const selectedDate = ref(new Date())
 const menuDate = ref(false)
-const itemsPerPage = ref(5)
 const loading = ref(false)
-const totalItems = ref(0)
 const serverItems = ref([])
 
 // Headers สำหรับ v-data-table
@@ -177,9 +173,6 @@ const FakeAPI = {
           },
         ]
 
-        const start = (page - 1) * itemsPerPage
-        const end = start + itemsPerPage
-
         resolve({
           items: data.slice(start, end),
           total: data.length,
@@ -231,7 +224,7 @@ h1 {
   overflow: visible; /* แสดงข้อความที่เกิน */
   text-overflow: unset; /* ปิด ellipsis (...) */
   width: 100px;
-  min-width: 300px;
+  min-width: 200px;
   text-align: center; /* จัดข้อความอยู่กลาง */
   justify-content: center;
   align-content: center;

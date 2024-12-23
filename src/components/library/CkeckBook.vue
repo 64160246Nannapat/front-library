@@ -9,26 +9,19 @@
         <v-card class="mx-auto my-8 card">
           <!-- Search Section -->
           <v-row class="search-section" align="center" justify="center">
-            <v-col cols="12" md="4">
-              <v-col cols="auto">
-                <div>
-                  <v-autocomplete
-                    :items="['ISBN', 'TITLE', 'AUTHOR']"
-                    v-model="searchCategory"
-                    class="select-isbn"
-                    variant="outlined"
-                  ></v-autocomplete>
-                </div>
-              </v-col>
-            </v-col>
-            <v-col cols="12" md="6">
-              <v-text-field
-                class="search-text"
-                v-model="searchInput"
-                label="กรอกข้อมูล"
+            <v-col cols="12" md="4" style="padding-right: 0">
+              <v-autocomplete
+                :items="['ISBN', 'TITLE', 'AUTHOR']"
+                v-model="searchCategory"
+                class="select-isbn"
                 variant="outlined"
-              />
+              ></v-autocomplete>
             </v-col>
+
+            <v-col cols="12" md="6" style="padding-left: 0">
+              <v-text-field class="search-text" v-model="searchInput" variant="outlined" />
+            </v-col>
+
             <v-col cols="12" md="2">
               <v-btn color="primary" @click="searchBooks" block>
                 <v-icon left>mdi-magnify</v-icon> ค้นหา
@@ -36,6 +29,15 @@
             </v-col>
           </v-row>
         </v-card>
+
+        <!-- <v-data-table
+          :headers="headers"
+          :items="serverItems"
+          :loading="loading"
+          item-key="id"
+          :hide-default-footer="true"
+        >
+        </v-data-table> -->
       </v-container>
     </v-main>
   </v-main>
@@ -47,9 +49,71 @@ import HomeLibrary from '@/components/library/HomeLibrary.vue'
 
 const searchCategory = ref('ISBN')
 const searchInput = ref('')
+const loading = ref(false)
+const serverItems = ref([])
 const searchBooks = () => {
   console.log('ค้นหาหนังสือ:', searchCategory.value, searchInput.value)
 }
+
+// const headers = [
+//   { title: 'ลำดับ', key: 'id', align: 'start' },
+//   { title: 'ชื่อหนังสือ', key: 'title' },
+//   { title: 'ชื่อผู้แต่ง', key: 'author' },
+//   { title: 'สำนักพิมพ์', key: 'publisher' },
+//   { title: 'จำนวน', key: 'quantity' },
+//   ,
+// ]
+
+// const FakeAPI = {
+//   async fetch({ page }: { page: number; itemsPerPage: number }) {
+//     return new Promise((resolve) => {
+//       setTimeout(() => {
+//         const data = [
+//           {
+//             id: 1,
+//             title: 'หนังสือ A',
+//             author: 'นายเอ',
+//             publisher: 'สำนักพิมพ์ใจดี',
+//             quantity: 2,
+//           },
+//           {
+//             id: 1,
+//             title: 'หนังสือ A',
+//             author: 'นายบี',
+//             publisher: 'สำนักพิมพ์ใจดี',
+//             quantity: 2,
+//           },
+//           {
+//             id: 1,
+//             title: 'หนังสือ A',
+//             author: 'นายซี',
+//             publisher: 'สำนักพิมพ์ใจดี',
+//             quantity: 2,
+//           },
+//           {
+//             id: 1,
+//             title: 'หนังสือ A',
+//             author: 'นายดี',
+//             publisher: 'สำนักพิมพ์ใจดี',
+//             quantity: 2,
+//           },
+//           {
+//             id: 1,
+//             title: 'หนังสือ A',
+//             author: 'นายอี',
+//             publisher: 'สำนักพิมพ์ใจดี',
+//             quantity: 2,
+//           },
+//         ]
+
+//         resolve({
+//           items: data.slice(start, end),
+//           total: data.length,
+//         })
+//       }, 500)
+//     })
+//   },
+// }
 </script>
 
 <style scoped>
@@ -63,6 +127,10 @@ const searchBooks = () => {
   width: 60px;
   height: auto;
   margin-right: 15px;
+}
+
+.v-row {
+  justify-content: flex-start; /* เริ่มจัดจากด้านซ้าย */
 }
 
 h1 {
@@ -87,6 +155,7 @@ h1 {
 
 .select-isbn {
   width: 140px;
+  margin-right: 0;
 }
 
 .search-title {
@@ -97,12 +166,11 @@ h1 {
   background-color: white;
   display: flex; /* ใช้ Flexbox */
   align-items: center; /* จัดให้อยู่ตรงกลางแนวตั้ง */
-  margin-right: 10px; /* เพิ่มระยะห่างจากปุ่ม Dropdown */
-  margin-left: 5px; /* ขยับ v-text-field เข้ามาใกล้ dropdown */
   flex-grow: 1;
 }
 
 .search-text {
-  width: 500px;
+  width: 600px;
+  margin-left: 0;
 }
 </style>
