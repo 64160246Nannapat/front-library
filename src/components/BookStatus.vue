@@ -52,6 +52,7 @@
         :loading="loading"
         @update:options="loadItems"
         show-items-per-page="false"
+        :hide-default-footer="true"
       />
     </v-container>
   </v-main>

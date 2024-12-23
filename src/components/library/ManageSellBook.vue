@@ -93,6 +93,7 @@
         :items="serverItems"
         :loading="loading"
         item-key="id"
+        :hide-default-footer="true"
       >
       </v-data-table>
     </v-container>
@@ -171,7 +172,7 @@ const fullFormattedDate = computed(() => {
 
 // API ปลอมเพื่อเลียนแบบการดึงข้อมูล
 const FakeAPI = {
-  async fetch({ page, itemsPerPage }: { page: number; itemsPerPage: number }) {
+  async fetch({ page }: { page: number; itemsPerPage: number }) {
     return new Promise((resolve) => {
       setTimeout(() => {
         const data = [
@@ -234,15 +235,17 @@ const FakeAPI = {
   },
 }
 
-// โหลดข้อมูล
 const loadItems = ({ page, itemsPerPage }: { page: number; itemsPerPage: number }) => {
   loading.value = true
   FakeAPI.fetch({ page, itemsPerPage }).then(({ items, total }) => {
     if (selectedDate.value) {
       const selectedFormattedDate = formattedDate.value
-      items = items.filter((item) => item.date === selectedFormattedDate)
+      // กรองข้อมูลที่วันที่ตรงกับวันที่ที่เลือกจาก date picker
+      const filteredItems = items.filter((item) => item.date === selectedFormattedDate)
+      serverItems.value = filteredItems
+    } else {
+      serverItems.value = items
     }
-    serverItems.value = items
     loading.value = false
   })
 }

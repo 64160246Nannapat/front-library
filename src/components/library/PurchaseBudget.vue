@@ -50,6 +50,7 @@
         item-value="index"
         dense
         class="elevation-1"
+        :hide-default-footer="true"
       >
         <template v-slot:top>
           <v-row>
@@ -98,7 +99,7 @@ export default defineComponent({
       books: [
         {
           index: 1,
-          name: "นันท์ณภัทร สอนสุขภาพ",
+          name: "นันท์ณภัทร สอนสุภาพ",
           faculty: "วิทยาการสารสนเทศ",
           book: "ปริญจ์จำนาน",
           store: "แจ่มใส",
