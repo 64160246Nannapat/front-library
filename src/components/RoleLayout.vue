@@ -42,22 +42,22 @@ defineProps({
 //   return sidebars[role] || null
 // })
 
-const currentAppBar = computed(() => {
-  const appBars = {
-    student: () => import('@/components/AppbarStudent.vue'),
-    // Add other roles as needed
-  }
-  return appBars[role] || null
-})
+// const currentAppBar = computed(() => {
+//   const appBars = {
+//     student: () => import('@/components/AppbarStudent.vue'),
+//     // Add other roles as needed
+//   }
+//   return appBars[role] || null
+// })
 
-// Dynamic Sidebar mapping
-const currentSidebar = computed(() => {
-  const sidebars = {
-    student: () => import('@/components/SidebarStudent.vue'),
-    // Add other roles as needed
-  }
-  return sidebars[role] || null
-})
+// // Dynamic Sidebar mapping
+// const currentSidebar = computed(() => {
+//   const sidebars = {
+//     student: () => import('@/components/SidebarStudent.vue'),
+//     // Add other roles as needed
+//   }
+//   return sidebars[role] || null
+// })
 
 </script>
 

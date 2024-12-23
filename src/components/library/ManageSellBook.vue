@@ -20,6 +20,7 @@
                   placeholder="dd/mm/yyyy"
                   class="custom-date-picker"
                   hide-details
+                  rounded="lg"
                   readonly
                   flat
                   solo
@@ -43,16 +44,57 @@
         </v-col>
       </v-row>
 
+      <v-row align="center">
+        <v-col cols="auto">
+          <div>
+            <v-autocomplete
+              :items="['ISBN', 'TITLE', 'AUTHOR']"
+              v-model="searchCategory"
+              class="select-isbn"
+              variant="outlined"
+              rounded="lg"
+            ></v-autocomplete>
+          </div>
+        </v-col>
+
+        <v-col cols="auto">
+          <v-text-field variant="outlined" class="serch-text" rounded="lg"></v-text-field>
+        </v-col>
+
+        <v-col cols="auto" style="margin-top: -24px">
+          <v-btn
+            color="#EED3D9"
+            @click="onButtonClick"
+            class="custom-isbn"
+            style="height: 40px"
+            rounded="lg"
+          >
+            <v-icon size="20">mdi-magnify</v-icon>
+          </v-btn>
+        </v-col>
+
+        <v-col cols="auto" class="ml-auto d-flex align-center">
+          <h3 style="margin-right: 20px; margin-top: -20px">ประเภท:</h3>
+          <div>
+            <v-autocomplete
+              :items="['ทั้งหมด', 'เสนอหนังสือ', 'Book Fair']"
+              v-model="searchBook"
+              class="select-book"
+              variant="outlined"
+              rounded="lg"
+            ></v-autocomplete>
+          </div>
+        </v-col>
+      </v-row>
+
       <!-- ตารางข้อมูล -->
-      <v-data-table-server
-        v-model:items-per-page="itemsPerPage"
+      <v-data-table
         :headers="headers"
         :items="serverItems"
-        :items-length="totalItems"
         :loading="loading"
-        @update:options="loadItems"
-        show-items-per-page="false"
-      />
+        item-key="id"
+      >
+      </v-data-table>
     </v-container>
   </v-main>
 </template>
@@ -63,11 +105,10 @@ import { ref, computed } from 'vue'
 // วันที่
 const selectedDate = ref(new Date())
 const menuDate = ref(false)
-const itemsPerPage = ref(5)
 const loading = ref(false)
-const totalItems = ref(0)
 const serverItems = ref([])
-
+const searchCategory = ref('ISBN')
+const searchBook = ref('ทั้งหมด')
 // Headers สำหรับ v-data-table
 const headers = [
   { title: 'ลำดับ', key: 'id', align: 'start' },
@@ -197,8 +238,11 @@ const FakeAPI = {
 const loadItems = ({ page, itemsPerPage }: { page: number; itemsPerPage: number }) => {
   loading.value = true
   FakeAPI.fetch({ page, itemsPerPage }).then(({ items, total }) => {
+    if (selectedDate.value) {
+      const selectedFormattedDate = formattedDate.value
+      items = items.filter((item) => item.date === selectedFormattedDate)
+    }
     serverItems.value = items
-    totalItems.value = total
     loading.value = false
   })
 }
@@ -235,7 +279,7 @@ h1 {
   overflow: visible; /* แสดงข้อความที่เกิน */
   text-overflow: unset; /* ปิด ellipsis (...) */
   width: 100px;
-  min-width: 300px;
+  min-width: 200px;
   text-align: center; /* จัดข้อความอยู่กลาง */
   justify-content: center;
   align-content: center;
@@ -281,25 +325,28 @@ h1 {
 
 /* ตาราง */
 .v-simple-table {
-  width: 100%; /* ขยายตารางให้เต็มความกว้างคอนเทนเนอร์ */
-  max-width: 100%; /* กำหนดให้ไม่เกินความกว้างของหน้าจอ */
-  margin: 0 auto; /* จัดตารางให้อยู่กลางหน้าจอ */
-  font-size: 18px;
-  border-collapse: collapse; /* รวมเส้นขอบตาราง */
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  font-size: 20px;
+  border-collapse: collapse;
   overflow-x: auto;
-  table-layout: auto; /* ช่วยให้ตารางขยายได้ตามขนาดข้อมูล */
-}
-
-th,
-td {
-  padding: 16px;
-  text-align: left;
-  width: 16%; /* ปรับความกว้างให้แต่ละคอลัมน์สมดุล */
+  table-layout: auto;
 }
 
 th {
+  padding: 16px;
+  text-align: left;
+  width: 16%;
   font-weight: bold;
-  font-size: 20px;
+  font-size: 24px; /* ขนาดตัวอักษร 24px */
+  line-height: 40px; /* เพิ่มความสูงของแถวหัวตาราง */
+}
+
+td {
+  padding: 16px;
+  text-align: left;
+  width: 16%;
 }
 
 .formatted-date-display {
@@ -311,5 +358,23 @@ th {
   font-size: 20px;
   font-weight: bold;
   color: #4e484a;
+}
+
+.select-isbn {
+  width: 140px;
+}
+
+.serch-text {
+  width: 400px;
+}
+
+.custom-isbn {
+  width: 80px;
+  height: 56px;
+  line-height: 56px;
+}
+
+.select-book {
+  width: 160px;
 }
 </style>

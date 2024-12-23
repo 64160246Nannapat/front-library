@@ -10,16 +10,24 @@
           <!-- Search Section -->
           <v-row class="search-section" align="center" justify="center">
             <v-col cols="12" md="4">
-              <v-select
-                :items="['ISBN', 'TITLE', 'AUTHOR']"
-                v-model="searchCategory"
-                class="search-title"
-                variant="outlined"
-
-              />
+              <v-col cols="auto">
+                <div>
+                  <v-autocomplete
+                    :items="['ISBN', 'TITLE', 'AUTHOR']"
+                    v-model="searchCategory"
+                    class="select-isbn"
+                    variant="outlined"
+                  ></v-autocomplete>
+                </div>
+              </v-col>
             </v-col>
             <v-col cols="12" md="6">
-              <v-text-field class="search-text" v-model="searchInput" label="กรอกข้อมูล" variant="outlined" />
+              <v-text-field
+                class="search-text"
+                v-model="searchInput"
+                label="กรอกข้อมูล"
+                variant="outlined"
+              />
             </v-col>
             <v-col cols="12" md="2">
               <v-btn color="primary" @click="searchBooks" block>
@@ -35,7 +43,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import HomeLibrary from '@/components/library/HomeLibrary.vue';
+import HomeLibrary from '@/components/library/HomeLibrary.vue'
 
 const searchCategory = ref('ISBN')
 const searchInput = ref('')
@@ -77,11 +85,8 @@ h1 {
   padding: 20px;
 }
 
-.search-section {
-  width: 100%; /* ให้ส่วนค้นหาขยายเต็ม */
-  display: flex; /* ใช้ Flexbox */
-  justify-content: center; /* จัดให้อยู่ตรงกลางแนวนอน */
-  align-items: center; /* จัดให้อยู่ตรงกลางแนวตั้ง */
+.select-isbn {
+  width: 140px;
 }
 
 .search-title {

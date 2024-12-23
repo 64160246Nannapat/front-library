@@ -270,6 +270,46 @@ const login = () => {
   margin-right: 300px;
 }
 
+@media (max-width: 768px) {
+  .pink-background {
+    flex-direction: column; /* จัดเรียงองค์ประกอบแนวตั้ง */
+    padding: 20px;
+  }
+
+  .image {
+    margin-left: 0; /* ลบระยะห่างด้านซ้าย */
+    max-width: 100%; /* ให้รูปภาพขยายเต็มความกว้าง */
+  }
+
+  .text {
+    margin-right: 0;
+    text-align: center;
+  }
+
+  .custom-field .v-input__control {
+    width: 100%; /* ใช้ความกว้างเต็มของหน้าจอ */
+    height: auto; /* ปรับความสูงอัตโนมัติ */
+  }
+
+  .custom-login {
+    margin-left: 0; /* จัดให้อยู่กลาง */
+    width: 100%;
+  }
+
+  .custom-btn {
+    width: 100%; /* ให้ปุ่มมีความกว้างเต็ม */
+  }
+
+  .heading {
+    font-size: 2rem; /* ลดขนาดตัวอักษร */
+  }
+
+  .subheading {
+    font-size: 1.5rem;
+  }
+}
+
+
 .form-row {
   margin-right: 160px;
 }
