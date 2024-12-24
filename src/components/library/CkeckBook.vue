@@ -57,6 +57,15 @@ import { ref, computed } from 'vue'
 const searchCategory = ref('ISBN')
 const searchInput = ref('')
 const loading = ref(false)
+// Table headers
+const headers = [
+  { text: 'ลำดับ', align: 'start', value: 'id' },
+  { text: 'ชื่อหนังสือ', value: 'title' },
+  { text: 'ชื่อผู้แต่ง', value: 'author' },
+  { text: 'สำนักพิมพ์', value: 'publisher' },
+  { text: 'จำนวน', align: 'end', value: 'quantity' },
+]
+
 const serverItems = ref([
   { id: 1, title: 'หนังสือ A', author: 'นายเอ', publisher: 'สำนักพิมพ์ใจดี', quantity: 5, isbn: '123456' },
   { id: 2, title: 'หนังสือ B', author: 'นายบี', publisher: 'สำนักพิมพ์ดี', quantity: 3, isbn: '654321' },
@@ -81,15 +90,6 @@ const filteredItems = computed(() => {
     return true
   })
 })
-
-// Table headers
-const headers = [
-  { text: 'ลำดับ', align: 'start', key: 'id' },
-  { text: 'ชื่อหนังสือ', key: 'title' },
-  { text: 'ชื่อผู้แต่ง', key: 'author' },
-  { text: 'สำนักพิมพ์', key: 'publisher' },
-  { text: 'จำนวน', align: 'end', key: 'quantity' },
-]
 </script>
 
 <style scoped>
