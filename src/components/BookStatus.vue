@@ -60,7 +60,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 
 // วันที่
 const selectedDate = ref(new Date())
@@ -128,79 +128,60 @@ const fullFormattedDate = computed(() => {
 
 // API ปลอมเพื่อเลียนแบบการดึงข้อมูล
 const FakeAPI = {
-  async fetch({ page, itemsPerPage }: { page: number; itemsPerPage: number }) {
+  async fetch({
+    page,
+    itemsPerPage,
+    selectedDate,
+  }: {
+    page: number
+    itemsPerPage: number
+    selectedDate: Date
+  }) {
     return new Promise((resolve) => {
       setTimeout(() => {
         const data = [
-          {
-            id: 1,
-            title: 'หนังสือ A',
-            date: '01/12/2567',
-            isbn: '978-3-16-148410-0',
-            price: 250,
-            quantity: 2,
-            status: 'อนุมัติ',
-          },
-          {
-            id: 2,
-            title: 'หนังสือ B',
-            date: '02/12/2567',
-            isbn: '978-0-306-40615-7',
-            price: 350,
-            quantity: 1,
-            status: 'อนุมัติ',
-          },
-          {
-            id: 3,
-            title: 'หนังสือ C',
-            date: '03/12/2567',
-            isbn: '978-1-4028-9462-6',
-            price: 500,
-            quantity: 3,
-            status: 'ไม่อนุมัติ',
-          },
-          {
-            id: 4,
-            title: 'ความรู้สึกของเราสำคัญที่สุด',
-            date: '20/12/2567',
-            isbn: '978-1-4028-9462-6',
-            price: 500,
-            quantity: 1,
-            status: 'ไม่อนุมัติ',
-          },
-          {
-            id: 5,
-            title: 'คุณคางคกไปพบนักจิตบำบัด',
-            date: '20/12/2567',
-            isbn: '978-1-4028-9462-6',
-            price: 500,
-            quantity: 1,
-            status: 'ไม่อนุมัติ',
-          },
+          { id: 1, title: 'หนังสือ A', date: '01/12/2567', isbn: '978-3-16-148410-0', price: 250, quantity: 2, status: 'อนุมัติ' },
+          { id: 2, title: 'หนังสือ B', date: '02/12/2567', isbn: '978-0-306-40615-7', price: 350, quantity: 1, status: 'อนุมัติ' },
+          { id: 3, title: 'หนังสือ C', date: '03/12/2567', isbn: '978-1-4028-9462-6', price: 500, quantity: 3, status: 'ไม่อนุมัติ' },
+          { id: 4, title: 'ความรู้สึกของเราสำคัญที่สุด', date: '20/12/2567', isbn: '978-1-4028-9462-6', price: 500, quantity: 1, status: 'ไม่อนุมัติ' },
+          { id: 5, title: 'คุณคางคกไปพบนักจิตบำบัด', date: '20/12/2567', isbn: '978-1-4028-9462-6', price: 500, quantity: 1, status: 'ไม่อนุมัติ' },
         ]
+
+        const selectedDateString = `${String(selectedDate.getDate()).padStart(2, '0')}/${String(selectedDate.getMonth() + 1).padStart(2, '0')}/${selectedDate.getFullYear() + 543}`
+
+        // ฟิลเตอร์ข้อมูลตามวันที่
+        const filteredData = data.filter((item) => item.date === selectedDateString)
 
         const start = (page - 1) * itemsPerPage
         const end = start + itemsPerPage
 
         resolve({
-          items: data.slice(start, end),
-          total: data.length,
+          items: filteredData.slice(start, end),
+          total: filteredData.length,
         })
       }, 500)
     })
   },
 }
 
-// โหลดข้อมูล
+// โหลดข้อมูลพร้อมฟิลเตอร์ตามวันที่
 const loadItems = ({ page, itemsPerPage }: { page: number; itemsPerPage: number }) => {
   loading.value = true
-  FakeAPI.fetch({ page, itemsPerPage }).then(({ items, total }) => {
-    serverItems.value = items
-    totalItems.value = total
-    loading.value = false
-  })
+  FakeAPI.fetch({ page, itemsPerPage, selectedDate: selectedDate.value }).then(
+    ({ items, total }) => {
+      serverItems.value = items
+      totalItems.value = total
+      loading.value = false
+    },
+  )
 }
+
+// ตรวจจับการเปลี่ยนแปลงวันที่
+watch(selectedDate, () => {
+  loadItems({ page: 1, itemsPerPage: itemsPerPage.value })
+})
 </script>
+
 
 <style scoped>
 .header {
