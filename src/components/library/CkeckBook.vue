@@ -10,13 +10,13 @@
           <!-- Search Section -->
           <v-row align="center" justify="flex-start" style="gap: 8px">
             <v-col cols="auto">
-              <v-autocomplete
+              <v-select
                 :items="['ISBN', 'TITLE', 'AUTHOR']"
                 v-model="searchCategory"
                 class="select-isbn"
                 variant="outlined"
                 rounded="lg"
-              ></v-autocomplete>
+              ></v-select>
             </v-col>
 
             <v-col cols="auto">

@@ -46,25 +46,29 @@
 
       <v-row align="center">
         <v-col cols="auto">
-          <div>
-            <v-autocomplete
-              :items="['ISBN', 'TITLE', 'AUTHOR']"
-              v-model="searchCategory"
-              class="select-isbn"
-              variant="outlined"
-              rounded="lg"
-            ></v-autocomplete>
-          </div>
+          <v-select
+            :items="['ISBN', 'TITLE', 'AUTHOR']"
+            v-model="searchCategory"
+            class="select-isbn"
+            variant="outlined"
+            rounded="lg"
+          ></v-select>
         </v-col>
 
         <v-col cols="auto">
-          <v-text-field variant="outlined" class="serch-text" rounded="lg"></v-text-field>
+          <v-text-field
+            v-model="searchText"
+            placeholder="ค้นหา..."
+            variant="outlined"
+            class="serch-text"
+            rounded="lg"
+          ></v-text-field>
         </v-col>
 
         <v-col cols="auto" style="margin-top: -24px">
           <v-btn
             color="#EED3D9"
-            @click="onButtonClick"
+            @click="onSearch"
             class="custom-isbn"
             style="height: 40px"
             rounded="lg"
@@ -75,19 +79,16 @@
 
         <v-col cols="auto" class="ml-auto d-flex align-center">
           <h3 style="margin-right: 20px; margin-top: -20px">ประเภท:</h3>
-          <div>
-            <v-autocomplete
-              :items="['ทั้งหมด', 'เสนอหนังสือ', 'Book Fair']"
-              v-model="searchBook"
-              class="select-book"
-              variant="outlined"
-              rounded="lg"
-            ></v-autocomplete>
-          </div>
+          <v-select
+            :items="['ทั้งหมด', 'เสนอหนังสือ', 'Book Fair']"
+            v-model="searchBook"
+            class="select-book"
+            variant="outlined"
+            rounded="lg"
+          ></v-select>
         </v-col>
       </v-row>
 
-      <!-- ตารางข้อมูล -->
       <v-data-table
         :headers="headers"
         :items="serverItems"
@@ -106,10 +107,12 @@ import { ref, computed } from 'vue'
 // วันที่
 const selectedDate = ref(new Date())
 const menuDate = ref(false)
-const loading = ref(false)
-const serverItems = ref([])
 const searchCategory = ref('ISBN')
 const searchBook = ref('ทั้งหมด')
+const searchText = ref('')
+const loading = ref(false)
+const serverItems = ref([])
+
 // Headers สำหรับ v-data-table
 const headers = [
   { title: 'ลำดับ', key: 'id', align: 'start' },
@@ -223,30 +226,49 @@ const FakeAPI = {
           },
         ]
 
-        const start = (page - 1) * itemsPerPage
-        const end = start + itemsPerPage
-
-        resolve({
-          items: data.slice(start, end),
-          total: data.length,
-        })
+        resolve(data)
       }, 500)
     })
   },
 }
 
-const loadItems = ({ page, itemsPerPage }: { page: number; itemsPerPage: number }) => {
+const onSearch = () => {
   loading.value = true
-  FakeAPI.fetch({ page, itemsPerPage }).then(({ items, total }) => {
+  FakeAPI.fetch({ page: 1, itemsPerPage: 10 }).then((items) => {
+    let filteredItems = items
+
+    // กรองตามวันที่
     if (selectedDate.value) {
       const selectedFormattedDate = formattedDate.value
-      // กรองข้อมูลที่วันที่ตรงกับวันที่ที่เลือกจาก date picker
-      const filteredItems = items.filter((item) => item.date === selectedFormattedDate)
-      serverItems.value = filteredItems
-    } else {
-      serverItems.value = items
+      filteredItems = filteredItems.filter((item) => item.date === selectedFormattedDate)
     }
+
+    // กรองตามประเภทหนังสือ
+    if (searchBook.value && searchBook.value !== 'ทั้งหมด') {
+      filteredItems = filteredItems.filter((item) => {
+        if (searchBook.value === 'เสนอหนังสือ') return item.status === 'อนุมัติ'
+        if (searchBook.value === 'Book Fair') return item.status === 'ไม่อนุมัติ'
+        return true
+      })
+    }
+
+    // กรองตามหมวดหมู่การค้นหา
+    if (searchText.value && searchCategory.value) {
+      const searchValue = searchText.value.toLowerCase()
+      filteredItems = filteredItems.filter((item) => {
+        if (searchCategory.value === 'TITLE') return item.title.toLowerCase().includes(searchValue)
+        if (searchCategory.value === 'ISBN') return item.isbn.toLowerCase().includes(searchValue)
+        if (searchCategory.value === 'AUTHOR' && item.author)
+          return item.author.toLowerCase().includes(searchValue)
+        return true
+      })
+    }
+
+    serverItems.value = filteredItems
     loading.value = false
+
+    searchInput.value = '' //เคลียร์ text input
+    searchCategory.value = 'ISBN' //เคลียร์ dropdown
   })
 }
 </script>
@@ -378,6 +400,6 @@ td {
 }
 
 .select-book {
-  width: 160px;
+  width: 200px;
 }
 </style>
