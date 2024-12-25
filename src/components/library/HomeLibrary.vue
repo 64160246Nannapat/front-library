@@ -73,7 +73,7 @@ const items = [
   { title: 'ประมาณงบการซื้อหนังสือ', icon: budget, link: '/home-library/purchase-budget' },
   { title: 'รายชื่อผู้เสนอหนังสือ', icon: list, link: '/book-form' },
   { title: 'จัดการร้านค้า', icon: addShop, link: '/home-library/add-shop' },
-  { title: 'ร้านค้า', icon: store, link: '/book-status' },
+  { title: 'ร้านค้า', icon: store, link: '/home-library/show-shop' },
   { title: 'LOGOUT', icon: logout, link: '/' },
 ]
 </script>

@@ -18,6 +18,7 @@ import ManageSellBook from '@/components/library/ManageSellBook.vue';
 import CheckBook from '@/components/library/CkeckBook.vue'
 import PurchaseBudget from '@/components/library/PurchaseBudget.vue'
 import AddShop from '@/components/library/AddShop.vue'
+import ShowShop from '@/components/library/ShowShop.vue'
 import LoginView2 from '@/views/LoginView2.vue'
 
 const routes = [
@@ -163,6 +164,11 @@ const routes = [
         name: 'addShopLibrary',
         component: AddShop,
       },
+      {
+        path: 'show-shop',
+        name: 'showShopLibrary',
+        component: ShowShop,
+      },
     ],
     meta: { requiresAuth: true, role: 'library' },
   },
@@ -266,6 +272,11 @@ const routes = [
     path: '/add-shop',
     name: 'addShop',
     component: AddShop,
+  },
+  {
+    path: '/show-shop',
+    name: 'showShop',
+    component: ShowShop,
   },
 
 
