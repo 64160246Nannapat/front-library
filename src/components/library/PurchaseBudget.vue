@@ -301,10 +301,10 @@ const loadItems = ({ page, itemsPerPage }) => {
     })
 }
 
-// เรียกใช้ loadItems เมื่อเงื่อนไขการกรองเปลี่ยนไป
 watch([selectedDate, searchFaculty, searchCoupon], () => {
   loadItems({ page: 1, itemsPerPage: 10 })
 })
+
 </script>
 
 <style scoped>

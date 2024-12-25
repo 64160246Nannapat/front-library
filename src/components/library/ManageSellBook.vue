@@ -30,7 +30,7 @@
                 />
               </template>
 
-              <v-date-picker v-model="selectedDate" @input="menuDate = false" locale="th" />
+              <v-date-picker v-model="selectedDate" @input="onDateChange" locale="th" />
             </v-menu>
           </v-col>
         </v-row>
@@ -62,6 +62,7 @@
             variant="outlined"
             class="serch-text"
             rounded="lg"
+            @input="onSearch"
           ></v-text-field>
         </v-col>
 
@@ -85,6 +86,7 @@
             class="select-book"
             variant="outlined"
             rounded="lg"
+            @input="onSearch"
           ></v-select>
         </v-col>
       </v-row>
@@ -124,7 +126,7 @@ const headers = [
   { title: 'จำนวน', key: 'quantity' },
   { title: 'รูปภาพ', key: 'image' },
   { title: 'ตรวจการซ้ำ', key: 'check' },
-  { title: 'ดำเนินการ', key: 'status' },
+  { title: 'ดำเนินการ', key: 'view' },
 ]
 
 // ฟอร์แมตวันที่
@@ -181,48 +183,76 @@ const FakeAPI = {
         const data = [
           {
             id: 1,
-            title: 'หนังสือ A',
+            name: 'นันท์ณภัทร สอนสุภาพ',
+            title: 'ความรู้สึกของเราสำคัญที่สุด',
             date: '01/12/2567',
-            isbn: '978-3-16-148410-0',
+            isbn: '9783161484100',
+            shop: 'แจ่มใส',
             price: 250,
             quantity: 2,
-            status: 'อนุมัติ',
+            status: 'เสนอหนังสือ',
+            author: 'อีดงกวี',
           },
           {
             id: 2,
-            title: 'หนังสือ B',
+            name: 'นันท์ณภัทร สอนสุภาพ',
+            title: 'วิทยาศาสตร์ของการใช้ชีวิต = The science of living',
             date: '02/12/2567',
-            isbn: '978-0-306-40615-7',
+            isbn: '9780306406157',
+            shop: 'แจ่มใส',
             price: 350,
             quantity: 1,
-            status: 'อนุมัติ',
+            status: 'Book Fair',
+            author: 'Dr. Stuart Farrimond',
           },
           {
             id: 3,
-            title: 'หนังสือ C',
+            name: 'นันท์ณภัทร สอนสุภาพ',
+            title:
+              'คุณคางคกไปพบนักจิตบำบัด : การผจญภัยทางจิตวิทยา = Counselling for toads : a psychological adventure ',
             date: '03/12/2567',
-            isbn: '978-1-4028-9462-6',
+            isbn: '9781402894656',
+            shop: 'แจ่มใส',
             price: 500,
             quantity: 3,
-            status: 'ไม่อนุมัติ',
+            status: 'Book Fair',
+            author: 'Robert de Board',
           },
           {
             id: 4,
-            title: 'ความรู้สึกของเราสำคัญที่สุด',
+            name: 'นันท์ณภัทร สอนสุภาพ',
+            title: 'ร่างกายไม่เคยโกหก = What every body is saying',
             date: '20/12/2567',
-            isbn: '978-1-4028-9462-6',
+            isbn: '9787402894626',
+            shop: 'แจ่มใส',
             price: 500,
             quantity: 1,
-            status: 'ไม่อนุมัติ',
+            status: 'Book Fair',
+            author: 'Joe Navarro',
           },
           {
             id: 5,
-            title: 'คุณคางคกไปพบนักจิตบำบัด',
+            name: 'นันท์ณภัทร สอนสุภาพ',
+            title: 'ภาวะลื่นไหล ทำอะไรก็ง่ายหมด = Productivity flow',
             date: '20/12/2567',
-            isbn: '978-1-4028-9462-6',
+            isbn: '9781502894626',
+            shop: 'แจ่มใส',
             price: 500,
             quantity: 1,
-            status: 'ไม่อนุมัติ',
+            status: 'เสนอหนังสือ',
+            author: 'สิทธินันท์ พลวิสุทธิ์ศักดิ์',
+          },
+          {
+            id: 6,
+            name: 'นันท์ณภัทร สอนสุภาพ',
+            title: 'หัวไม่ดีก็มีวิธีสอบผ่าน',
+            date: '25/12/2567',
+            isbn: '9786165786195',
+            shop: 'แจ่มใส',
+            price: 500,
+            quantity: 1,
+            status: 'เสนอหนังสือ',
+            author: 'จิตเกษม น้อยไร่ภูมิ',
           },
         ]
 
@@ -230,6 +260,10 @@ const FakeAPI = {
       }, 500)
     })
   },
+}
+
+const onDateChange = () => {
+  onSearch()
 }
 
 const onSearch = () => {
@@ -240,35 +274,52 @@ const onSearch = () => {
     // กรองตามวันที่
     if (selectedDate.value) {
       const selectedFormattedDate = formattedDate.value
+      console.log('Selected Date:', selectedFormattedDate)
+
       filteredItems = filteredItems.filter((item) => item.date === selectedFormattedDate)
     }
 
-    // กรองตามประเภทหนังสือ
-    if (searchBook.value && searchBook.value !== 'ทั้งหมด') {
-      filteredItems = filteredItems.filter((item) => {
-        if (searchBook.value === 'เสนอหนังสือ') return item.status === 'อนุมัติ'
-        if (searchBook.value === 'Book Fair') return item.status === 'ไม่อนุมัติ'
-        return true
-      })
+    // ตรวจสอบว่ามีการกรองเพิ่มเติมหรือไม่
+    const hasOtherFilters = searchBook.value !== 'ทั้งหมด' || searchText.value
+
+    if (hasOtherFilters) {
+      // กรองตามประเภทหนังสือ
+      if (searchBook.value && searchBook.value !== 'ทั้งหมด') {
+        filteredItems = filteredItems.filter((item) => {
+          if (searchBook.value === 'เสนอหนังสือ') return item.status === 'เสนอหนังสือ'
+          if (searchBook.value === 'Book Fair') return item.status === 'Book Fair'
+          return true
+        })
+      }
+
+      // กรองตามหมวดหมู่การค้นหา
+      if (searchText.value && searchCategory.value) {
+        const searchValue = searchText.value.toLowerCase()
+        filteredItems = filteredItems.filter((item) => {
+          if (searchCategory.value === 'TITLE')
+            return item.title.toLowerCase().includes(searchValue)
+          if (searchCategory.value === 'ISBN') return item.isbn.toLowerCase().includes(searchValue)
+          if (searchCategory.value === 'AUTHOR' && item.author)
+            return item.author.toLowerCase().includes(searchValue)
+          return true
+        })
+      }
     }
 
-    // กรองตามหมวดหมู่การค้นหา
-    if (searchText.value && searchCategory.value) {
-      const searchValue = searchText.value.toLowerCase()
-      filteredItems = filteredItems.filter((item) => {
-        if (searchCategory.value === 'TITLE') return item.title.toLowerCase().includes(searchValue)
-        if (searchCategory.value === 'ISBN') return item.isbn.toLowerCase().includes(searchValue)
-        if (searchCategory.value === 'AUTHOR' && item.author)
-          return item.author.toLowerCase().includes(searchValue)
-        return true
-      })
+    // หากไม่มีการเลือกวันที่หรือกรองอื่น ๆ ให้แสดงข้อมูลทั้งหมด
+    if (!selectedDate.value && !hasOtherFilters) {
+      filteredItems = items
     }
 
+    // อัปเดตข้อมูลตาราง
     serverItems.value = filteredItems
-    loading.value = false
 
-    searchInput.value = '' //เคลียร์ text input
-    searchCategory.value = 'ISBN' //เคลียร์ dropdown
+    // หากไม่มีข้อมูลให้เตือนใน console
+    if (filteredItems.length === 0) {
+      console.warn('No data found with the selected criteria.')
+    }
+
+    loading.value = false
   })
 }
 </script>

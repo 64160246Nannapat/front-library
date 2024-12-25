@@ -66,105 +66,109 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { setAuthData } from '@/services/authService'
 import axios from 'axios'
 
-const router = useRouter() // ใช้สำหรับเปลี่ยนหน้า
 const username = ref('')
 const password = ref('')
 const visible = ref(false)
 const errorMessage = ref('')
 const usernameError = ref<string | null>(null)
 const passwordError = ref<string | null>(null)
+const router = useRouter()
 
-// ฟังก์ชัน Mock Login
-const login = () => {
+const login = async () => {
   usernameError.value = null
   passwordError.value = null
 
-  // ตรวจสอบกรอกข้อมูลหรือไม่
-  if (!username.value || !password.value) {
-    if (!username.value) usernameError.value = 'ชื่อผู้ใช้ไม่ถูกต้อง'
-    if (!password.value) passwordError.value = 'รหัสผ่านไม่ถูกต้อง'
+  if (!username.value) {
+    usernameError.value = 'กรุณากรอกชื่อผู้ใช้'
+  }
+  if (!password.value) {
+    passwordError.value = 'กรุณากรอกรหัสผ่าน'
+  }
+  if (usernameError.value || passwordError.value) {
     return
   }
 
-  // Mock User
-  const mockUsers = {
-    student: 'password123',
-    teacher: 'password123',
-    admin: 'password123',
-    shop: 'password123',
-    library: 'password123',
-    faculty: 'password123',
-    executive: 'password123',
-  }
+  try {
+    // เรียก API
+    const response = await axios.post('http://localhost:3000/auth/login', {
+      username: username.value,
+      password: password.value,
+    })
 
-  // ตรวจสอบ Username และ Password
-  if (mockUsers[username.value] !== password.value) {
-    if (mockUsers[username.value] === undefined) {
-      usernameError.value = 'ชื่อผู้ใช้ไม่ถูกต้อง'
-      passwordError.value = 'รหัสผ่านไม่ถูกต้อง'
-      username.value = ''
-      password.value = ''
-    }
-    if (mockUsers[username.value] && mockUsers[username.value] !== password.value) {
-      passwordError.value = 'รหัสผ่านไม่ถูกต้อง'
-      password.value = ''
-    }
+    console.log('Response Data:', response.data)
 
-    if (usernameError.value || passwordError.value) {
+    const { access_token, refresh_token, role } = response.data
+
+    if (!role) {
+      errorMessage.value = 'เกิดข้อผิดพลาด: ไม่พบข้อมูลบทบาท (role)'
+      console.error('Missing role:', response.data)
       return
     }
-  }
 
-  // Mock Token และ Role
-  const token = 'mock-token-12345'
-  let role = ''
+    // เก็บ Token ใน localStorage
+    localStorage.setItem('access_token', access_token)
+    localStorage.setItem('refresh_token', refresh_token)
 
-  // กำหนด role ตาม username
-  switch (username.value) {
-    case 'student':
-      role = 'student'
-      break
-    case 'teacher':
-      role = 'teacher'
-      break
-    case 'admin':
-      role = 'admin'
-      break
-    case 'shop':
-      role = 'shop'
-      break
-    case 'library':
-      role = 'library'
-      break
-    case 'faculty':
-      role = 'faculty'
-      break
-    case 'executive':
-      role = 'executive'
-      break
-    default:
-      errorMessage.value = 'ไม่สามารถเข้าสู่ระบบได้'
-      return
-  }
+    console.log('Role:', role)
+    console.log('Redirecting...')
 
-  // บันทึก Token และ Role ลงใน localStorage
-  setAuthData(token, role)
-  // เปลี่ยนเส้นทางไปยังหน้า /home-student/book-form
-  if (role === 'student') {
-    router.push('/home-student/book-form')
-  } else if (role === 'executive') {
-    router.push('/home-executive/sum-book')
-  } else if (role === 'teacher') {
-    router.push('/home-teacher/coupon')
-  } else if (role === 'library') {
-    router.push('/home-library/manage-sell-book')
-  } else if (role === 'shop') {
-    router.push('/home-shop/manage-book')
-  } else {
-    router.push(`/home-${role}`)
+    // เปลี่ยนเส้นทางตาม Role
+    switch (role) {
+      case 'Student':
+        router.push('/home-student/book-form')
+        break
+      case 'Executive':
+        router.push('/home-executive/sum-book')
+        break
+      case 'Teacher':
+        router.push('/home-teacher/coupon')
+        break
+      case 'StaffLibraryAdm':
+      case 'StaffLibraryNor':
+        router.push('/home-library/manage-sell-book')
+        break
+      case 'Market':
+        router.push('/home-shop/manage-book')
+        break
+      default:
+        router.push(`/home-${role}`)
+        break
+    }
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error('Axios Error:', error)
+      if (error.response && error.response.status === 401) {
+        const errorData = error.response.data // สมมติว่า API ให้ข้อมูลระบุว่า username หรือ password ผิด
+        if (errorData.invalidUsername) {
+          usernameError.value = 'ชื่อผู้ใช้ไม่ถูกต้อง'
+
+          // Reset ทั้ง username และ password
+          username.value = ''
+          password.value = ''
+        } else if (errorData.invalidPassword) {
+          passwordError.value = 'รหัสผ่านไม่ถูกต้อง'
+          usernameError.value = null // ไม่มีข้อผิดพลาดใน username
+
+          // Reset แค่ password
+          password.value = ''
+        } else {
+          // ข้อผิดพลาดทั่วไป
+          usernameError.value = 'ชื่อผู้ใช้ไม่ถูกต้อง'
+          passwordError.value = 'รหัสผ่านไม่ถูกต้อง'
+
+          // Reset ทั้ง username และ password
+          username.value = ''
+          password.value = ''
+        }
+      } else {
+        errorMessage.value = 'เกิดข้อผิดพลาดในการเชื่อมต่อกับเซิร์ฟเวอร์'
+      }
+    } else {
+      errorMessage.value = 'เกิดข้อผิดพลาดที่ไม่คาดคิด'
+      console.error('Unexpected Error:', error)
+    }
   }
 }
 </script>
@@ -269,46 +273,6 @@ const login = () => {
   text-align: center; /* จัดข้อความให้อยู่กลาง */
   margin-right: 300px;
 }
-
-@media (max-width: 768px) {
-  .pink-background {
-    flex-direction: column; /* จัดเรียงองค์ประกอบแนวตั้ง */
-    padding: 20px;
-  }
-
-  .image {
-    margin-left: 0; /* ลบระยะห่างด้านซ้าย */
-    max-width: 100%; /* ให้รูปภาพขยายเต็มความกว้าง */
-  }
-
-  .text {
-    margin-right: 0;
-    text-align: center;
-  }
-
-  .custom-field .v-input__control {
-    width: 100%; /* ใช้ความกว้างเต็มของหน้าจอ */
-    height: auto; /* ปรับความสูงอัตโนมัติ */
-  }
-
-  .custom-login {
-    margin-left: 0; /* จัดให้อยู่กลาง */
-    width: 100%;
-  }
-
-  .custom-btn {
-    width: 100%; /* ให้ปุ่มมีความกว้างเต็ม */
-  }
-
-  .heading {
-    font-size: 2rem; /* ลดขนาดตัวอักษร */
-  }
-
-  .subheading {
-    font-size: 1.5rem;
-  }
-}
-
 
 .form-row {
   margin-right: 160px;
