@@ -6,57 +6,70 @@
           <img class="header-image" src="@/assets/check-book.png" alt="Check Book" />
           <h1>ตรวจสอบหนังสือ</h1>
         </div>
-        <v-card class="mx-auto my-8 card">
-          <!-- Search Section -->
-          <v-row align="center" justify="flex-start" style="gap: 8px">
-            <v-col cols="auto">
-              <v-select
-                :items="['ISBN', 'TITLE', 'AUTHOR']"
-                v-model="searchCategory"
-                class="select-isbn"
-                variant="outlined"
-                rounded="lg"
-              ></v-select>
-            </v-col>
 
-            <v-col cols="auto">
-              <v-text-field
-                class="search-text"
-                v-model="searchInput"
-                variant="outlined"
-                rounded="lg"
-              />
-            </v-col>
+        <v-container>
+          <!-- ส่วนค้นหาข้อมูล -->
+          <v-card class="mx-auto my-8 card">
+            <v-row align="center" justify="flex-start" style="gap: 8px">
+              <v-col cols="auto">
+                <v-select
+                  :items="['ISBN', 'TITLE', 'AUTHOR']"
+                  v-model="searchCategory"
+                  class="select-isbn"
+                  variant="outlined"
+                  rounded="lg"
+                ></v-select>
+              </v-col>
 
-            <v-col cols="auto">
-              <v-btn
-                color="#E3E1D9"
-                @click="searchBooks"
-                block
-                rounded="lg"
-                style="margin-top: -25px; height: 50px"
-              >
-                <v-icon left>mdi-magnify</v-icon> ค้นหา
-              </v-btn>
+              <v-col cols="auto">
+                <v-text-field
+                  class="search-text"
+                  v-model="searchInput"
+                  variant="outlined"
+                  rounded="lg"
+                />
+              </v-col>
+
+              <v-col cols="auto">
+                <v-btn
+                  color="#E3E1D9"
+                  @click="searchBooks"
+                  block
+                  rounded="lg"
+                  style="margin-top: -25px; height: 50px"
+                >
+                  <v-icon left>mdi-magnify</v-icon> ค้นหา
+                </v-btn>
+              </v-col>
+            </v-row>
+          </v-card>
+
+          <!-- ส่วนแสดงผลข้อมูล -->
+          <v-row justify="center">
+            <v-col cols="12" md="6" v-for="(item, index) in serverItems" :key="index">
+              <v-card outlined class="mx-auto" style="max-width: 600px">
+                <!-- รูปภาพ -->
+                <v-img :src="item.image" alt="รูปหนังสือ" height="200px" class="mb-4"></v-img>
+
+                <!-- ข้อมูลหนังสือ -->
+                <v-card-title class="text-h6">{{ item.title }}</v-card-title>
+                <v-card-subtitle>ผู้แต่ง: {{ item.author }}</v-card-subtitle>
+                <v-card-text>
+                  <div>ISBN: {{ item.isbn }}</div>
+                  <div>สำนักพิมพ์: {{ item.publisher }}</div>
+                  <div>จำนวน: {{ item.quantity }}</div>
+                </v-card-text>
+              </v-card>
             </v-col>
           </v-row>
-        </v-card>
-
-        <v-data-table
-          :headers="headers"
-          :items="serverItems"
-          :loading="loading"
-          item-key="id"
-          :hide-default-footer="true"
-        >
-        </v-data-table>
+        </v-container>
       </v-container>
     </v-main>
   </v-main>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 
 const selectedDate = ref(new Date())
 const menuDate = ref(false)
@@ -65,14 +78,6 @@ const serverItems = ref([])
 const searchCategory = ref('ISBN')
 const searchInput = ref('')
 const searchBook = ref('ทั้งหมด')
-// Headers สำหรับ v-data-table
-const headers = [
-  { title: 'ลำดับ', key: 'id', align: 'start' },
-  { title: 'ชื่อหนังสือ', key: 'title' },
-  { title: 'ชื่อผู้แต่ง', key: 'author' },
-  { title: 'สำนักพิมพ์', key: 'publisher' },
-  { title: 'จำนวน', key: 'quantity' },
-]
 
 const FakeAPI = {
   async fetch({ page, itemsPerPage }: { page: number; itemsPerPage: number }) {
@@ -86,6 +91,7 @@ const FakeAPI = {
             isbn: '9786161857707',
             publisher: 'กรุงเทพฯ : สปริงบุ๊กส์, 2566',
             quantity: 2,
+            image: 'https://opac1.lib.buu.ac.th/bookcover/339978/339978-fc-a.jpg',
           },
           {
             id: 2,
@@ -94,6 +100,7 @@ const FakeAPI = {
             isbn: '9786162875434',
             publisher: 'กรุงเทพฯ : วีเลิร์น, 2565',
             quantity: 2,
+            image: 'https://opac1.lib.buu.ac.th/bookcover/337041/337041-fc-a.jpg',
           },
           {
             id: 3,
@@ -102,6 +109,7 @@ const FakeAPI = {
             isbn: '9786162875687',
             publisher: 'กรุงเทพฯ : วีเลิร์น, 2565',
             quantity: 2,
+            image: 'https://opac1.lib.buu.ac.th/bookcover/339102/339102-fc-a.jpg',
           },
           {
             id: 4,
@@ -110,6 +118,7 @@ const FakeAPI = {
             isbn: '9786169373964',
             publisher: 'กรุงเทพฯ : อะไรเอ่ย, 2565',
             quantity: 2,
+            image: 'https://opac1.lib.buu.ac.th/bookcover/339071/339071-fc-a.jpg',
           },
           {
             id: 5,
@@ -118,6 +127,7 @@ const FakeAPI = {
             isbn: '9786165786195',
             publisher: 'กรุงเทพฯ : MD, 2565',
             quantity: 2,
+            image: 'https://opac1.lib.buu.ac.th/bookcover/339044/339044-fc-a.jpg',
           },
         ]
 
@@ -159,7 +169,6 @@ const searchBooks = () => {
       loading.value = false // หากเกิดข้อผิดพลาดให้ปิด loading
     })
 }
-
 
 //ตัวกรองในการค้นหา
 const filteredItems = computed(() => {

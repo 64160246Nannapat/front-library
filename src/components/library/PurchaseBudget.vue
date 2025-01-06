@@ -100,7 +100,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 
 // วันที่
 const selectedDate = ref(new Date())
@@ -303,7 +303,6 @@ const loadItems = ({ page, itemsPerPage }) => {
 watch([selectedDate, searchFaculty, searchCoupon], () => {
   loadItems({ page: 1, itemsPerPage: 10 });
 });
-
 </script>
 
 <style scoped>

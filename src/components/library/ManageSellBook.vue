@@ -104,7 +104,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 
 // วันที่
 const selectedDate = ref(new Date())
@@ -271,18 +271,14 @@ const onSearch = () => {
   FakeAPI.fetch({ page: 1, itemsPerPage: 10 }).then((items) => {
     let filteredItems = items
 
-    // กรองตามวันที่
+    // กรองตามวันที่ หากเลือกวันที่เท่านั้น
     if (selectedDate.value) {
       const selectedFormattedDate = formattedDate.value
-      console.log('Selected Date:', selectedFormattedDate)
-
       filteredItems = filteredItems.filter((item) => item.date === selectedFormattedDate)
     }
 
-    // ตรวจสอบว่ามีการกรองเพิ่มเติมหรือไม่
-    const hasOtherFilters = searchBook.value !== 'ทั้งหมด' || searchText.value
-
-    if (hasOtherFilters) {
+    // หากเลือกการกรองอื่น ๆ เพิ่มเติม
+    if (searchBook.value !== 'ทั้งหมด' || searchText.value) {
       // กรองตามประเภทหนังสือ
       if (searchBook.value && searchBook.value !== 'ทั้งหมด') {
         filteredItems = filteredItems.filter((item) => {
@@ -306,8 +302,8 @@ const onSearch = () => {
       }
     }
 
-    // หากไม่มีการเลือกวันที่หรือกรองอื่น ๆ ให้แสดงข้อมูลทั้งหมด
-    if (!selectedDate.value && !hasOtherFilters) {
+    // หากไม่มีการกรองเพิ่มเติม และไม่มีวันที่ที่เลือก ให้แสดงข้อมูลทั้งหมด
+    if (!selectedDate.value && !searchBook.value && !searchText.value) {
       filteredItems = items
     }
 
@@ -322,6 +318,10 @@ const onSearch = () => {
     loading.value = false
   })
 }
+
+onMounted(() => {
+  onSearch()
+})
 </script>
 
 <style scoped>
