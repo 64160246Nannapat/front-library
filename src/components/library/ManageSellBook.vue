@@ -30,7 +30,7 @@
                 />
               </template>
 
-              <v-date-picker v-model="selectedDate" @input="onDateChange" locale="th" />
+              <v-date-picker v-model="selectedDate" locale="th" @input="onSearch" />
             </v-menu>
           </v-col>
         </v-row>
@@ -98,13 +98,88 @@
         item-key="id"
         :hide-default-footer="true"
       >
+        <template #item.image="{ item }">
+          <v-btn
+            icon
+            color="#FCDC94"
+            @click="viewImage(item)"
+            style="
+              border-radius: 8px;
+              width: 70px;
+              height: 30px;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+            "
+          >
+            <v-icon>mdi-magnify</v-icon>
+          </v-btn>
+        </template>
+
+        <template #item.check="{ item }">
+          <v-radio-group v-model="item.checkStatus" row>
+            <v-radio label="ไม่ซ้ำ" value="yes" style="font-size: 14px"></v-radio>
+            <v-radio label="ซ้ำ" value="no" style="font-size: 14px"></v-radio>
+          </v-radio-group>
+        </template>
+
+        <template #item.view="{ item }">
+          <div style="display: flex; flex-direction: column; gap: 10px">
+            <!-- Dropdown สถานะการอนุมัติ -->
+            <v-select
+              v-model="item.approvalStatus"
+              :items="['รอการอนุมัติ', 'ซื้อ', 'ไม่ซื้อ']"
+              dense
+              hide-details
+              class="small-select"
+              style="width: 120px; height: 60px; padding: 0; margin-top: 10px"
+              variant="outlined"
+              :input-style="{ fontSize: '10px', padding: '2px 4px', lineHeight: '40px' }"
+            />
+
+            <!-- ไอคอนข้อความ -->
+            <v-btn
+              icon
+              @click="onMessageClick(item)"
+              style="
+                border-radius: 8px;
+                background-color: #b4c7e4;
+                width: 120px;
+                height: 30px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+              "
+            >
+              <v-icon>mdi-email-outline</v-icon>
+            </v-btn>
+          </div>
+        </template>
       </v-data-table>
+
+      <v-dialog v-model="dialog" max-width="600">
+        <v-card>
+          <v-img
+            :src="selectedBookImage"
+            max-height="600"
+            contain
+            @click="toggleImage"
+            style="padding: 16px;"
+          ></v-img>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="red" text @click="dialog = false">ปิด</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
     </v-container>
   </v-main>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
+import defaultImage from '@/assets/front-book.png'
+import backImage from '@/assets/back-book.png'
 
 // วันที่
 const selectedDate = ref(new Date())
@@ -114,6 +189,8 @@ const searchBook = ref('ทั้งหมด')
 const searchText = ref('')
 const loading = ref(false)
 const serverItems = ref([])
+const dialog = ref(false)
+const selectedBookImage = ref('')
 
 // Headers สำหรับ v-data-table
 const headers = [
@@ -124,8 +201,8 @@ const headers = [
   { title: 'ร้านค้า', key: 'shop' },
   { title: 'ราคาสุทธิ', key: 'price' },
   { title: 'จำนวน', key: 'quantity' },
-  { title: 'รูปภาพ', key: 'image' },
-  { title: 'ตรวจการซ้ำ', key: 'check' },
+  { title: 'รูปภาพ', key: 'image', align: 'center' },
+  { title: 'ตรวจซ้ำ', key: 'check' },
   { title: 'ดำเนินการ', key: 'view' },
 ]
 
@@ -262,47 +339,32 @@ const FakeAPI = {
   },
 }
 
-const onDateChange = () => {
-  onSearch()
-}
-
 const onSearch = () => {
   loading.value = true
   FakeAPI.fetch({ page: 1, itemsPerPage: 10 }).then((items) => {
     let filteredItems = items
 
-    // กรองตามวันที่ หากเลือกวันที่เท่านั้น
     if (selectedDate.value) {
       const selectedFormattedDate = formattedDate.value
       filteredItems = filteredItems.filter((item) => item.date === selectedFormattedDate)
     }
 
-    // หากเลือกการกรองอื่น ๆ เพิ่มเติม
-    if (searchBook.value !== 'ทั้งหมด' || searchText.value) {
-      // กรองตามประเภทหนังสือ
-      if (searchBook.value && searchBook.value !== 'ทั้งหมด') {
-        filteredItems = filteredItems.filter((item) => {
-          if (searchBook.value === 'เสนอหนังสือ') return item.status === 'เสนอหนังสือ'
-          if (searchBook.value === 'Book Fair') return item.status === 'Book Fair'
-          return true
-        })
-      }
-
-      // กรองตามหมวดหมู่การค้นหา
-      if (searchText.value && searchCategory.value) {
-        const searchValue = searchText.value.toLowerCase()
-        filteredItems = filteredItems.filter((item) => {
-          if (searchCategory.value === 'TITLE')
-            return item.title.toLowerCase().includes(searchValue)
-          if (searchCategory.value === 'ISBN') return item.isbn.toLowerCase().includes(searchValue)
-          if (searchCategory.value === 'AUTHOR' && item.author)
-            return item.author.toLowerCase().includes(searchValue)
-          return true
-        })
-      }
+    if (searchBook.value !== 'ทั้งหมด') {
+      filteredItems = filteredItems.filter((item) => item.status === searchBook.value)
     }
 
-    // หากไม่มีการกรองเพิ่มเติม และไม่มีวันที่ที่เลือก ให้แสดงข้อมูลทั้งหมด
+    if (searchText.value && searchCategory.value) {
+      const searchValue = searchText.value.toLowerCase()
+      filteredItems = filteredItems.filter((item) => {
+        if (searchCategory.value === 'TITLE') return item.title.toLowerCase().includes(searchValue)
+        if (searchCategory.value === 'ISBN') return item.isbn.toLowerCase().includes(searchValue)
+        if (searchCategory.value === 'AUTHOR' && item.author)
+          return item.author.toLowerCase().includes(searchValue)
+        return true
+      })
+    }
+
+    // หากไม่มีการกรองเพิ่มเติมและไม่มีวันที่ที่เลือก ให้แสดงข้อมูลทั้งหมด
     if (!selectedDate.value && !searchBook.value && !searchText.value) {
       filteredItems = items
     }
@@ -319,9 +381,29 @@ const onSearch = () => {
   })
 }
 
+const viewImage = (item) => {
+  selectedBookImage.value = item.image || defaultImage
+  dialog.value = true
+}
+const toggleImage = () => {
+  selectedBookImage.value = selectedBookImage.value === defaultImage ? backImage : defaultImage
+}
+
+const submitCheckStatus = () => {
+  console.log('สถานะการตรวจซ้ำ:', serverItems)
+}
+
+const onMessageClick = (item) => {
+  console.log('ข้อความสำหรับ:', item)
+  // ดำเนินการอื่น เช่น เปิด modal สำหรับส่งข้อความ
+}
+
+// ใช้ onSearch ติดตามการเปลี่ยนแปลง
 onMounted(() => {
   onSearch()
 })
+
+watch([selectedDate, searchBook], onSearch, { immediate: true })
 </script>
 
 <style scoped>
