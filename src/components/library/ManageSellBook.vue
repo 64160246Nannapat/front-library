@@ -117,7 +117,7 @@
         </template>
 
         <template #item.check="{ item }">
-          <v-radio-group v-model="item.checkStatus" row>
+          <v-radio-group v-model="item.checkStatus" row @change="confirmCheckStatus(item)">
             <v-radio label="ไม่ซ้ำ" value="yes" style="font-size: 14px"></v-radio>
             <v-radio label="ซ้ำ" value="no" style="font-size: 14px"></v-radio>
           </v-radio-group>
@@ -126,16 +126,18 @@
         <template #item.view="{ item }">
           <div style="display: flex; flex-direction: column; gap: 10px">
             <!-- Dropdown สถานะการอนุมัติ -->
-            <v-select
-              v-model="item.approvalStatus"
-              :items="['รอการอนุมัติ', 'ซื้อ', 'ไม่ซื้อ']"
-              dense
-              hide-details
-              class="small-select"
-              style="width: 120px; height: 60px; padding: 0; margin-top: 10px"
-              variant="outlined"
-              :input-style="{ fontSize: '10px', padding: '2px 4px', lineHeight: '40px' }"
-            />
+            <div style="display: flex; align-items: center">
+              <v-select
+                v-model="item.approvalStatus"
+                :items="['รอการอนุมัติ', 'ซื้อ', 'ไม่ซื้อ']"
+                dense
+                hide-details
+                class="small-select"
+                style="width: 120px; height: 60px; margin-top: 8px;"
+                variant="outlined"
+                :input-style="{ fontSize: '12px', padding: '0 8px', lineHeight: '40px' }"
+              />
+            </div>
 
             <!-- ไอคอนข้อความ -->
             <v-btn
@@ -149,6 +151,7 @@
                 display: flex;
                 justify-content: center;
                 align-items: center;
+                margin-bottom: 8px;
               "
             >
               <v-icon>mdi-email-outline</v-icon>
@@ -164,11 +167,27 @@
             max-height="600"
             contain
             @click="toggleImage"
-            style="padding: 16px;"
+            style="padding: 16px"
           ></v-img>
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn color="red" text @click="dialog = false">ปิด</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+
+      <v-dialog v-model="confirmDialog" max-width="500">
+        <v-card>
+          <v-card-title> ยืนยันการเลือก </v-card-title>
+          <v-card-text>
+            คุณแน่ใจหรือไม่ว่าจะเปลี่ยนสถานะเป็น "{{
+              confirmData?.checkStatus === 'yes' ? 'ไม่ซ้ำ' : 'ซ้ำ'
+            }}"?
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="red" text @click="cancelCheckStatus">ยกเลิก</v-btn>
+            <v-btn color="green" text @click="confirmStatusChange">ยืนยัน</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -191,6 +210,8 @@ const loading = ref(false)
 const serverItems = ref([])
 const dialog = ref(false)
 const selectedBookImage = ref('')
+const confirmDialog = ref(false)
+const confirmData = ref(null)
 
 // Headers สำหรับ v-data-table
 const headers = [
@@ -389,8 +410,25 @@ const toggleImage = () => {
   selectedBookImage.value = selectedBookImage.value === defaultImage ? backImage : defaultImage
 }
 
-const submitCheckStatus = () => {
-  console.log('สถานะการตรวจซ้ำ:', serverItems)
+// ฟังก์ชันเปิด Dialog ยืนยัน
+const confirmCheckStatus = (item) => {
+  confirmData.value = { ...item }
+  confirmDialog.value = true
+}
+
+// ยกเลิกการเปลี่ยนแปลง
+const cancelCheckStatus = () => {
+  if (confirmData.value) {
+    const originalStatus = confirmData.value.checkStatus
+    confirmData.value.checkStatus = originalStatus
+  }
+  confirmDialog.value = false
+}
+
+// ยืนยันการเปลี่ยนแปลง
+const confirmStatusChange = () => {
+  console.log('ยืนยันสถานะ:', confirmData.value)
+  confirmDialog.value = false
 }
 
 const onMessageClick = (item) => {
@@ -535,4 +573,5 @@ td {
 .select-book {
   width: 200px;
 }
+
 </style>
