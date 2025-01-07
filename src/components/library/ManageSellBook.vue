@@ -97,6 +97,7 @@
         :loading="loading"
         item-key="id"
         :hide-default-footer="true"
+        item-class="table-item"
       >
         <template #item.image="{ item }">
           <v-btn
@@ -118,44 +119,55 @@
 
         <template #item.check="{ item }">
           <v-radio-group v-model="item.checkStatus" row @change="confirmCheckStatus(item)">
-            <v-radio label="ไม่ซ้ำ" value="yes" style="font-size: 14px"></v-radio>
-            <v-radio label="ซ้ำ" value="no" style="font-size: 14px"></v-radio>
+            <v-radio label="ไม่ซ้ำ" value="yes">
+              <template v-slot:label>
+                <span style="font-size: 14px; white-space: nowrap">ไม่ซ้ำ</span>
+              </template>
+            </v-radio>
+
+            <v-radio label="ซ้ำ" value="no">
+              <template v-slot:label>
+                <span style="font-size: 14px; white-space: nowrap">ซ้ำ</span>
+              </template>
+            </v-radio>
           </v-radio-group>
         </template>
 
         <template #item.view="{ item }">
           <div style="display: flex; flex-direction: column; gap: 10px">
-            <!-- Dropdown สถานะการอนุมัติ -->
-            <div style="display: flex; align-items: center">
-              <v-select
-                v-model="item.approvalStatus"
-                :items="['รอการอนุมัติ', 'ซื้อ', 'ไม่ซื้อ']"
-                dense
-                hide-details
-                class="small-select"
-                style="width: 120px; height: 60px; margin-top: 8px;"
-                variant="outlined"
-                :input-style="{ fontSize: '12px', padding: '0 8px', lineHeight: '40px' }"
-              />
-            </div>
+            <v-row>
+              <v-col>
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 10px">
+                  <v-select
+                    v-model="item.approvalStatus"
+                    :items="['รอการอนุมัติ', 'ซื้อ', 'ไม่ซื้อ']"
+                    solo
+                    dense
+                    outlined
+                    hide-details
+                    variant="outlined"
+                    class="select-confirm text-select"
+                    style="width: 120px; height: 30px; font-size: 12px; line-height: 30px"
+                  />
 
-            <!-- ไอคอนข้อความ -->
-            <v-btn
-              icon
-              @click="onMessageClick(item)"
-              style="
-                border-radius: 8px;
-                background-color: #b4c7e4;
-                width: 120px;
-                height: 30px;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                margin-bottom: 8px;
-              "
-            >
-              <v-icon>mdi-email-outline</v-icon>
-            </v-btn>
+                  <v-btn
+                    icon
+                    @click="onMessageClick(item)"
+                    style="
+                      border-radius: 8px;
+                      background-color: #b4c7e4;
+                      width: 120px;
+                      height: 30px;
+                      display: flex;
+                      justify-content: center;
+                      align-items: center;
+                    "
+                  >
+                    <v-icon>mdi-email-outline</v-icon>
+                  </v-btn>
+                </div>
+              </v-col>
+            </v-row>
           </div>
         </template>
       </v-data-table>
@@ -519,7 +531,6 @@ h1 {
   overflow: visible;
 }
 
-/* ตาราง */
 .v-simple-table {
   width: 100%;
   max-width: 100%;
@@ -527,22 +538,78 @@ h1 {
   font-size: 20px;
   border-collapse: collapse;
   overflow-x: auto;
-  table-layout: auto;
+  table-layout: auto; /* ปรับให้ตารางขยายตามเนื้อหาภายใน */
+}
+
+.table-item {
+  min-width: 150px; /* ปรับความกว้างขั้นต่ำของคอลัมน์ */
+}
+
+.v-data-table-header th,
+th {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
+  word-wrap: break-word;
+  width: auto;
+  padding: 16px;
+  text-align: left;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.v-data-table {
+  table-layout: auto; /* ปรับให้คอลัมน์ขยายตามข้อมูล */
+  width: 100%;
+  max-width: 100%;
+}
+
+.v-data-table th {
+  white-space: normal; /* ห้ามตัดข้อความ */
+  width: auto; /* ปรับความกว้างของคอลัมน์ตามข้อมูล */
+  padding: 16px;
+  text-align: left;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.v-data-table td {
+  white-space: normal; /* ห้ามตัดข้อความ */
+  overflow: visible; /* ไม่ซ่อนข้อความที่เกินขอบเขต */
+  text-overflow: unset; /* ปิดการตัดข้อความ */
+  word-wrap: break-word; /* ให้อักษรยาวแสดงในบรรทัดใหม่ */
+  padding: 16px;
+  text-align: left;
 }
 
 th {
   padding: 16px;
   text-align: left;
-  width: 16%;
   font-weight: bold;
-  font-size: 24px; /* ขนาดตัวอักษร 24px */
-  line-height: 40px; /* เพิ่มความสูงของแถวหัวตาราง */
+  font-size: 24px;
+  line-height: 40px;
+  width: auto; /* ปรับให้หัวข้อตารางขยายตามข้อมูล */
+  word-wrap: break-word;
 }
 
 td {
+  width: auto;
   padding: 16px;
   text-align: left;
-  width: 16%;
+  white-space: normal; /* ให้ข้อความยาวได้ */
+  overflow: visible; /* แสดงข้อความที่เกินขอบเขต */
+  text-overflow: unset; /* ปิดการตัดข้อความ */
+  word-wrap: break-word; /* ช่วยให้ข้อความยาวมากสามารถตัดบรรทัดใหม่ได้ */
+}
+
+.v-data-table th {
+  text-overflow: unset; /* ปิดการใช้ ... สำหรับข้อความยาว */
+}
+
+.v-data-table td {
+  white-space: normal; /* ให้ข้อมูลยาวได้ */
+  overflow: visible; /* แสดงข้อความที่เกินขอบเขต */
+  text-overflow: unset; /* ปิดการตัดข้อความ */
 }
 
 .formatted-date-display {
@@ -572,6 +639,24 @@ td {
 
 .select-book {
   width: 200px;
+}
+
+.select-confirm .v-input__control {
+  height: 30px; /* กำหนดความสูงของส่วนควบคุม */
+  padding: 0 8px; /* เพิ่มพื้นที่รอบข้อความ */
+  font-size: 12px; /* ปรับขนาดฟอนต์ให้เล็กลง */
+  line-height: 30px; /* จัดข้อความให้อยู่กลาง */
+  display: flex; /* ใช้ flexbox เพื่อจัดตำแหน่ง */
+  align-items: center; /* จัดข้อความให้อยู่กลางในแนวตั้ง */
+}
+
+.select-confirm {
+  height: 30px; /* กำหนดความสูงให้ตรงกับปุ่ม */
+  width: 120px; /* กำหนดความกว้าง */
+}
+
+.v-input {
+  margin: 0; /* ลบช่องว่างรอบขอบ */
 }
 
 </style>

@@ -46,19 +46,66 @@
 
           <!-- ส่วนแสดงผลข้อมูล -->
           <v-row justify="center">
-            <v-col cols="12" md="6" v-for="(item, index) in serverItems" :key="index">
-              <v-card outlined class="mx-auto" style="max-width: 600px">
-                <!-- รูปภาพ -->
-                <v-img :src="item.image" alt="รูปหนังสือ" height="200px" class="mb-4"></v-img>
+            <v-col cols="12" md="8" v-for="(item, index) in serverItems" :key="index">
+              <v-card
+                outlined
+                class="mx-auto"
+                style="
+                  width: 100%;
+                  max-width: 1500px;
+                  height: auto;
+                  min-height: 300px;
+                  text-align: left;
+                "
+              >
+                <div
+                  style="
+                    display: flex;
+                    align-items: flex-start;
+                    justify-content: flex-start;
+                    gap: 10px;
+                    height: auto;
+                  "
+                >
+                  <!-- รูปภาพที่แสดงทางซ้าย -->
+                  <v-img
+                    :src="item.image"
+                    alt="รูปหนังสือ"
+                    width="160px"
+                    height="180px"
+                    style="border-radius: 10px; object-fit: cover; margin-right: 10px"
+                  ></v-img>
 
-                <!-- ข้อมูลหนังสือ -->
-                <v-card-title class="text-h6">{{ item.title }}</v-card-title>
-                <v-card-subtitle>ผู้แต่ง: {{ item.author }}</v-card-subtitle>
-                <v-card-text>
-                  <div>ISBN: {{ item.isbn }}</div>
-                  <div>สำนักพิมพ์: {{ item.publisher }}</div>
-                  <div>จำนวน: {{ item.quantity }}</div>
-                </v-card-text>
+                  <!-- ข้อมูลทางขวา -->
+                  <div
+                    style="
+                      flex: 1;
+                      display: flex;
+                      flex-direction: column;
+                      justify-content: flex-start;
+                      align-items: flex-start;
+                      text-align: left;
+                      height: auto;
+                    "
+                  >
+                    <v-card-title
+                      class="text-h6"
+                      style="font-size: 18px; font-weight: bold; margin-bottom: 5px"
+                    >
+                      {{ item.title }}
+                    </v-card-title>
+                    <v-card-subtitle style="font-size: 16px; margin-bottom: 5px">
+                      ผู้แต่ง: {{ item.author }}
+                    </v-card-subtitle>
+                    <v-card-text style="font-size: 14px; line-height: 1.3; text-align: left">
+                      <div>ISBN: {{ item.isbn }}</div>
+                      <div>สำนักพิมพ์: {{ item.publisher }}</div>
+                      <div>จำนวน: {{ item.quantity }}</div>
+                      <div>พิมพ์ครั้งที่: {{ item.edition }}</div>
+                      <div>รายละเอียด: {{ item.description }}</div>
+                    </v-card-text>
+                  </div>
+                </div>
               </v-card>
             </v-col>
           </v-row>
@@ -91,6 +138,8 @@ const FakeAPI = {
             isbn: '9786161857707',
             publisher: 'กรุงเทพฯ : สปริงบุ๊กส์, 2566',
             quantity: 2,
+            edition: 'พิมพ์ครั้งที่ 1',
+            description: '202 หน้า : ภาพประกอบ ; 19 ซม',
             image: 'https://opac1.lib.buu.ac.th/bookcover/339978/339978-fc-a.jpg',
           },
           {
@@ -100,6 +149,8 @@ const FakeAPI = {
             isbn: '9786162875434',
             publisher: 'กรุงเทพฯ : วีเลิร์น, 2565',
             quantity: 2,
+            edition: 'พิมพ์ครั้งที่ 1',
+            description: '256 หน้า : ภาพประกอบ ; 23 ซม',
             image: 'https://opac1.lib.buu.ac.th/bookcover/337041/337041-fc-a.jpg',
           },
           {
@@ -109,6 +160,8 @@ const FakeAPI = {
             isbn: '9786162875687',
             publisher: 'กรุงเทพฯ : วีเลิร์น, 2565',
             quantity: 2,
+            edition: 'ฉบับปรับปรุง',
+            description: '301 หน้า : ภาพประกอบ ; 21 ซม',
             image: 'https://opac1.lib.buu.ac.th/bookcover/339102/339102-fc-a.jpg',
           },
           {
@@ -118,6 +171,8 @@ const FakeAPI = {
             isbn: '9786169373964',
             publisher: 'กรุงเทพฯ : อะไรเอ่ย, 2565',
             quantity: 2,
+            edition: 'พิมพ์ครั้งที่ 1',
+            description: '429 หน้า : ภาพประกอบ ; 19 ซม',
             image: 'https://opac1.lib.buu.ac.th/bookcover/339071/339071-fc-a.jpg',
           },
           {
@@ -127,7 +182,31 @@ const FakeAPI = {
             isbn: '9786165786195',
             publisher: 'กรุงเทพฯ : MD, 2565',
             quantity: 2,
+            edition: 'พิมพ์ครั้งที่ 1',
+            description: '191 หน้า : ภาพประกอบ ; 21 ซม',
             image: 'https://opac1.lib.buu.ac.th/bookcover/339044/339044-fc-a.jpg',
+          },
+          {
+            id: 6,
+            title: 'พจนานุกรมอ่านคนตั้งแต่หัวจรดเท้า = The dictionary of body language',
+            author: 'Joe Navarro',
+            isbn: '9786162875748',
+            publisher: 'กรุงเทพฯ : วีเลิร์น, 2565',
+            quantity: 2,
+            edition: 'พิมพ์ครั้งที่ 1',
+            description: '265 หน้า ; 19 ซม',
+            image: 'https://opac1.lib.buu.ac.th/bookcover/339017/339017-fc-a.jpg',
+          },
+          {
+            id: 7,
+            title: 'How to grow your service business : up ธุรกิจให้โตขึ้น 8 หลัก',
+            author: 'สิทธินันท์ พลวิสุทธิ์ศักดิ์',
+            isbn: '9786161844721',
+            publisher: 'กรุงเทพฯ : ช็อร์ตคัต อมรินทร์พริ้นติ้ง แอนด์ พับลิชชิ่ง, 2564',
+            quantity: 2,
+            edition: 'พิมพ์ครั้งที่ 1',
+            description: '190 หน้า : ภาพประกอบ ; 21 ซม',
+            image: 'https://opac1.lib.buu.ac.th/bookcover/333677/333677-fc-a.jpg',
           },
         ]
 
