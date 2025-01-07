@@ -2,7 +2,7 @@
   <v-main style="height: 500px; margin-top: 55px">
     <v-container>
       <div class="header">
-        <img class="header-image" src="@/assets/bookLibrary.png" alt="Library Image" />
+        <img class="header-image" src="@/assets/list.png" alt="Library Image" />
         <h1>รายชื่อผู้เสนอหนังสือ</h1>
       </div>
 
@@ -49,7 +49,48 @@
         :loading="loading"
         item-key="id"
         :hide-default-footer="true"
+        class="table-centered"
       >
+        <!-- Slot สำหรับคอลัมน์ "จำนวน" -->
+        <template #item.quantity="{ item }">
+          <div
+            style="
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              height: 100%;
+              flex-direction: column;
+            "
+          >
+            <v-btn
+              style="
+                background-color: #c7c8cc;
+                width: 100px;
+                height: 25px;
+                font-size: 14px;
+                line-height: 1;
+                margin-top: 8px;
+              "
+              @click="onClickBook(item)"
+            >
+              2 เล่ม
+            </v-btn>
+            <v-btn
+              style="
+                background-color: #b4c7e4;
+                width: 100px;
+                height: 25px;
+                font-size: 14px;
+                line-height: 1;
+                margin-top: 8px;
+                margin-bottom: 8px;
+              "
+              @click="onClickForm(item)"
+            >
+              เสนอ
+            </v-btn>
+          </div>
+        </template>
       </v-data-table>
     </v-container>
   </v-main>
@@ -57,6 +98,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 
 // วันที่
 const selectedDate = ref(new Date())
@@ -64,7 +106,7 @@ const searchFaculty = ref('ทั้งหมด')
 const searchText = ref('')
 const loading = ref(false)
 const serverItems = ref([])
-
+const router = useRouter()
 // Headers สำหรับ v-data-table
 const headers = [
   { title: 'ลำดับ', key: 'id', align: 'start' },
@@ -185,6 +227,22 @@ const onSearch = () => {
     serverItems.value = filteredItems
     loading.value = false
   })
+}
+
+const onClickBook = (item) => {
+  if (item && item.id) {
+    router.push({ name: 'showBookLibrary', params: { itemId: item.id } })
+  } else {
+    console.error('Item or item.id is undefined')
+  }
+}
+
+const onClickForm = (item) => {
+  if (item && item.id) {
+    router.push({ name: 'BookFormLibrary', params: { itemId: item.id } })
+  } else {
+    console.error('Item or item.id is undefined')
+  }
 }
 
 // ติดตามการเปลี่ยนแปลงของ searchFaculty และเรียก onSearch

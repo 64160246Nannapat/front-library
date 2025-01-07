@@ -20,6 +20,7 @@ import PurchaseBudget from '@/components/library/PurchaseBudget.vue'
 import AddShop from '@/components/library/AddShop.vue'
 import ShowShop from '@/components/library/ShowShop.vue'
 import ListBook from '@/components/library/ListOfBook.vue'
+import ShowBook from '@/components/library/ShowBook.vue'
 import LoginView2 from '@/views/LoginView2.vue'
 
 const routes = [
@@ -141,6 +142,11 @@ const routes = [
         component: BookForm,
       },
       {
+        path: 'book-form/:itemId',
+        name: 'BookFormLibrary',
+        component: BookForm,
+      },
+      {
         path: 'book-status',
         name: 'bookstatusLibrary',
         component: BookStatus,
@@ -174,6 +180,11 @@ const routes = [
         path: 'list-book-presenters',
         name: 'listBookLibrary',
         component: ListBook,
+      },
+      {
+        path: '/show-book/:itemId',
+        name: 'showBookLibrary',
+        component: ShowBook
       },
     ],
     meta: { requiresAuth: true, role: 'library' },
@@ -289,7 +300,11 @@ const routes = [
     name: 'listBook',
     component: ListBook,
   },
-
+  {
+    path: '/show-book-presenters',
+    name: 'showBook',
+    component: ShowBook,
+  },
 
 ]
 

@@ -10,19 +10,23 @@
         <v-form ref="bookForm" v-model="valid">
           <!-- คำนำหน้าชื่อ -->
           <div class="form-row">
-            <label for="name">คำนำหน้า:</label>
+            <label for="name" style="font-size: 18px"
+              >คำนำหน้า <span class="required-asterisk">*</span></label
+            >
             <v-text-field
               v-model="book.Prefix"
               :rules="[rules.required]"
               variant="outlined"
-              class="text-feild-top"
+              class="text-feild-top text"
               dense
             ></v-text-field>
           </div>
 
           <!-- ชื่อ -->
           <div class="form-row">
-            <label for="name">ชื่อผู้เสนอ:</label>
+            <label for="name" style="font-size: 18px"
+              >ชื่อผู้เสนอ<span class="required-asterisk">*</span></label
+            >
             <v-text-field
               v-model="book.Name"
               :rules="[rules.required]"
@@ -34,7 +38,9 @@
 
           <!-- ตำแหน่ง -->
           <div class="form-row">
-            <label for="role">ตำแหน่ง:</label>
+            <label for="role" style="font-size: 18px"
+              >ตำแหน่ง<span class="required-asterisk">*</span></label
+            >
             <v-select
               v-model="book.Role"
               :items="roles"
@@ -47,7 +53,9 @@
 
           <!-- คณะ -->
           <div class="form-row">
-            <label for="faculty">คณะ:</label>
+            <label for="faculty" style="font-size: 18px"
+              >คณะ<span class="required-asterisk">*</span></label
+            >
             <v-select
               v-model="book.Faculty"
               :items="faculty"
@@ -60,7 +68,9 @@
 
           <!-- สาขา -->
           <div class="form-row">
-            <label for="major">สาขา:</label>
+            <label for="major" style="font-size: 18px"
+              >สาขา<span class="required-asterisk">*</span></label
+            >
             <v-select
               v-model="book.Major"
               :items="major"
@@ -73,7 +83,9 @@
 
           <!-- เบอร์ -->
           <div class="form-row">
-            <label for="phone">เบอร์:</label>
+            <label for="phone" style="font-size: 18px"
+              >เบอร์<span class="required-asterisk">*</span></label
+            >
             <v-text-field
               v-model="book.Phone"
               :rules="[rules.required, rules.phone]"
@@ -85,7 +97,9 @@
 
           <!-- E-mail -->
           <div class="form-row">
-            <label for="email">E-mail:</label>
+            <label for="email" style="font-size: 18px"
+              >E-mail<span class="required-asterisk">*</span></label
+            >
             <v-text-field
               v-model="book.Email"
               :rules="[rules.required, rules.email]"
@@ -97,7 +111,9 @@
 
           <!-- ชื่อร้านค้า (Dropdown) -->
           <div class="form-row">
-            <label for="store">ชื่อร้านค้า:</label>
+            <label for="store" style="font-size: 18px"
+              >ชื่อร้านค้า<span class="required-asterisk">*</span></label
+            >
             <v-select
               v-model="book.Store"
               :items="stores"
@@ -110,7 +126,9 @@
 
           <!-- ชื่อหนังสือ -->
           <div class="form-row">
-            <label for="title">ชื่อหนังสือ:</label>
+            <label for="title" style="font-size: 18px"
+              >ชื่อหนังสือ<span class="required-asterisk">*</span></label
+            >
             <v-text-field
               v-model="book.Title"
               :rules="[rules.required]"
@@ -122,7 +140,7 @@
 
           <!-- ผู้แต่ง -->
           <div class="form-row">
-            <label for="author">ผู้ชื่อแต่ง:</label>
+            <label for="author" style="font-size: 18px">ผู้ชื่อแต่ง</label>
             <v-text-field
               v-model="book.Author"
               variant="outlined"
@@ -133,7 +151,7 @@
 
           <!-- ปีพิมพ์ -->
           <div class="form-row">
-            <label for="year">ปีพิมพ์:</label>
+            <label for="year" style="font-size: 18px">ปีพิมพ์</label>
             <v-text-field
               v-model="book.Year"
               variant="outlined"
@@ -144,7 +162,9 @@
 
           <!-- ISBN -->
           <div class="form-row">
-            <label for="isbn">ISBN:</label>
+            <label for="isbn" style="font-size: 18px"
+              >ISBN<span class="required-asterisk">*</span></label
+            >
             <v-text-field
               v-model="book.isbn"
               :rules="[rules.required, rules.isbn]"
@@ -156,7 +176,9 @@
 
           <!-- รายวิชา -->
           <div class="form-row">
-            <label for="subject">รายวิชา:</label>
+            <label for="subject" style="font-size: 18px"
+              >รายวิชา<span class="required-asterisk">*</span></label
+            >
             <v-text-field
               v-model="book.Subject"
               :rules="[rules.required]"
@@ -168,7 +190,9 @@
 
           <!-- ราคาสุทธิ -->
           <div class="form-row">
-            <label for="price">ราคาสุทธิ:</label>
+            <label for="price" style="font-size: 18px"
+              >ราคาสุทธิ<span class="required-asterisk">*</span></label
+            >
             <v-text-field
               v-model="book.Price"
               :rules="[rules.required, rules.number]"
@@ -180,7 +204,9 @@
 
           <!-- จำนวนเล่ม -->
           <div class="form-row">
-            <label for="count">จำนวนเล่ม:</label>
+            <label for="count" style="font-size: 18px"
+              >จำนวนเล่ม<span class="required-asterisk">*</span></label
+            >
             <v-text-field
               v-model="book.Count"
               :rules="[rules.required, rules.number]"
@@ -192,8 +218,16 @@
 
           <div class="form-row">
             <v-radio-group inline :rules="[rules.required, rules.radio]" class="custom-radio">
-              <v-radio label="มีคูปอง" value="one" class="text-radiio"></v-radio>
-              <v-radio label="ไม่มีคูปอง" value="two" class="text-radiio"></v-radio>
+              <v-radio label="มีคูปอง" value="one" style="font-size: 18px">
+                <template v-slot:label>
+                  <span style="font-size: 18px; white-space: nowrap" class="text-radiio">มีคูปอง</span>
+                </template>
+              </v-radio>
+              <v-radio label="ไม่มีคูปอง" value="two" style="font-size: 18px">
+                <template v-slot:label>
+                  <span style="font-size: 18px; white-space: nowrap" class="text-radiio">ไม่มีคูปอง</span>
+                </template>
+              </v-radio>
             </v-radio-group>
           </div>
 
@@ -233,7 +267,7 @@ import HomeStudent from '@/components/student/HomeStudent.vue'
 import { useRoute } from 'vue-router'
 import RoleLayout from '@/components/RoleLayout.vue'
 import BookForm from '@/components/BookForm.vue'
-import axios from 'axios';
+import axios from 'axios'
 
 const bookForm = ref(null)
 const formValid = ref(false)
@@ -437,5 +471,15 @@ h1 {
   font-weight: bold;
   font-size: 24px; /* เพิ่มขนาดฟอนต์ให้ใหญ่ขึ้น */
   color: black;
+}
+
+.required-asterisk {
+  color: red;
+  font-size: 16px;
+  margin-left: 2px;
+}
+
+.text {
+  font-size: 18px;
 }
 </style>
