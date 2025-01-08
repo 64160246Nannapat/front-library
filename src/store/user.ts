@@ -1,48 +1,49 @@
-import { defineStore } from 'pinia'
-import { ref } from 'vue'
-import userService from '@/services/user'
-import { useRouter } from 'vue-router'
+import { defineStore } from 'pinia';
+import http from '@/services/axios';
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 
 export const useUserStore = defineStore('user', () => {
-  const user = ref<{ id: number; name: string } | null>(null)
-  const token = ref(localStorage.getItem('token') || '')
-  const error = ref('')
-
-  const router = useRouter()
+  const user = ref<{ id: number; name: string; role: string } | null>(null);
+  const token = ref(localStorage.getItem('access_token') || '');
+  const error = ref('');
+  const router = useRouter();
 
   const login = async (username: string, password: string) => {
     try {
-      const response = await userService.login(username, password)
-      console.log('Login Response:', response.data)
-
-      if (response.data && response.data.access_token && response.data.user) {
+      const response = await http.post('/auth/login', { username, password });
+      if (response.data && response.data.access_token && response.data.role) {
         user.value = {
-          id: response.data.user.id, // ตรวจสอบค่า id จาก response
-          name: response.data.user.name, // ตรวจสอบค่า name จาก response
-        }
-        token.value = response.data.access_token
-
-        localStorage.setItem('token', token.value)
-        router.push('/home-admin') // redirect ไปยังหน้า home-admin ตาม role ที่ไม่มี
+          id: response.data.user_id,
+          name: response.data.username,
+          role: response.data.role,
+        };
+        token.value = response.data.access_token;
+        localStorage.setItem('access_token', token.value);
+        router.push('/home-admin');
       } else {
-        console.error('Incomplete response data:', response.data)
-        error.value = 'Invalid response data'
+        throw new Error('Invalid response data');
       }
     } catch (err: any) {
-      console.error('Login error:', err)
-      if (err.response) {
-        console.error('Backend error response:', err.response.data)
-        error.value = err.response.data.message || 'Invalid username or password'
-      } else {
-        error.value = `An error occurred: ${err.message}`
-      }
+      error.value = err.response?.data?.message || 'Invalid username or password';
     }
-  }
+  };
 
-  return {
-    user,
-    token,
-    error,
-    login,
-  }
-})
+  const logout = async () => {
+    try {
+      await http.post('/auth/logout', {}, {
+        headers: {
+          Authorization: `Bearer ${token.value}`,
+        },
+      });
+      user.value = null;
+      token.value = '';
+      localStorage.removeItem('access_token');
+      router.push('/login');
+    } catch (err) {
+      console.error('Logout error:', err);
+    }
+  };
+
+  return { user, token, error, login, logout };
+});

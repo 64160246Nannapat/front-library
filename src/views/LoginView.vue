@@ -107,9 +107,13 @@ const login = async () => {
       return
     }
 
-    // เก็บ Token ใน localStorage
-    localStorage.setItem('access_token', access_token)
-    localStorage.setItem('refresh_token', refresh_token)
+    if (access_token && refresh_token) {
+      // เก็บ Token และ Refresh Token ลง localStorage
+      localStorage.setItem('token', access_token);
+      localStorage.setItem('refresh_token', refresh_token);
+    } else {
+      console.error('ไม่พบ Token หลังจาก Login');
+    }
 
     console.log('Role:', role)
     console.log('Redirecting...')
@@ -125,8 +129,7 @@ const login = async () => {
       case 'Teacher':
         router.push('/home-teacher/coupon')
         break
-      case 'StaffLibraryAdm':
-      case 'StaffLibraryNor':
+      case 'StaffLibrary':
         router.push('/home-library/manage-sell-book')
         break
       case 'Market':
