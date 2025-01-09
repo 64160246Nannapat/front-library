@@ -2,9 +2,8 @@
   <v-main style="height: 500px; margin-top: 55px">
     <v-container>
       <div class="header">
-        <img class="header-image" src="@/assets/history-coupon (1).png" alt="Library Image" />
-        <h1>ประวัติการใช้คูปอง</h1>
-
+        <img class="header-image" src="@/assets/salary (1).png" alt="Library Image" />
+        <h1>สรุปงบประมาณ</h1>
         <v-row align="center" class="date-status-row" justify="end">
           <v-col cols="auto">
             <v-menu
@@ -45,37 +44,79 @@
         </v-col>
       </v-row>
 
-      <!-- ตารางข้อมูล -->
-      <v-data-table-server
-        v-model:items-per-page="itemsPerPage"
+      <v-row align="center">
+        <v-col cols="auto" class="d-flex align-center">
+          <h3 style="margin-right: 20px; margin-top: -20px">คณะ:</h3>
+          <v-select
+            :items="['ทั้งหมด', 'วิทยาการสารสนเทศ', 'บริหาร', 'วิทยาศาสตร์', 'วิศวกรรมศาสตร์']"
+            v-model="searchFaculty"
+            class="select-book"
+            variant="outlined"
+            rounded="lg"
+            @input="onSearch"
+          ></v-select>
+        </v-col>
+      </v-row>
+
+      <v-data-table
         :headers="headers"
         :items="serverItems"
-        :items-length="totalItems"
         :loading="loading"
-        @update:options="onSearch"
+        item-key="id"
         :hide-default-footer="true"
-      ></v-data-table-server>
+        class="table-centered"
+      >
+        <!-- Slot สำหรับคอลัมน์ "จำนวน" -->
+        <template #item.quantity="{ item }">
+          <div
+            style="
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              height: 100%;
+              flex-direction: column;
+            "
+          >
+            <v-btn
+              style="
+                background-color: #c7c8cc;
+                width: 100px;
+                height: 25px;
+                font-size: 14px;
+                line-height: 1;
+                margin-top: 8px;
+              "
+              @click="onClickBook(item)"
+            >
+              2 เล่ม
+            </v-btn>
+          </div>
+        </template>
+      </v-data-table>
     </v-container>
   </v-main>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 
 // วันที่
 const selectedDate = ref(new Date())
 const menuDate = ref(false)
-const itemsPerPage = ref(5)
+const searchFaculty = ref('ทั้งหมด')
 const loading = ref(false)
-const totalItems = ref(0)
 const serverItems = ref([])
+const router = useRouter()
 // Headers สำหรับ v-data-table
 const headers = [
   { title: 'ลำดับ', key: 'id', align: 'start' },
-  { title: 'ชื่อหนังสือ', key: 'title' },
-  { title: 'ISBN', key: 'isbn' },
-  { title: 'ร้านค้า', key: 'shop' },
-  { title: 'ราคาสุทธิ', key: 'price' },
+  { title: 'ข้อมูลผู้คัดเลือก', key: 'name' },
+  { title: 'คณะ', key: 'faculty' },
+  { title: 'หน่วยงาน/สาขา', key: 'department' },
+  { title: 'E-mail', key: 'email' },
+  { title: 'เบอร์โทรศัพท์', key: 'phone' },
+  { title: 'สถานะ', key: 'status' },
   { title: 'จำนวน', key: 'quantity' },
 ]
 
@@ -127,57 +168,89 @@ const fullFormattedDate = computed(() => {
 
 // API ปลอมเพื่อเลียนแบบการดึงข้อมูล
 const FakeAPI = {
-  async fetch({ page, itemsPerPage }: { page: number; itemsPerPage: number }) {
+  async fetch({
+    faculty,
+    name,
+  }: {
+    page: number
+    itemsPerPage: number
+    faculty?: string
+    name?: string
+  }) {
     return new Promise((resolve) => {
       setTimeout(() => {
-        const data = [
+        let data = [
           {
             id: 1,
-            title: 'หนังสือ A',
-            date: '01/12/2567',
-            isbn: '978-3-16-148410-0',
-            shop: 'แจ่มใส',
-            price: 250,
-            quantity: 2,
+            name: 'นันท์ณภัทร สอนสุภาพ',
+            faculty: 'วิทยาการสารสนเทศ',
+            department: 'วิทยาการคอมพิวเตอร์',
+            email: 'nan@mail.com',
+            phone: '0999999999',
+            status: 'อาจายร์',
+            date: '20/12/2567',
           },
           {
             id: 2,
-            title: 'หนังสือ B',
-            date: '02/12/2567',
-            isbn: '978-0-306-40615-7',
-            shop: 'แจ่มใส',
-            price: 350,
-            quantity: 1,
+            name: 'นวพรรณ สีหบุตร',
+            faculty: 'วิทยาการสารสนเทศ',
+            department: 'วิทยาการคอมพิวเตอร์',
+            email: 'nan@mail.com',
+            phone: '0999999999',
+            status: 'นิสิต',
+            date: '20/12/2567',
           },
           {
             id: 3,
-            title: 'หนังสือ C',
-            date: '03/12/2567',
-            isbn: '978-1-4028-9462-6',
-            shop: 'แจ่มใส',
-            price: 500,
-            quantity: 3,
+            name: 'สมศรี ดีใจ',
+            faculty: 'บริหาร',
+            department: 'บัญชีบัณฑิต',
+            email: 'nan@mail.com',
+            phone: '0999999999',
+            status: 'อาจายร์',
+            date: '09/01/2568',
           },
           {
             id: 4,
-            title: 'ความรู้สึกของเราสำคัญที่สุด',
-            date: '20/12/2567',
-            isbn: '978-1-4028-9462-6',
-            shop: 'แจ่มใส',
-            price: 500,
-            quantity: 1,
+            name: 'สมหมาย ใจดี',
+            faculty: 'วิศวกรรมศาสตร์',
+            department: 'วิศวกรรมโยธา',
+            email: 'nan@mail.com',
+            phone: '0999999999',
+            status: 'นิสิต',
+            date: '09/01/2568',
           },
           {
             id: 5,
-            title: 'คุณคางคกไปพบนักจิตบำบัด',
-            date: '20/12/2567',
-            isbn: '978-1-4028-9462-6',
-            shop: 'แจ่มใส',
-            price: 500,
-            quantity: 1,
+            name: 'ศรีสมาย บันเทิง',
+            faculty: 'วิทยาศาสตร์',
+            department: 'เคมี',
+            email: 'nan@mail.com',
+            phone: '0999999999',
+            status: 'อาจายร์',
+            date: '09/01/2568',
+          },
+          {
+            id: 6,
+            name: 'ใส่ใจ ใส่ไข่',
+            faculty: 'วิทยาศาสตร์',
+            department: 'คณิตศาตร์',
+            email: 'nan@mail.com',
+            phone: '0999999999',
+            status: 'นิสิต',
+            date: '01/01/2568',
           },
         ]
 
+        // กรองข้อมูลใน API
+        if (faculty && faculty !== 'ทั้งหมด') {
+          data = data.filter((item) => item.faculty === faculty)
+        }
+
+        if (name) {
+          const lowerName = name.toLowerCase()
+          data = data.filter((item) => item.name.toLowerCase().includes(lowerName))
+        }
         resolve(data)
       }, 500)
     })
@@ -186,38 +259,56 @@ const FakeAPI = {
 
 const onSearch = () => {
   loading.value = true
-  FakeAPI.fetch({ page: 1, itemsPerPage: 10 }).then((items) => {
+
+  FakeAPI.fetch({ page: 1, itemsPerPage: 10 }).then((items: any[]) => {
     let filteredItems = items
 
-    if (selectedDate.value) {
-      const selectedFormattedDate = formattedDate.value
+    // ฟอร์แมตวันที่ที่เลือกเป็นรูปแบบ "dd/mm/yyyy" เพื่อใช้ในการกรอง
+    const selectedFormattedDate = formattedDate.value
+
+    if (selectedDate.value && selectedFormattedDate) {
       filteredItems = filteredItems.filter((item) => item.date === selectedFormattedDate)
     }
 
+    // กรองข้อมูลตามคณะที่เลือก (ถ้ามีการเลือกคณะ)
+    if (searchFaculty.value && searchFaculty.value !== 'ทั้งหมด') {
+      filteredItems = filteredItems.filter((item) => item.faculty === searchFaculty.value)
+    }
+
     // หากไม่มีการกรองเพิ่มเติมและไม่มีวันที่ที่เลือก ให้แสดงข้อมูลทั้งหมด
-    if (!selectedDate.value) {
+    if (!selectedDate.value && (!searchFaculty.value || searchFaculty.value === 'ทั้งหมด')) {
       filteredItems = items
     }
 
-    // อัปเดตข้อมูลตาราง
+    // อัปเดตข้อมูลในตาราง
     serverItems.value = filteredItems
 
-    // หากไม่มีข้อมูลให้เตือนใน console
+    // แจ้งเตือนถ้าไม่มีข้อมูลตรงกับเงื่อนไข
     if (filteredItems.length === 0) {
-      console.warn('No data found with the selected criteria.')
+      console.warn('ไม่พบข้อมูลที่ตรงกับเงื่อนไขที่เลือก')
     }
 
     loading.value = false
   })
 }
 
-onMounted(() => {
-  const today = new Date()
-  selectedDate.value = today
-  onSearch() // เรียกฟังก์ชันค้นหาทันทีเมื่อเริ่มต้น
+const onClickBook = (item) => {
+  if (item && item.id) {
+    router.push({ name: 'showBookExecutive', params: { itemId: item.id } })
+  } else {
+    console.error('Item or item.id is undefined')
+  }
+}
+
+// ติดตามการเปลี่ยนแปลงของ searchFaculty และเรียก onSearch
+watch([selectedDate, searchFaculty], () => {
+  onSearch()
 })
 
-watch([selectedDate], onSearch, { immediate: true })
+// เรียก onSearch ครั้งแรกเมื่อ component ถูกโหลด
+onMounted(() => {
+  onSearch()
+})
 </script>
 
 <style scoped>
@@ -251,7 +342,7 @@ h1 {
   overflow: visible; /* แสดงข้อความที่เกิน */
   text-overflow: unset; /* ปิด ellipsis (...) */
   width: 100px;
-  min-width: 300px;
+  min-width: 200px;
   text-align: center; /* จัดข้อความอยู่กลาง */
   justify-content: center;
   align-content: center;
@@ -297,25 +388,28 @@ h1 {
 
 /* ตาราง */
 .v-simple-table {
-  width: 100%; /* ขยายตารางให้เต็มความกว้างคอนเทนเนอร์ */
-  max-width: 100%; /* กำหนดให้ไม่เกินความกว้างของหน้าจอ */
-  margin: 0 auto; /* จัดตารางให้อยู่กลางหน้าจอ */
-  font-size: 18px;
-  border-collapse: collapse; /* รวมเส้นขอบตาราง */
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  font-size: 20px;
+  border-collapse: collapse;
   overflow-x: auto;
-  table-layout: auto; /* ช่วยให้ตารางขยายได้ตามขนาดข้อมูล */
-}
-
-th,
-td {
-  padding: 16px;
-  text-align: left;
-  width: 16%; /* ปรับความกว้างให้แต่ละคอลัมน์สมดุล */
+  table-layout: auto;
 }
 
 th {
+  padding: 16px;
+  text-align: left;
+  width: 16%;
   font-weight: bold;
-  font-size: 20px;
+  font-size: 24px; /* ขนาดตัวอักษร 24px */
+  line-height: 40px; /* เพิ่มความสูงของแถวหัวตาราง */
+}
+
+td {
+  padding: 16px;
+  text-align: left;
+  width: 16%;
 }
 
 .formatted-date-display {
@@ -327,5 +421,23 @@ th {
   font-size: 20px;
   font-weight: bold;
   color: #4e484a;
+}
+
+.select-isbn {
+  width: 140px;
+}
+
+.serch-text {
+  width: 300px;
+}
+
+.custom-isbn {
+  width: 80px;
+  height: 56px;
+  line-height: 56px;
+}
+
+.select-book {
+  width: 400px;
 }
 </style>

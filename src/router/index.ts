@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import BookForm from '../components/BookForm.vue'
+import BookForm from '@/components/BookForm.vue'
 import BookStatus from '@/components/BookStatus.vue'
 import HomeStudent from '@/components/student/HomeStudent.vue'
 import Login from '@/views/LoginView.vue'
@@ -21,7 +21,9 @@ import AddShop from '@/components/library/AddShop.vue'
 import ShowShop from '@/components/library/ShowShop.vue'
 import ListBook from '@/components/library/ListOfBook.vue'
 import ShowBook from '@/components/library/ShowBook.vue'
-import LoginView2 from '@/views/LoginView2.vue'
+import ListExecutive from '@/components/executive/ListOfBookExecutive.vue'
+import SumBudget from '@/components/executive/SumBudget.vue'
+// import LoginView2 from '@/views/LoginView2.vue'
 
 const routes = [
   {
@@ -143,7 +145,7 @@ const routes = [
       },
       {
         path: 'book-form/:itemId',
-        name: 'BookFormLibrary',
+        name: 'BookFormLibraryWithId',
         component: BookForm,
       },
       {
@@ -223,6 +225,21 @@ const routes = [
         path: 'history-coupon',
         name: 'historyCouponExecutive',
         component: HistoryCoupon,
+      },
+      {
+        path: 'list-book-executive',
+        name: 'listBookExecutive',
+        component: ListExecutive,
+      },
+      {
+        path: '/show-book/:itemId',
+        name: 'showBookExecutive',
+        component: ShowBook
+      },
+      {
+        path: 'sum-budget',
+        name: 'sumBudgetExecutive',
+        component: SumBudget,
       },
     ],
     meta: { requiresAuth: true, role: 'executive' },
@@ -309,6 +326,16 @@ const routes = [
     path: '/show-book-presenters',
     name: 'showBook',
     component: ShowBook,
+  },
+  {
+    path: '/list-book-executive',
+    name: 'listBook',
+    component: ListExecutive,
+  },
+  {
+    path: '/sum-budget',
+    name: 'sumBudget',
+    component: SumBudget,
   },
 
 ]
