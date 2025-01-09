@@ -157,6 +157,7 @@ const items = [
 // Logout function
 const handleLogout = async () => {
   try {
+    console.log('Attempting to logout...') // ตรวจสอบว่าฟังก์ชันทำงาน
     const response = await axios.post(
       'http://localhost:3000/auth/logout',
       {},
@@ -165,15 +166,15 @@ const handleLogout = async () => {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
       },
-    )
-    console.log(response.data)
-    localStorage.clear()
-    window.location.href = '/'
+    );
+    console.log(response.data); // ตรวจสอบ response จาก API
+    localStorage.clear(); // ลบข้อมูลจาก LocalStorage
+    window.location.href = '/'; // เปลี่ยนเส้นทางไปยังหน้า login
   } catch (error) {
-    console.error('Logout error:', error)
-    alert('การออกจากระบบล้มเหลว กรุณาลองใหม่')
+    console.error('Logout error:', error); // ดู error ใน console
+    alert('การออกจากระบบล้มเหลว กรุณาลองใหม่');
   }
-}
+};
 </script>
 
 <style scoped>
