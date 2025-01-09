@@ -67,7 +67,7 @@
         class="table-centered"
       >
         <!-- Slot สำหรับคอลัมน์ "จำนวน" -->
-        <template #item.quantity="{ item }">
+        <template #item.description="{ item }">
           <div
             style="
               display: flex;
@@ -79,7 +79,7 @@
           >
             <v-btn
               style="
-                background-color: #c7c8cc;
+                background-color: #eed3d9;
                 width: 100px;
                 height: 25px;
                 font-size: 14px;
@@ -111,13 +111,11 @@ const router = useRouter()
 // Headers สำหรับ v-data-table
 const headers = [
   { title: 'ลำดับ', key: 'id', align: 'start' },
-  { title: 'ข้อมูลผู้คัดเลือก', key: 'name' },
   { title: 'คณะ', key: 'faculty' },
-  { title: 'หน่วยงาน/สาขา', key: 'department' },
-  { title: 'E-mail', key: 'email' },
-  { title: 'เบอร์โทรศัพท์', key: 'phone' },
-  { title: 'สถานะ', key: 'status' },
-  { title: 'จำนวน', key: 'quantity' },
+  { title: 'งบประมาณที่ให้', key: 'budget' },
+  { title: 'งบประมาณที่ใช้', key: 'usebudget' },
+  { title: 'คงเหลือ', key: 'remain' },
+  { title: 'รายละเอียด', key: 'description' },
 ]
 
 // ฟอร์แมตวันที่
@@ -182,63 +180,51 @@ const FakeAPI = {
         let data = [
           {
             id: 1,
-            name: 'นันท์ณภัทร สอนสุภาพ',
             faculty: 'วิทยาการสารสนเทศ',
-            department: 'วิทยาการคอมพิวเตอร์',
-            email: 'nan@mail.com',
-            phone: '0999999999',
-            status: 'อาจายร์',
-            date: '20/12/2567',
+            budget: '200,000',
+            usebudget: '158,700',
+            remain: '41,300',
+            date: '09/01/2568',
           },
           {
             id: 2,
-            name: 'นวพรรณ สีหบุตร',
-            faculty: 'วิทยาการสารสนเทศ',
-            department: 'วิทยาการคอมพิวเตอร์',
-            email: 'nan@mail.com',
-            phone: '0999999999',
-            status: 'นิสิต',
+            faculty: 'วิทยาศาสตร์',
+            budget: '200,000',
+            usebudget: '158,700',
+            remain: '41,300',
             date: '20/12/2567',
           },
           {
             id: 3,
-            name: 'สมศรี ดีใจ',
             faculty: 'บริหาร',
-            department: 'บัญชีบัณฑิต',
-            email: 'nan@mail.com',
-            phone: '0999999999',
-            status: 'อาจายร์',
-            date: '09/01/2568',
+            budget: '200,000',
+            usebudget: '158,700',
+            remain: '41,300',
+            date: '20/12/2567',
           },
           {
             id: 4,
-            name: 'สมหมาย ใจดี',
             faculty: 'วิศวกรรมศาสตร์',
-            department: 'วิศวกรรมโยธา',
-            email: 'nan@mail.com',
-            phone: '0999999999',
-            status: 'นิสิต',
-            date: '09/01/2568',
+            budget: '200,000',
+            usebudget: '158,700',
+            remain: '41,300',
+            date: '20/12/2567',
           },
           {
             id: 5,
-            name: 'ศรีสมาย บันเทิง',
-            faculty: 'วิทยาศาสตร์',
-            department: 'เคมี',
-            email: 'nan@mail.com',
-            phone: '0999999999',
-            status: 'อาจายร์',
+            faculty: 'เภสัชศาสตร์',
+            budget: '200,000',
+            usebudget: '158,700',
+            remain: '41,300',
             date: '09/01/2568',
           },
           {
             id: 6,
-            name: 'ใส่ใจ ใส่ไข่',
-            faculty: 'วิทยาศาสตร์',
-            department: 'คณิตศาตร์',
-            email: 'nan@mail.com',
-            phone: '0999999999',
-            status: 'นิสิต',
-            date: '01/01/2568',
+            faculty: 'ครุศาสตร์',
+            budget: '200,000',
+            usebudget: '158,700',
+            remain: '41,300',
+            date: '09/01/2568',
           },
         ]
 
@@ -294,7 +280,7 @@ const onSearch = () => {
 
 const onClickBook = (item) => {
   if (item && item.id) {
-    router.push({ name: 'showBookExecutive', params: { itemId: item.id } })
+    router.push({ name: 'showBudgetExecutive', params: { itemId: item.id } })
   } else {
     console.error('Item or item.id is undefined')
   }
