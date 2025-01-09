@@ -69,7 +69,7 @@ const items = [
   { title: 'แบบฟอร์มการเสนอหนังสือ', icon: libraryImage, link: '/home-executive/book-form' },
   { title: 'สถานะการเสนอซื้อหนังสือ', icon: checklist, link: '/home-executive/book-status' },
   { title: 'E-Coupon', icon: coupon, link: '/home-executive/coupon' },
-  { title: 'ประวัติการใช้คูปอง', icon: history, link: '/home-executive/book-status' },
+  { title: 'ประวัติการใช้คูปอง', icon: history, link: '/home-executive/history-coupon' },
   { title: 'รายชื่อผู้เสนอ', icon: list, link: '/login' },
   { title: 'สรุปงบประมาณ', icon: salary, link: '/book-form' },
   { title: 'ร้านค้า', icon: store, link: '/book-status' },
@@ -112,7 +112,7 @@ const items = [
   text-decoration: none;
   color: #333333;
   font-family: 'Arial', sans-serif;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: bold;
 }
 

@@ -17,4 +17,13 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  server: {
+    proxy: {
+      '/apilib': {
+        target: 'https://info.lib.buu.ac.th',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/apilib/, ''),
+      },
+    },
+  },
 })

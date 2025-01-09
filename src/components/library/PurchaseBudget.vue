@@ -30,7 +30,7 @@
                 />
               </template>
 
-              <v-date-picker v-model="selectedDate" @input="menuDate = false" locale="th" />
+              <v-date-picker v-model="selectedDate" locale="th" @input="onSearch" />
             </v-menu>
           </v-col>
         </v-row>
@@ -54,6 +54,7 @@
               class="select-faculty"
               variant="outlined"
               rounded="lg"
+              @change="onSearch"
             ></v-select>
           </div>
         </v-col>
@@ -67,6 +68,7 @@
               class="select-coupon"
               variant="outlined"
               rounded="lg"
+              @change="onSearch"
             ></v-select>
           </div>
         </v-col>
@@ -100,20 +102,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, nextTick } from 'vue'
 
 // วันที่
 const selectedDate = ref(new Date())
 const menuDate = ref(false)
 const loading = ref(false)
-const serverItems = ref([])
-const searchCategory = ref('ISBN')
+const allItems = ref([]) // ข้อมูลต้นฉบับ
+const serverItems = ref([]) // ข้อมูลที่จะแสดงในตาราง
 const searchFaculty = ref('ทั้งหมด')
 const searchCoupon = ref('ทั้งหมด')
 const total = ref({
   price: 0,
   quantity: 0,
 })
+
 // Headers สำหรับ v-data-table
 const headers = [
   { title: 'ลำดับ', key: 'id', align: 'start' },
@@ -127,7 +130,6 @@ const headers = [
   { title: 'สถานะ', key: 'status' },
 ]
 
-// ฟอร์แมตวันที่
 const formattedDate = computed(() => {
   if (!selectedDate.value) return ''
   const date = new Date(selectedDate.value)
@@ -241,68 +243,59 @@ const FakeAPI = {
           },
         ]
 
-        const start = (page - 1) * itemsPerPage
-        const end = start + itemsPerPage
-
-        resolve({
-          items: data.slice(start, end),
-          total: data.length,
-        })
+        resolve(data)
       }, 500)
     })
   },
 }
 
-const loadItems = ({ page, itemsPerPage }) => {
+// ฟังก์ชันกรองข้อมูลตามวันที่, คณะ, และคูปอง
+const onSearch = () => {
   loading.value = true
+  FakeAPI.fetch({ page: 1, itemsPerPage: 10 }).then((items) => {
+    let filteredItems = items
 
-  FakeAPI.fetch({ page, itemsPerPage })
-    .then(({ items }) => {
-      let filteredItems = items
+    // กรองข้อมูลตามวันที่
+    if (selectedDate.value) {
+      const selectedFormattedDate = formattedDate.value
+      filteredItems = filteredItems.filter((item) => item.date === selectedFormattedDate)
+    }
 
-      // กรองข้อมูลตามวันที่
-      if (selectedDate.value) {
-        const selectedFormattedDate = formattedDate.value
-        filteredItems = filteredItems.filter((item) => {
-          return item.date.trim() === selectedFormattedDate.trim()
-        })
-      }
+    // กรองข้อมูลตามคณะ
+    if (searchFaculty.value !== 'ทั้งหมด') {
+      filteredItems = filteredItems.filter((item) => item.faculty === searchFaculty.value)
+    }
 
-      // กรองข้อมูลตามคณะ
-      if (searchFaculty.value !== 'ทั้งหมด') {
-        filteredItems = filteredItems.filter((item) => {
-          return item.faculty === searchFaculty.value
-        })
-      }
+    // กรองข้อมูลตามประเภทคูปอง
+    if (searchCoupon.value !== 'ทั้งหมด') {
+      filteredItems = filteredItems.filter((item) => item.status === searchCoupon.value)
+    }
 
-      // กรองข้อมูลตามประเภทคูปอง
-      if (searchCoupon.value !== 'ทั้งหมด') {
-        filteredItems = filteredItems.filter((item) => {
-          return item.status === searchCoupon.value
-        })
-      }
+    // คำนวณราคาสุทธิและจำนวนรวม
+    total.value.price = filteredItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
+    total.value.quantity = filteredItems.reduce((sum, item) => sum + item.quantity, 0)
 
-      // อัปเดตข้อมูลในตาราง
-      serverItems.value = filteredItems
+    // อัปเดตข้อมูลตาราง
+    serverItems.value = filteredItems
 
-      // คำนวณผลรวมของราคาและจำนวน
-      total.value = filteredItems.reduce(
-        (acc, item) => {
-          acc.price += item.price * item.quantity
-          acc.quantity += item.quantity
-          return acc
-        },
-        { price: 0, quantity: 0 },
-      )
-    })
-    .finally(() => {
-      loading.value = false
-    })
+    // หากไม่มีข้อมูลให้เตือนใน console
+    if (filteredItems.length === 0) {
+      console.warn('No data found with the selected criteria.')
+    }
+
+    loading.value = false
+  })
 }
 
+onMounted(() => {
+  const today = new Date()
+  selectedDate.value = today
+  onSearch() // เรียกฟังก์ชันค้นหาทันทีเมื่อเริ่มต้น
+})
+
 watch([selectedDate, searchFaculty, searchCoupon], () => {
-  loadItems({ page: 1, itemsPerPage: 10 });
-});
+  onSearch()
+})
 </script>
 
 <style scoped>
@@ -329,81 +322,16 @@ h1 {
   margin-bottom: 20px;
 }
 
-/* เลือกวันที่และข้อมูลในตารางวันที่ */
 .custom-date-picker {
   font-size: 20px;
-  white-space: nowrap; /* ห้ามตัดข้อความขึ้นบรรทัดใหม่ */
-  overflow: visible; /* แสดงข้อความที่เกิน */
-  text-overflow: unset; /* ปิด ellipsis (...) */
+  white-space: nowrap;
+  overflow: visible;
+  text-overflow: unset;
   width: 100px;
   min-width: 200px;
-  text-align: center; /* จัดข้อความอยู่กลาง */
+  text-align: center;
   justify-content: center;
   align-content: center;
-}
-
-.v-input--is-prepended .v-input__prepend-inner-icon {
-  font-size: 28px; /* ขนาดไอคอน */
-}
-
-.v-input--is-prepended.v-input--has-icon.v-input--is-dirty .v-input__prepend-inner-icon {
-  font-size: 28px; /* ไอคอนขนาดใหญ่เมื่อ input มีค่าเปลี่ยนแปลง */
-}
-
-.custom-border {
-  border-radius: 15px; /* ทำให้มุมโค้ง */
-  padding: 4px 8px; /* เพิ่มพื้นที่ภายในให้ข้อความไม่ชิดขอบ */
-  box-sizing: border-box; /* ให้ padding ไม่กระทบกับความกว้าง */
-}
-
-.custom-width {
-  width: 250px; /* กำหนดความกว้างของ input */
-}
-
-.custom-date-picker:hover {
-  border-color: #707478; /* เปลี่ยนสีกรอบตอนชี้ */
-}
-
-.v-date input {
-  outline: none;
-}
-
-.custom-textdate {
-  font-size: 20px; /* ขนาดข้อความ */
-  border: none; /* ลบเส้นขอบ */
-  outline: none; /* ลบเส้นโฟกัส */
-  width: 100%; /* ให้ข้อความใช้พื้นที่เต็ม */
-  height: 100%; /* ให้ข้อความครอบคลุมความสูง */
-  text-align: center; /* จัดข้อความให้อยู่กลาง */
-  background-color: transparent;
-  white-space: normal; /* ป้องกันการหักบรรทัด */
-  overflow: visible;
-}
-
-/* ตาราง */
-.v-simple-table {
-  width: 100%;
-  max-width: 100%;
-  margin: 0 auto;
-  font-size: 20px;
-  border-collapse: collapse;
-  overflow-x: auto;
-  table-layout: auto;
-}
-
-th {
-  padding: 16px;
-  text-align: left;
-  width: 16%;
-  font-weight: bold;
-  font-size: 24px; /* ขนาดตัวอักษร 24px */
-  line-height: 40px; /* เพิ่มความสูงของแถวหัวตาราง */
-}
-
-td {
-  padding: 16px;
-  text-align: left;
-  width: 16%;
 }
 
 .formatted-date-display {
@@ -417,29 +345,16 @@ td {
   color: #4e484a;
 }
 
-.select-isbn {
-  width: 140px;
-}
-
-.serch-text {
+.select-faculty {
   width: 400px;
 }
 
-.custom-isbn {
-  width: 80px;
-  height: 56px;
-  line-height: 56px;
-}
-
-.select-faculty {
-  width: 500px;
-}
-
 .select-coupon {
-  width: 200px;
+  width: 250px;
 }
 
 .table {
-  border-bottom: 1px solid #4e484a;
+  margin-top: 20px;
+  font-size: 16px;
 }
 </style>

@@ -67,7 +67,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 
 // วันที่
 const selectedDate = ref(new Date())
@@ -225,6 +225,12 @@ const loadItems = () => {
       loading.value = false
     })
 }
+
+onMounted(() => {
+  const today = new Date()
+  selectedDate.value = today
+  loadItems() // เรียกฟังก์ชันค้นหาทันทีเมื่อเริ่มต้น
+})
 
 // เฝ้าดูการเปลี่ยนแปลงตัวกรอง
 watch([selectedDate, searchShop], loadItems)
