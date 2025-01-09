@@ -30,7 +30,7 @@
                 />
               </template>
 
-              <v-date-picker v-model="selectedDate" @input="onSearch" locale="th" />
+              <v-date-picker v-model="selectedDate" locale="th" @input="onSearch" />
             </v-menu>
           </v-col>
         </v-row>
@@ -130,7 +130,6 @@ const headers = [
   { title: 'สถานะ', key: 'status' },
 ]
 
-// ฟอร์แมตวันที่
 const formattedDate = computed(() => {
   if (!selectedDate.value) return ''
   const date = new Date(selectedDate.value)
@@ -244,67 +243,45 @@ const FakeAPI = {
           },
         ]
 
-        const start = (page - 1) * itemsPerPage
-        const end = start + itemsPerPage
-
-        resolve({
-          items: data.slice(start, end),
-          total: data.length,
-        })
+        resolve(data)
       }, 500)
     })
   },
 }
 
-onMounted(() => {
-  FakeAPI.fetch({ page: 1, itemsPerPage: 10 })
-    .then(({ items }) => {
-      allItems.value = items
-      serverItems.value = items
-    })
-    .finally(() => {
-      onSearch() // เรียกใช้ฟังก์ชันกรองข้อมูล
-    })
-})
-
+// ฟังก์ชันกรองข้อมูลตามวันที่, คณะ, และคูปอง
 const onSearch = () => {
   loading.value = true
-  FakeAPI.fetch({ page: 1, itemsPerPage: 10 }).then(({ items }) => {
-    console.log('Fetched items:', items) // Debug ข้อมูลที่ดึงมา
-
+  FakeAPI.fetch({ page: 1, itemsPerPage: 10 }).then((items) => {
     let filteredItems = items
 
+    // กรองข้อมูลตามวันที่
     if (selectedDate.value) {
       const selectedFormattedDate = formattedDate.value
       filteredItems = filteredItems.filter((item) => item.date === selectedFormattedDate)
     }
 
+    // กรองข้อมูลตามคณะ
     if (searchFaculty.value !== 'ทั้งหมด') {
       filteredItems = filteredItems.filter((item) => item.faculty === searchFaculty.value)
     }
 
+    // กรองข้อมูลตามประเภทคูปอง
     if (searchCoupon.value !== 'ทั้งหมด') {
       filteredItems = filteredItems.filter((item) => item.status === searchCoupon.value)
     }
 
-    console.log('Filtered items:', filteredItems) // Debug ข้อมูลที่กรองแล้ว
+    // คำนวณราคาสุทธิและจำนวนรวม
+    total.value.price = filteredItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
+    total.value.quantity = filteredItems.reduce((sum, item) => sum + item.quantity, 0)
 
     // อัปเดตข้อมูลตาราง
     serverItems.value = filteredItems
 
-    // ตรวจสอบว่าไม่มีข้อมูลที่กรองแล้ว
+    // หากไม่มีข้อมูลให้เตือนใน console
     if (filteredItems.length === 0) {
       console.warn('No data found with the selected criteria.')
     }
-
-    total.value = filteredItems.reduce(
-      (acc, item) => {
-        acc.price += item.price * item.quantity
-        acc.quantity += item.quantity
-        return acc
-      },
-      { price: 0, quantity: 0 },
-    )
 
     loading.value = false
   })
