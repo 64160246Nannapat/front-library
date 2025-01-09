@@ -11,8 +11,8 @@
       <v-spacer></v-spacer>
       <v-toolbar-items class="d-flex align-center">
         <div class="d-flex flex-column align-end" style="margin-right: 20px">
-          <span class="name">{{ user.name }}</span>
-          <span class="position" style="margin-top: 5px">{{ user.role }}</span>
+          <span class="name" style="font-size: 16px;">{{ user.name }}</span>
+          <span class="position" style="margin-top: 5px; font-size: 14px;">{{ user.role }}</span>
         </div>
       </v-toolbar-items>
     </v-app-bar>
