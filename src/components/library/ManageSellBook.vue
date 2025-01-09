@@ -36,6 +36,7 @@
         </v-row>
       </div>
 
+      <!-- Formatted Date Display -->
       <v-row>
         <v-col cols="auto">
           <div class="formatted-date-display">
@@ -44,6 +45,7 @@
         </v-col>
       </v-row>
 
+      <!-- Search Filters Section -->
       <v-row align="center">
         <v-col cols="auto">
           <v-select
@@ -91,6 +93,7 @@
         </v-col>
       </v-row>
 
+      <!-- Data Table Section -->
       <v-data-table
         :headers="headers"
         :items="serverItems"
@@ -147,7 +150,13 @@
                     hide-details
                     variant="outlined"
                     class="select-confirm text-select"
-                    style="width: 120px; height: 30px; font-size: 12px; line-height: 30px"
+                    style="
+                      width: 120px;
+                      height: 60px;
+                      font-size: 8px;
+                      line-height: 30px;
+                      margin-top: 8px;
+                    "
                   />
 
                   <v-btn
@@ -161,6 +170,7 @@
                       display: flex;
                       justify-content: center;
                       align-items: center;
+                      margin-bottom: 8px;
                     "
                   >
                     <v-icon>mdi-email-outline</v-icon>
@@ -172,6 +182,7 @@
         </template>
       </v-data-table>
 
+      <!-- Image Viewer Dialog -->
       <v-dialog v-model="dialog" max-width="600">
         <v-card>
           <v-img
@@ -188,9 +199,10 @@
         </v-card>
       </v-dialog>
 
+      <!-- Confirmation Dialog -->
       <v-dialog v-model="confirmDialog" max-width="500">
         <v-card>
-          <v-card-title> ยืนยันการเลือก </v-card-title>
+          <v-card-title>ยืนยันการเลือก</v-card-title>
           <v-card-text>
             คุณแน่ใจหรือไม่ว่าจะเปลี่ยนสถานะเป็น "{{
               confirmData?.checkStatus === 'yes' ? 'ไม่ซ้ำ' : 'ซ้ำ'
@@ -203,6 +215,22 @@
           </v-card-actions>
         </v-card>
       </v-dialog>
+
+      <!-- Message Dialog -->
+      <v-dialog v-model="messageDialog" max-width="500">
+        <v-card>
+          <v-card-title>ส่ง: {{ selectedItem?.name }}</v-card-title>
+          <v-card-subtitle>วันที่: {{ new Date().toLocaleDateString() }}</v-card-subtitle>
+          <v-card-text>
+            <v-textarea v-model="message" label="ข้อความ" rows="4" />
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer />
+            <v-btn color="red" text @click="messageDialog = false">ยกเลิก</v-btn>
+            <v-btn color="green" text @click="sendMessage">ส่งข้อความ</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
     </v-container>
   </v-main>
 </template>
@@ -212,7 +240,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import defaultImage from '@/assets/front-book.png'
 import backImage from '@/assets/back-book.png'
 
-// วันที่
+// Date & Search Variables
 const selectedDate = ref(new Date())
 const menuDate = ref(false)
 const searchCategory = ref('ISBN')
@@ -222,8 +250,12 @@ const loading = ref(false)
 const serverItems = ref([])
 const dialog = ref(false)
 const selectedBookImage = ref('')
+
+// Dialog Management
+const messageDialog = ref(false)
 const confirmDialog = ref(false)
-const confirmData = ref(null)
+const selectedItem = ref(null)
+const message = ref('')
 
 // Headers สำหรับ v-data-table
 const headers = [
@@ -342,7 +374,7 @@ const FakeAPI = {
           },
           {
             id: 5,
-            name: 'นันท์ณภัทร สอนสุภาพ',
+            name: 'นวรรษ สีหบุตร',
             title: 'ภาวะลื่นไหล ทำอะไรก็ง่ายหมด = Productivity flow',
             date: '20/12/2567',
             isbn: '9781502894626',
@@ -444,8 +476,13 @@ const confirmStatusChange = () => {
 }
 
 const onMessageClick = (item) => {
-  console.log('ข้อความสำหรับ:', item)
-  // ดำเนินการอื่น เช่น เปิด modal สำหรับส่งข้อความ
+  selectedItem.value = item
+  messageDialog.value = true
+}
+
+const sendMessage = () => {
+  console.log('ส่งข้อความ:', message.value, 'ไปยัง:', selectedItem.value)
+  messageDialog.value = false
 }
 
 // ใช้ onSearch ติดตามการเปลี่ยนแปลง
@@ -640,23 +677,4 @@ td {
 .select-book {
   width: 200px;
 }
-
-.select-confirm .v-input__control {
-  height: 30px; /* กำหนดความสูงของส่วนควบคุม */
-  padding: 0 8px; /* เพิ่มพื้นที่รอบข้อความ */
-  font-size: 12px; /* ปรับขนาดฟอนต์ให้เล็กลง */
-  line-height: 30px; /* จัดข้อความให้อยู่กลาง */
-  display: flex; /* ใช้ flexbox เพื่อจัดตำแหน่ง */
-  align-items: center; /* จัดข้อความให้อยู่กลางในแนวตั้ง */
-}
-
-.select-confirm {
-  height: 30px; /* กำหนดความสูงให้ตรงกับปุ่ม */
-  width: 120px; /* กำหนดความกว้าง */
-}
-
-.v-input {
-  margin: 0; /* ลบช่องว่างรอบขอบ */
-}
-
 </style>
