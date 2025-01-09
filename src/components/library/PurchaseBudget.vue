@@ -287,6 +287,12 @@ const onSearch = () => {
   })
 }
 
+onMounted(() => {
+  const today = new Date()
+  selectedDate.value = today
+  onSearch() // เรียกฟังก์ชันค้นหาทันทีเมื่อเริ่มต้น
+})
+
 watch([selectedDate, searchFaculty, searchCoupon], () => {
   onSearch()
 })

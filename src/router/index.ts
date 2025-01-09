@@ -219,6 +219,11 @@ const routes = [
         name: 'historyCouponExecutive',
         component: HistoryCoupon,
       },
+      {
+        path: 'history-coupon',
+        name: 'historyCouponExecutive',
+        component: HistoryCoupon,
+      },
     ],
     meta: { requiresAuth: true, role: 'executive' },
   },

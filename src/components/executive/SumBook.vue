@@ -1,127 +1,289 @@
 <template>
-  <v-main style="height: 500px">
+  <v-main style="height: 500px; margin-top: 55px">
+    <v-container>
+      <div class="header">
+        <img class="header-image" src="@/assets/sumbook.png" alt="Library Image" />
+        <h1>สรุปการซื้อหนังสือ</h1>
 
-    <v-main>
-      <v-container>
-        <v-row class="align-center justify-space-between header-row">
-          <div class="header">
-            <img class="header-image" src="@/assets/sumbook.png" alt="Sum Image" />
-            <h1>สรุปการซื้อหนังสือ</h1>
+        <v-row align="center" class="date-status-row" justify="end">
+          <v-col cols="auto">
+            <v-menu
+              v-model="menuDate"
+              :close-on-content-click="false"
+              transition="scale-transition"
+            >
+              <template v-slot:activator="{ on, props }">
+                <v-text-field
+                  v-bind="props"
+                  v-on="on"
+                  v-model="formattedDate"
+                  placeholder="dd/mm/yyyy"
+                  class="custom-date-picker"
+                  hide-details
+                  rounded="lg"
+                  readonly
+                  flat
+                  solo
+                  prepend-inner-icon="$calendar"
+                  suffix-icon="mdi-calendar"
+                  variant="outlined"
+                />
+              </template>
+
+              <v-date-picker v-model="selectedDate" locale="th" @input="onSearch" />
+            </v-menu>
+          </v-col>
+        </v-row>
+      </div>
+
+      <v-row>
+        <v-col cols="auto">
+          <div class="formatted-date-display">
+            <h2>{{ fullFormattedDate }}</h2>
           </div>
+        </v-col>
+      </v-row>
 
-          <v-menu
-            v-model="menuDate"
-            :close-on-content-click="false"
-            transition="scale-transition"
-            offset-y
-          >
-            <template #activator="{ on, attrs }">
-              <v-text-field
-                v-model="formattedDate"
-                readonly
-                label="เลือกวันที่"
-                v-bind="attrs"
-                v-on="on"
-                dense
-              ></v-text-field>
-            </template>
-            <v-date-picker v-model="selectedDate" @input="onDateSelected"></v-date-picker>
-          </v-menu>
-        </v-row>
+      <v-row align="center">
+        <v-col cols="auto" class="d-flex align-center">
+          <h3 style="margin-right: 20px; margin-top: -20px">คณะ:</h3>
+          <div>
+            <v-select
+              :items="['ทั้งหมด', 'วิทยาการสารสนเทศ', 'วิศวกรรมศาสตร์', 'วิทยาศาสตร์', 'บริหาร']"
+              v-model="searchFaculty"
+              class="select-faculty"
+              variant="outlined"
+              rounded="lg"
+              @change="onSearch"
+            ></v-select>
+          </div>
+        </v-col>
 
-        <v-row>
-          <v-col cols="12" sm="6">
-            <v-select v-model="faculty" :items="faculties" label="คณะ" dense></v-select>
-          </v-col>
-          <v-col cols="12" sm="6">
-            <v-select v-model="status" :items="statuses" label="สถานะ" dense></v-select>
-          </v-col>
-        </v-row>
+        <v-col cols="auto" class="ml-auto d-flex align-center">
+          <h3 style="margin-right: 20px; margin-top: -20px">สถานะ:</h3>
+          <div>
+            <v-select
+              :items="['ทั้งหมด', 'มีคูปอง', 'ไม่มีคูปอง']"
+              v-model="searchCoupon"
+              class="select-coupon"
+              variant="outlined"
+              rounded="lg"
+              @change="onSearch"
+            ></v-select>
+          </div>
+        </v-col>
+      </v-row>
 
-        <v-data-table :headers="headers" :items="items" item-value="name" class="elevation-1">
-        </v-data-table>
+      <!-- ตารางข้อมูล -->
+      <v-data-table
+        :headers="headers"
+        :items="serverItems"
+        :loading="loading"
+        item-key="id"
+        :hide-default-footer="true"
+        class="table"
+      >
+      </v-data-table>
 
-        <v-row class="mt-4">
-          <v-col cols="6" class="text-start">
-            รวม: <b>{{ totalPrice }}</b> บาท
-          </v-col>
-          <v-col cols="6" class="text-end">
-            จำนวน: <b>{{ totalBooks }}</b> เล่ม
-          </v-col>
-        </v-row>
-      </v-container>
-    </v-main>
+      <v-divider></v-divider>
+
+      <!-- รวมข้อมูล -->
+      <v-row class="mt-4">
+        <v-col cols="6" class="text-start">
+          รวม: <b>{{ total.price }}</b> บาท
+        </v-col>
+        <v-col cols="6" class="text-end">
+          จำนวน: <b>{{ total.quantity }}</b> เล่ม
+        </v-col>
+      </v-row>
+    </v-container>
   </v-main>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import HomeExecutive from '@/components/executive/HomeExecutive.vue'
+import { ref, computed, watch, onMounted } from 'vue'
 
+// วันที่
+const selectedDate = ref(new Date())
 const menuDate = ref(false)
-const selectedDate = ref(new Date().toISOString().split('T')[0])
-const formattedDate = ref(new Date().toLocaleDateString('th-TH'))
-const faculty = ref('ทั้งหมด')
-const status = ref('ทั้งหมด')
+const loading = ref(false)
+const allItems = ref([]) // ข้อมูลต้นฉบับ
+const serverItems = ref([]) // ข้อมูลที่จะแสดงในตาราง
+const searchFaculty = ref('ทั้งหมด')
+const searchCoupon = ref('ทั้งหมด')
+const total = ref({
+  price: 0,
+  quantity: 0,
+})
 
-const faculties = ['ทั้งหมด', 'วิทยาการสารสนเทศ', 'วิทยาศาสตร์', 'บริหาร', 'วิศวกรรมศาสตร์']
-const statuses = ['ทั้งหมด', 'มีคูปอง', 'ไม่มีผู้คูปอง']
-
-const items = [
-  {
-    rank: 1,
-    name: 'ปรัชญาชีวิต',
-    isbn: '9786160631308',
-    store: 'แจ่มใส',
-    price: 415,
-    quantity: 1,
-    status: 'มีผู้จอง',
-    faculty: 'วิทยาการสารสนเทศ',
-  },
-  {
-    rank: 2,
-    name: 'หัวไม่ดีหัวร้อนอ่านหน้า',
-    isbn: '9786165786195',
-    store: 'MD',
-    price: 245,
-    quantity: 1,
-    status: 'ไม่มีผู้จอง',
-    faculty: 'วิทยาการสารสนเทศ',
-  },
-]
-
+// Headers สำหรับ v-data-table
 const headers = [
-  { text: 'ลำดับ', value: 'rank' },
-  { text: 'ข้อมูลหนังสือ', value: 'name' },
-  { text: 'ISBN', value: 'isbn' },
-  { text: 'ร้านค้า', value: 'store' },
-  { text: 'ราคา (บาท)', value: 'price' },
-  { text: 'จำนวน (เล่ม)', value: 'quantity' },
-  { text: 'สถานะ', value: 'status' },
-  { text: 'คณะ', value: 'faculty' },
+  { title: 'ลำดับ', key: 'id', align: 'start' },
+  { title: 'ข้อมูลหนังสือ', key: 'title' },
+  { title: 'ISBN', key: 'isbn' },
+  { title: 'ร้านค้า', key: 'shop' },
+  { title: 'ราคาสุทธิ', key: 'price' },
+  { title: 'จำนวน', key: 'quantity' },
+  { title: 'สถานะ', key: 'status' },
+  { title: 'คณะ', key: 'faculty' },
 ]
 
-const totalPrice = computed(() => items.reduce((sum, item) => sum + item.price, 0))
-const totalBooks = computed(() => items.reduce((sum, item) => sum + item.quantity, 0))
+const formattedDate = computed(() => {
+  if (!selectedDate.value) return ''
+  const date = new Date(selectedDate.value)
+  const day = String(date.getDate()).padStart(2, '0')
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const year = date.getFullYear() + 543
+  return `${day}/${month}/${year}`
+})
 
-const onDateSelected = (date: string) => {
-  selectedDate.value = date
-  formattedDate.value = new Date(date).toLocaleDateString('th-TH')
+const fullFormattedDate = computed(() => {
+  if (!selectedDate.value) return ''
+  const date = new Date(selectedDate.value)
+
+  const days = [
+    'วันอาทิตย์',
+    'วันจันทร์',
+    'วันอังคาร',
+    'วันพุธ',
+    'วันพฤหัสบดี',
+    'วันศุกร์',
+    'วันเสาร์',
+  ]
+  const months = [
+    'มกราคม',
+    'กุมภาพันธ์',
+    'มีนาคม',
+    'เมษายน',
+    'พฤษภาคม',
+    'มิถุนายน',
+    'กรกฎาคม',
+    'สิงหาคม',
+    'กันยายน',
+    'ตุลาคม',
+    'พฤศจิกายน',
+    'ธันวาคม',
+  ]
+
+  const dayName = days[date.getDay()]
+  const day = date.getDate()
+  const monthName = months[date.getMonth()]
+  const year = date.getFullYear() + 543
+
+  return `${dayName} ที่ ${day} ${monthName} พ.ศ. ${year}`
+})
+
+// API ปลอมเพื่อเลียนแบบการดึงข้อมูล
+const FakeAPI = {
+  async fetch() {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const data = [
+          {
+            id: 1,
+            faculty: 'วิทยาการสารสนเทศ',
+            title: 'ความรู้สึกของเราสำคัญที่สุด',
+            isbn: '9786161857707',
+            shop: 'ร้านนี้ดี',
+            price: 250,
+            quantity: 1,
+            status: 'มีคูปอง',
+            date: '02/12/2567',
+          },
+          {
+            id: 2,
+            faculty: 'วิทยาการสารสนเทศ',
+            title: 'วิทยาศาสตร์ขอวิทยาศาสตร์ของการใช้ชีวิต = The science of livingงการใช้ชีวิต',
+            isbn: '9786162875434',
+            shop: 'ร้านนี้ดี',
+            price: 250,
+            quantity: 1,
+            status: 'ไม่มีคูปอง',
+            date: '02/12/2567',
+          },
+          {
+            id: 3,
+            faculty: 'บริหาร',
+            title: 'คุณคางคกไปพบนักจิตบำบัด : การผจญภัยทางจิตวิทยา = Counselling for toads : a psychological adventure',
+            isbn: '9786160459049',
+            shop: 'ร้านนี้ดี',
+            price: 250,
+            quantity: 2,
+            status: 'มีคูปอง',
+            date: '24/12/2567',
+          },
+          {
+            id: 4,
+            faculty: 'บริหาร',
+            title: 'ร่างกายไม่เคยโกหก = What every body is saying',
+            isbn: '9786162875687',
+            shop: 'ร้านนี้ดี',
+            price: 250,
+            quantity: 2,
+            status: 'มีคูปอง',
+            date: '24/12/2567',
+          },
+          {
+            id: 5,
+            faculty: 'วิทยาศาสตร์',
+            title: 'ภาวะลื่นไหล ทำอะไรก็ง่ายหมด = Productivity flow',
+            isbn: '9786169373964',
+            shop: 'ร้านนี้ดี',
+            price: 250,
+            quantity: 2,
+            status: 'มีคูปอง',
+            date: '09/01/2568',
+          },
+          {
+            id: 6,
+            faculty: 'วิทยาศาสตร์',
+            title: 'หัวไม่ดีก็มีวิธีสอบผ่าน',
+            isbn: '9786165786195',
+            shop: 'ร้านนี้ดี',
+            price: 250,
+            quantity: 2,
+            status: 'มีคูปอง',
+            date: '09/01/2568',
+          },
+        ]
+        resolve(data)
+      }, 500)
+    })
+  },
 }
+
+// ฟังก์ชันกรองข้อมูล
+const onSearch = async () => {
+  loading.value = true
+  const items = await FakeAPI.fetch()
+
+  let filteredItems = items.filter((item) => {
+    const matchesDate = !selectedDate.value || item.date === formattedDate.value
+    const matchesFaculty = searchFaculty.value === 'ทั้งหมด' || item.faculty === searchFaculty.value
+    const matchesCoupon = searchCoupon.value === 'ทั้งหมด' || item.status === searchCoupon.value
+    return matchesDate && matchesFaculty && matchesCoupon
+  })
+
+  total.value.price = filteredItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
+  total.value.quantity = filteredItems.reduce((sum, item) => sum + item.quantity, 0)
+  serverItems.value = filteredItems
+  loading.value = false
+}
+
+onMounted(() => {
+  const today = new Date()
+  selectedDate.value = today
+  onSearch() // เรียกฟังก์ชันค้นหาทันทีเมื่อเริ่มต้น
+})
+
+watch([selectedDate, searchFaculty, searchCoupon], onSearch)
 </script>
 
 <style scoped>
-.header-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between; /* จัดระยะห่างระหว่างหัวข้อและ date */
-  margin-bottom: 30px; /* ระยะห่างระหว่างส่วนนี้กับส่วนถัดไป */
-}
-
 .header {
   display: flex;
   align-items: center;
-  gap: 15px;
+  margin-bottom: 20px;
 }
 
 .header-image {
@@ -141,85 +303,39 @@ h1 {
   margin-bottom: 20px;
 }
 
-/* เลือกวันที่และข้อมูลในตารางวันที่*/
 .custom-date-picker {
-  border: 2px solid #000; /* กรอบสีดำ */
-  border-radius: 12px; /* มุมโค้ง */
-  background-color: #fff; /* พื้นหลังขาว */
-  cursor: pointer;
-  font-size: 18px;
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s ease;
+  font-size: 20px;
+  white-space: nowrap;
   overflow: visible;
-  padding-left: 10px;
+  text-overflow: unset;
+  width: 100px;
+  min-width: 200px;
+  text-align: center;
+  justify-content: center;
+  align-content: center;
 }
 
-.custom-width {
+.formatted-date-display {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.formatted-date-display h2 {
+  font-size: 20px;
+  font-weight: bold;
+  color: #4e484a;
+}
+
+.select-faculty {
+  width: 400px;
+}
+
+.select-coupon {
   width: 250px;
 }
 
-.custom-date-picker:hover {
-  border-color: #707478; /* เปลี่ยนสีกรอบตอนชี้ */
-}
-
-/* ข้อความในกรอบ */
-.custom-date-picker input {
-  font-size: 18px; /* ขนาดข้อความ */
-  border: none; /* ลบเส้นขอบของ input */
-  outline: none; /* ลบเส้นโฟกัส */
-  width: 100%; /* ให้ข้อความใช้พื้นที่เต็ม */
-  height: 100%; /* ให้ข้อความครอบคลุมความสูง */
-  text-align: center; /* จัดข้อความให้อยู่กลาง */
-  background-color: transparent;
-  white-space: nowrap; /* ป้องกันการหักบรรทัด */
-  overflow: visible; /* ป้องกันการแสดงข้อความเกินกรอบ */
-  padding: 0; /* ลบระยะห่างใน input */
-}
-
-.v-date input {
-  outline: none;
-}
-
-.custom-textdate {
-  font-size: 20px; /* ขนาดข้อความ */
-  border: none; /* ลบเส้นขอบ */
-  outline: none; /* ลบเส้นโฟกัส */
-  width: 100%; /* ให้ข้อความใช้พื้นที่เต็ม */
-  height: 100%; /* ให้ข้อความครอบคลุมความสูง */
-  text-align: center; /* จัดข้อความให้อยู่กลาง */
-  background-color: transparent;
-  white-space: normal; /* ป้องกันการหักบรรทัด */
-  overflow: visible;
-}
-
-/* ตาราง */
-.v-simple-table {
-  width: auto; /* ให้ตารางขยายตามเนื้อหา */
-  max-width: 80%; /* จำกัดขนาดสูงสุด */
-  margin: 0 auto; /* จัดให้อยู่กลาง */
-  border-radius: 8px; /* มุมโค้ง */
-  overflow: hidden; /* ป้องกันการล้น */
-}
-
-th,
-td {
-  padding: 16px;
-  text-align: left;
-  text-align: center; /* จัดข้อความในตารางให้อยู่ตรงกลาง */
-  vertical-align: middle; /* จัดให้อยู่กลางในแนวตั้ง */
-}
-
-th {
-  font-weight: bold;
-  font-size: 20px;
-}
-
-.table-width {
-  width: 200px;
-  align-items: center; /* จัดให้อยู่กึ่งกลางในแนวตั้ง */
-  justify-content: center; /* จัดให้อยู่กึ่งกลางในแนวนอน */
+.table {
+  margin-top: 20px;
+  font-size: 16px;
 }
 </style>

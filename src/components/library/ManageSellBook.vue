@@ -485,9 +485,10 @@ const sendMessage = () => {
   messageDialog.value = false
 }
 
-// ใช้ onSearch ติดตามการเปลี่ยนแปลง
 onMounted(() => {
-  onSearch()
+  const today = new Date()
+  selectedDate.value = today
+  onSearch() // เรียกฟังก์ชันค้นหาทันทีเมื่อเริ่มต้น
 })
 
 watch([selectedDate, searchBook], onSearch, { immediate: true })
