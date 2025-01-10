@@ -14,8 +14,22 @@
 
         <v-col cols="12" md="6" class="d-flex justify-end">
           <v-card class="summary-card">
-            <v-card-title class="summary-title">งบประมาณรวม</v-card-title>
-            <v-card-subtitle class="summary-amount">{{ totalBudget }} บาท</v-card-subtitle>
+            <v-card-title class="summary-title text-center">งบประมาณรวม</v-card-title>
+            <v-card-subtitle
+              class="d-flex flex-column align-center justify-center"
+              style="gap: 5px"
+            >
+              <v-text-field
+                v-model="totalBudgetInput"
+                class="summary-amount text-number"
+                variant="outlined"
+                dense
+                @change="updateTotalBudget"
+                @input="onInputOnlyNumber"
+              />
+
+              <span style="font-size: 16px; margin-left: 5px; margin-top: -20px">บาท</span>
+            </v-card-subtitle>
           </v-card>
         </v-col>
       </v-row>
@@ -37,16 +51,22 @@
         <v-row justify="end">
           <v-col class="d-flex justify-end">
             <v-btn
-              style="background-color: #fcdc94; width: 40px; height: 40px; margin-right: 8px"
-              @click="onClickAdd"
+              style="background-color: #c7c8cc; width: 20px; height: 40px; margin-right: 15px"
+              @click="onClickFile"
             >
-              <v-icon style="font-size: 30px;">mdi-plus</v-icon>
+              <v-icon style="font-size: 30px">mdi-file-upload-outline</v-icon>
             </v-btn>
             <v-btn
-              style="background-color: #fcdc94; width: 40px; height: 40px"
-              @click="onClickEdit"
+              style="background-color: #d89393; width: 20px; height: 40px; margin-right: 15px"
+              @click="onClickClose"
             >
-              <v-icon style="font-size: 30px;">mdi-square-edit-outline</v-icon>
+              <v-icon style="font-size: 30px">mdi-close</v-icon>
+            </v-btn>
+            <v-btn
+              style="background-color: #b0c5a4; width: 20px; height: 40px"
+              @click="onClickCheck"
+            >
+              <v-icon style="font-size: 30px">mdi-check</v-icon>
             </v-btn>
           </v-col>
         </v-row>
@@ -77,11 +97,14 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 
 const loading = ref(false)
 const selectedYear = ref(2024)
 const currentYear = new Date().getFullYear()
 const years = Array.from({ length: currentYear - 1974 }, (_, i) => 1975 + i) // ปรับช่วงปีให้แสดงปีปัจจุบันเป็นปีสุดท้าย
+const totalBudgetInput = ref(0)
+const router = useRouter()
 
 const serverItems = ref([
   { id: 1, faculty: 'คณะดนตรีและการแสดง', budget: 50000 },
@@ -103,13 +126,30 @@ const headers = [
   { title: 'งบประมาณ', key: 'budget', align: 'end' },
 ]
 
+const onClickClose = () => {
+  router.push({ name: 'manageBudgetAdmin' })
+}
+
+const updateTotalBudget = () => {
+  // อัปเดต totalBudgetInput เมื่อแก้ไข
+  totalBudgetInput.value = parseFloat(totalBudgetInput.value.toString()) || 0
+}
+
 const totalBudget = computed(() => {
   return serverItems.value.reduce((sum, item) => sum + item.budget, 0).toLocaleString()
 })
 
+const onInputOnlyNumber = (event) => {
+  const value = event.target.value
+  event.target.value = value.replace(/[^0-9]/g, '') // ลบค่าที่ไม่ใช่ตัวเลข
+  totalBudgetInput.value = parseInt(event.target.value || 0, 10) // อัปเดต v-model
+}
+
 onMounted(() => {
   // ตั้งค่า selectedYear เป็นปีปัจจุบันเมื่อโหลดหน้า
   selectedYear.value = currentYear
+  // กำหนดค่า totalBudgetInput เป็นค่าเริ่มต้นจาก totalBudget
+  totalBudgetInput.value = parseFloat(totalBudget.value.replace(',', '') || '0')
 })
 </script>
 
@@ -137,6 +177,7 @@ onMounted(() => {
   padding: 10px;
   border-radius: 10px;
   width: 350px;
+  height: 150px;
 }
 
 .summary-title {
@@ -151,5 +192,13 @@ onMounted(() => {
 
 .budget-table {
   margin-top: 20px;
+}
+
+.text-number {
+  width: 250px;
+  border-radius: 10px;
+  border: '2px solid';
+  text-align: center;
+  justify-content: center;
 }
 </style>

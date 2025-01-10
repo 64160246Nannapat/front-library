@@ -109,8 +109,8 @@ const totalBudget = computed(() => {
   return serverItems.value.reduce((sum, item) => sum + item.budget, 0).toLocaleString()
 })
 
-const onClickAdd = () => {
-  router.push({ name: 'ManageBudgetEdit' }) // เปลี่ยนไปยัง route "ManageBudgetEdit"
+const onClickEdit = () => {
+  router.push({ name: 'manageBudgetEditAdmin' })
 }
 
 onMounted(() => {
