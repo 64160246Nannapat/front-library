@@ -72,8 +72,8 @@ const items = [
   { title: 'ประวัติการใช้คูปอง', icon: history, link: '/home-executive/history-coupon' },
   { title: 'รายชื่อผู้เสนอหนังสือ', icon: list, link: '/home-executive/list-book-executive' },
   { title: 'สรุปงบประมาณ', icon: salary, link: '/home-executive/sum-budget' },
-  { title: 'ร้านค้า', icon: store, link: '/book-status' },
-  { title: 'สรุปร้านค้า', icon: sumShop, link: '/login' },
+  { title: 'ร้านค้า', icon: store, link: '/home-executive/show-shop' },
+  { title: 'สรุปร้านค้า', icon: sumShop, link: '/home-executive/sum-shop' },
   { title: 'LOGOUT', icon: logout, link: '/' },
 ]
 </script>

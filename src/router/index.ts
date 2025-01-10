@@ -24,6 +24,7 @@ import ShowBook from '@/components/library/ShowBook.vue'
 import ListExecutive from '@/components/executive/ListOfBookExecutive.vue'
 import SumBudget from '@/components/executive/SumBudget.vue'
 import ShowBudget from '@/components/executive/ShowBudget.vue'
+import SumShop from '@/components/admin/SumShop.vue'
 // import LoginView2 from '@/views/LoginView2.vue'
 
 const routes = [
@@ -247,6 +248,16 @@ const routes = [
         name: 'showBudgetExecutive',
         component: ShowBudget
       },
+      {
+        path: 'show-shop',
+        name: 'showShopExecutive',
+        component: ShowShop,
+      },
+      {
+        path: 'sum-shop',
+        name: 'sumShopExecutive',
+        component: SumShop,
+      },
     ],
     meta: { requiresAuth: true, role: 'executive' },
   },
@@ -342,6 +353,11 @@ const routes = [
     path: '/sum-budget',
     name: 'sumBudget',
     component: SumBudget,
+  },
+  {
+    path: '/sum-shop',
+    name: 'sumShop',
+    component: SumShop,
   },
 
 ]

@@ -88,7 +88,7 @@
               "
               @click="onClickBook(item)"
             >
-              2 เล่ม
+              รายละเอียด
             </v-btn>
           </div>
         </template>
