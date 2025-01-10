@@ -40,13 +40,13 @@
               style="background-color: #fcdc94; width: 40px; height: 40px; margin-right: 8px"
               @click="onClickAdd"
             >
-              <v-icon style="font-size: 30px;">mdi-plus</v-icon>
+              <v-icon style="font-size: 30px">mdi-plus</v-icon>
             </v-btn>
             <v-btn
               style="background-color: #fcdc94; width: 40px; height: 40px"
               @click="onClickEdit"
             >
-              <v-icon style="font-size: 30px;">mdi-square-edit-outline</v-icon>
+              <v-icon style="font-size: 30px">mdi-square-edit-outline</v-icon>
             </v-btn>
           </v-col>
         </v-row>
@@ -73,6 +73,29 @@
       <v-divider></v-divider>
     </v-container>
   </v-main>
+
+  <!-- Dialog สำหรับ Add -->
+  <v-dialog v-model="dialogAdd" max-width="400px">
+    <v-card class="pa-4" style="background-color: #f5efe4">
+      <v-card-title class="justify-space-between pb-0">
+        <span style="color: #000; font-size: 18px; font-weight: bold">เพิ่มข้อมูลใหม่</span>
+        <v-icon @click="dialogAdd = false" color="red" class="cursor-pointer justify-end"> mdi-close </v-icon>
+      </v-card-title>
+      <v-card-text>
+        <v-text-field label="ID" v-model="newId" dense outlined class="mt-4"></v-text-field>
+        <v-text-field label="คณะ" v-model="newFaculty" dense outlined class="mt-3"></v-text-field>
+      </v-card-text>
+      <v-card-actions class="justify-end">
+        <v-btn
+          @click="onSaveNewItem"
+          class="elevated rounded-pill"
+          style="background-color: #f5c8d0; color: #000; font-weight: bold"
+        >
+          บันทึก
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script setup lang="ts">
@@ -84,6 +107,9 @@ const selectedYear = ref(2024)
 const currentYear = new Date().getFullYear()
 const years = Array.from({ length: currentYear - 1974 }, (_, i) => 1975 + i) // ปรับช่วงปีให้แสดงปีปัจจุบันเป็นปีสุดท้าย
 const router = useRouter()
+const dialogAdd = ref(false) // สถานะการแสดง Dialog
+const newFaculty = ref('') // ชื่อคณะใหม่
+const newId = ref(0) // งบประมาณใหม่
 
 const serverItems = ref([
   { id: 1, faculty: 'คณะดนตรีและการแสดง', budget: 50000 },
@@ -111,6 +137,16 @@ const totalBudget = computed(() => {
 
 const onClickEdit = () => {
   router.push({ name: 'manageBudgetEditAdmin' })
+}
+
+const onClickAdd = () => {
+  dialogAdd.value = true // แสดง Dialog เมื่อคลิก Add
+}
+
+const onSaveNewItem = () => {
+  // บันทึกข้อมูลใหม่
+  console.log('บันทึกข้อมูลใหม่:', newFaculty.value, newBudget.value)
+  dialogAdd.value = false // ปิด Dialog
 }
 
 onMounted(() => {
