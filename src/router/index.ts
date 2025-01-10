@@ -25,6 +25,7 @@ import ListExecutive from '@/components/executive/ListOfBookExecutive.vue'
 import SumBudget from '@/components/executive/SumBudget.vue'
 import ShowBudget from '@/components/executive/ShowBudget.vue'
 import SumShop from '@/components/admin/SumShop.vue'
+import ManageBudget from '@/components/admin/ManageBudget.vue'
 // import LoginView2 from '@/views/LoginView2.vue'
 
 const routes = [
@@ -276,6 +277,66 @@ const routes = [
         name: 'bookstatusAdmin',
         component: BookStatus,
       },
+      {
+        path: 'purchase-budget',
+        name: 'purchaseBudgetAdmin',
+        component: PurchaseBudget,
+      },
+      {
+        path: 'check-book',
+        name: 'checkBookAdmin',
+        component: CheckBook,
+      },
+      {
+        path: 'sum-budget',
+        name: 'sumBudgetAdmin',
+        component: SumBudget,
+      },
+      {
+        path: '/show-budget/:itemId',
+        name: 'showBudgetAdmin',
+        component: ShowBudget
+      },
+      {
+        path: 'manage-sell-book',
+        name: 'ManageSellBookAdmin',
+        component: ManageSellBook,
+      },
+      {
+        path: 'list-book-presenters',
+        name: 'listBookAdmin',
+        component: ListBook,
+      },
+      {
+        path: '/show-book/:itemId',
+        name: 'showBookAdmin',
+        component: ShowBook
+      },
+      {
+        path: 'sum-book',
+        name: 'sumBookAdmin',
+        component: SumBook,
+      },
+      {
+        path: 'add-shop',
+        name: 'addShopAdmin',
+        component: AddShop,
+      },
+      {
+        path: 'show-shop',
+        name: 'showShopAdmin',
+        component: ShowShop,
+      },
+      {
+        path: 'sum-shop',
+        name: 'sumShopAdmin',
+        component: SumShop,
+      },
+      {
+        path: 'manage-budget',
+        name: 'manageBudgetAdmin',
+        component: ManageBudget,
+      },
     ],
     meta: { requiresAuth: true, role: 'admin' },
   },
@@ -358,6 +419,11 @@ const routes = [
     path: '/sum-shop',
     name: 'sumShop',
     component: SumShop,
+  },
+  {
+    path: '/manage-budget',
+    name: 'manageBudget',
+    component: ManageBudget,
   },
 
 ]

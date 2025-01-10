@@ -68,19 +68,19 @@ import shop from '@/assets/shop.png'
 const drawer = ref(false)
 
 const items = [
-  { title: 'จัดการเสนอซื้อหนังสือ', icon: confirmBook, link: '/book-form' },
-  { title: 'ตรวจสอบหนังสือ', icon: checkbook, link: '/book-status' },
+  { title: 'จัดการเสนอซื้อหนังสือ', icon: confirmBook, link: '/home-admin/manage-sell-book' },
+  { title: 'ตรวจสอบหนังสือ', icon: checkbook, link: '/home-admin/check-book' },
   { title: 'แบบฟอร์มการเสนอหนังสือ', icon: libraryImage, link: '/home-admin/book-form' },
   { title: 'สถานะการเสนอซื้อหนังสือ', icon: checklist, link: '/home-admin/book-status' },
   { title: 'แบบฟอร์มการเสนอหนังสือแทน', icon: libraryImage, link: '/home-admin/book-form' },
-  { title: 'จัดการงบประมาณ', icon: pieChart, link: '/book-status' },
-  { title: 'สรุปงบประมาณ', icon: salary, link: '/book-form' },
-  { title: 'ประมาณงบการซื้อหนังสือ', icon: budget, link: '/book-status' },
-  { title: 'รายชื่อผู้เสนอหนังสือ', icon: list, link: '/book-status' },
-  { title: 'สรุปการซื้อหนังสือ', icon: sumBook, link: '/login' },
-  { title: 'จัดการร้านค้า', icon: addShop, link: '/book-status' },
-  { title: 'ร้านค้า', icon: store, link: '/book-form' },
-  { title: 'สรุปร้านค้า', icon: shop, link: '/book-status' },
+  { title: 'จัดการงบประมาณ', icon: pieChart, link: '/home-admin/manage-budget' },
+  { title: 'สรุปงบประมาณ', icon: salary, link: '/home-admin/sum-budget' },
+  { title: 'ประมาณงบการซื้อหนังสือ', icon: budget, link: '/home-admin/purchase-budget' },
+  { title: 'รายชื่อผู้เสนอหนังสือ', icon: list, link: '/home-admin/list-book-presenters' },
+  { title: 'สรุปการซื้อหนังสือ', icon: sumBook, link: '/home-admin/sum-book' },
+  { title: 'จัดการร้านค้า', icon: addShop, link: '/home-admin/add-shop' },
+  { title: 'ร้านค้า', icon: store, link: '/home-admin/show-shop' },
+  { title: 'สรุปร้านค้า', icon: shop, link: '/home-admin/sum-shop' },
   { title: 'LOGOUT', icon: logout, link: '/' },
 ]
 </script>
