@@ -11,7 +11,7 @@
       <v-spacer></v-spacer>
       <v-toolbar-items class="d-flex align-center">
         <div class="d-flex flex-column align-end" style="margin-right: 20px">
-          <span class="name">นันท์ณภัทร สอนสุภาพ</span>
+          <span class="name">นวพรรษ สีหบุตร</span>
           <span class="position" style="margin-top: 5px">วิทยาการสารสนเทศ</span>
         </div>
       </v-toolbar-items>
@@ -63,10 +63,10 @@ import checklist from '@/assets/check-list.png'
 const drawer = ref(false)
 
 const items = [
-  { title: 'จัดการงบประมาณคณะ', icon: pieCharBudget, link: '/book-form' },
-  { title: 'สรุปงบประมาณคณะ', icon: salary, link: '/book-status' },
-  { title: 'E-Coupon', icon: coupon, link: '/home-faculty/book-form' },
-  { title: 'ประวัติการใช้คูปอง', icon: historyCoupon, link: '/home-faculty/book-status' },
+  { title: 'จัดการงบประมาณคณะ', icon: pieCharBudget, link: '/home-faculty/book-form' },
+  { title: 'สรุปงบประมาณคณะ', icon: salary, link: '/home-faculty/sum-budget' },
+  { title: 'E-Coupon', icon: coupon, link: '/home-faculty/coupon' },
+  { title: 'ประวัติการใช้คูปอง', icon: historyCoupon, link: '/home-faculty/history-coupon' },
   { title: 'แบบฟอร์มการเสนอหนังสือ', icon: library, link: '/home-faculty/book-form' },
   { title: 'สถานะการเสนอซื้อหนังสือ', icon: checklist, link: '/home-faculty/book-status' },
   { title: 'LOGOUT', icon: logout, link: '/' },
@@ -107,7 +107,7 @@ const items = [
   text-decoration: none;
   color: #333333;
   font-family: 'Arial', sans-serif;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: bold;
 }
 

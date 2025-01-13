@@ -27,6 +27,7 @@ import ShowBudget from '@/components/executive/ShowBudget.vue'
 import SumShop from '@/components/admin/SumShop.vue'
 import ManageBudget from '@/components/admin/ManageBudget.vue'
 import ManageBudgetEdit from '@/components/admin/ManageBudgetEdit.vue'
+import SumBudgetFaculty from '@/components/faculty/SumBudgetFaculty.vue'
 // import LoginView2 from '@/views/LoginView2.vue'
 
 const routes = [
@@ -133,6 +134,11 @@ const routes = [
         path: 'history-coupon',
         name: 'historyCouponFaculty',
         component: HistoryCoupon,
+      },
+      {
+        path: 'sum-budget',
+        name: 'sumBudFaculty',
+        component: SumBudgetFaculty,
       },
     ],
     meta: { requiresAuth: true, role: 'faculty' },
@@ -430,6 +436,11 @@ const routes = [
     path: '/manage-budget',
     name: 'manageBudget',
     component: ManageBudget,
+  },
+  {
+    path: '/sum-budget',
+    name: 'sumBud',
+    component: SumBudgetFaculty,
   },
 
 ]
