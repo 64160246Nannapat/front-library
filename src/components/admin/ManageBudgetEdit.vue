@@ -27,7 +27,6 @@
                 @change="updateTotalBudget"
                 @input="onInputOnlyNumber"
               />
-
               <span style="font-size: 16px; margin-left: 5px; margin-top: -20px">บาท</span>
             </v-card-subtitle>
           </v-card>
@@ -75,14 +74,40 @@
       <!-- ตารางข้อมูล -->
       <v-data-table
         :headers="headers"
-        :items="serverItems"
+        :items="filteredItems"
         :loading="loading"
         item-key="id"
+        fixed-header
         class="budget-table"
         :hide-default-footer="true"
       >
         <template v-slot:top></template>
-        <template v-slot:body.append>
+        <template v-slot:body>
+          <tr v-for="item in filteredItems" :key="item.id">
+            <td style="position: sticky">{{ item.id }}</td>
+            <td style="position: sticky">{{ item.faculty }}</td>
+            <td class="text-right" fixed>
+              <v-text-field
+                v-model="item.budget"
+                class="text-number"
+                variant="outlined"
+                dense
+                @input="onInputOnlyNumber"
+                @change="updateBudget(item.id, item.budget.toString())"
+                style="
+                  width: 200px;
+                  min-width: 200px;
+                  max-width: 120px;
+                  margin-top: 30px;
+                  text-align: end;
+                  position: sticky;
+                  right: 0;
+                  z-index: 1;
+                  margin-left: 600px;
+                "
+              />
+            </td>
+          </tr>
           <tr>
             <td colspan="2" class="text-right font-weight-bold">รวม</td>
             <td class="text-right font-weight-bold">{{ totalBudget }}</td>
@@ -100,24 +125,26 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
 const loading = ref(false)
-const selectedYear = ref(2024)
-const currentYear = new Date().getFullYear()
-const years = Array.from({ length: currentYear - 1974 }, (_, i) => 1975 + i) // ปรับช่วงปีให้แสดงปีปัจจุบันเป็นปีสุดท้าย
+const selectedYear = ref<number | null>(null)
+const currentYear = new Date().getFullYear() + 543 // ปีปัจจุบันใน พ.ศ.
+const years = Array.from({ length: currentYear - 2517 }, (_, i) => 2518 + i) // ช่วงปี พ.ศ. (เริ่มที่ 2518)
 const totalBudgetInput = ref(0)
 const router = useRouter()
 
 const serverItems = ref([
-  { id: 1, faculty: 'คณะดนตรีและการแสดง', budget: 50000 },
-  { id: 2, faculty: 'คณะบริหารธุรกิจ', budget: 70000 },
-  { id: 3, faculty: 'คณะพยาบาลศาสตร์', budget: 60000 },
-  { id: 4, faculty: 'คณะภูมิสารสนเทศศาสตร์', budget: 50000 },
-  { id: 5, faculty: 'คณะมนุษยศาสตร์และสังคมศาสตร์', budget: 70000 },
-  { id: 6, faculty: 'คณะรัฐศาสตร์และนิติศาสตร์', budget: 60000 },
-  { id: 7, faculty: 'คณะวิทยาการสารสนเทศ', budget: 50000 },
-  { id: 8, faculty: 'คณะวิทยาศาสตร์', budget: 70000 },
-  { id: 9, faculty: 'คณะวิทยาศาสตร์การกีฬา', budget: 60000 },
-  { id: 10, faculty: 'คณะวิทยาศาสตร์และศิลปศาสตร์', budget: 70000 },
-  { id: 11, faculty: 'คณะวิทยาศาสตร์และสังคมศาสตร์', budget: 60000 },
+  { id: 1, faculty: 'คณะดนตรีและการแสดง', budget: 50000, date: '13/01/2568' },
+  { id: 2, faculty: 'คณะบริหารธุรกิจ', budget: 70000, date: '13/01/2568' },
+  { id: 3, faculty: 'คณะพยาบาลศาสตร์', budget: 60000, date: '13/01/2568' },
+  { id: 4, faculty: 'คณะภูมิสารสนเทศศาสตร์', budget: 50000, date: '13/01/2568' },
+  { id: 5, faculty: 'คณะมนุษยศาสตร์และสังคมศาสตร์', budget: 70000, date: '13/01/2568' },
+  { id: 6, faculty: 'คณะรัฐศาสตร์และนิติศาสตร์', budget: 60000, date: '13/01/2568' },
+  { id: 7, faculty: 'คณะวิทยาการสารสนเทศ', budget: 50000, date: '13/01/2568' },
+  { id: 8, faculty: 'คณะวิทยาศาสตร์', budget: 70000, date: '13/01/2568' },
+  { id: 9, faculty: 'คณะวิทยาศาสตร์การกีฬา', budget: 60000, date: '13/01/2568' },
+  { id: 10, faculty: 'คณะวิทยาศาสตร์และศิลปศาสตร์', budget: 70000, date: '13/01/2568' },
+  { id: 11, faculty: 'คณะวิทยาศาสตร์และสังคมศาสตร์', budget: 60000, date: '13/01/2568' },
+  { id: 12, faculty: 'คณะวิทยาศาสตร์และศิลปศาสตร์', budget: 70000, date: '13/01/2567' },
+  { id: 13, faculty: 'คณะวิทยาศาสตร์และสังคมศาสตร์', budget: 60000, date: '13/01/2567' },
 ])
 
 const headers = [
@@ -130,26 +157,58 @@ const onClickClose = () => {
   router.push({ name: 'manageBudgetAdmin' })
 }
 
+const onClickCheck = () => {
+  router.push({
+    name: 'manageBudgetAdmin',
+    state: { updatedData: serverItems.value },
+  })
+}
+
+
+// การกรองข้อมูลตามปีที่เลือก
+const filteredItems = computed(() => {
+  if (selectedYear.value) {
+    return serverItems.value.filter((item) => {
+      const itemYear = parseInt(item.date.split('/')[2]) // แยกปีจากวันที่
+      return itemYear === selectedYear.value
+    })
+  }
+  return serverItems.value // ถ้ายังไม่ได้เลือกปี, ให้แสดงข้อมูลทั้งหมด
+})
+
 const updateTotalBudget = () => {
   // อัปเดต totalBudgetInput เมื่อแก้ไข
   totalBudgetInput.value = parseFloat(totalBudgetInput.value.toString()) || 0
+
+  // อัปเดตค่า totalBudget ที่คำนวณใหม่
+  totalBudget.value = totalBudgetInput.value
 }
 
 const totalBudget = computed(() => {
-  return serverItems.value.reduce((sum, item) => sum + item.budget, 0).toLocaleString()
+  return filteredItems.value
+    .reduce((sum, item) => {
+      // แปลงค่า budget เป็นตัวเลข หากไม่ใช่ตัวเลข
+      const budget = parseFloat(item.budget) || 0
+      return sum + budget
+    }, 0)
+    .toLocaleString()
 })
+
+const updateBudget = (id: number, newBudget: string) => {
+  const item = serverItems.value.find((item) => item.id === id)
+  if (item) {
+    item.budget = parseInt(newBudget) || 0 // อัปเดตค่า budget
+  }
+}
 
 const onInputOnlyNumber = (event) => {
   const value = event.target.value
   event.target.value = value.replace(/[^0-9]/g, '') // ลบค่าที่ไม่ใช่ตัวเลข
-  totalBudgetInput.value = parseInt(event.target.value || 0, 10) // อัปเดต v-model
 }
 
 onMounted(() => {
   // ตั้งค่า selectedYear เป็นปีปัจจุบันเมื่อโหลดหน้า
   selectedYear.value = currentYear
-  // กำหนดค่า totalBudgetInput เป็นค่าเริ่มต้นจาก totalBudget
-  totalBudgetInput.value = parseFloat(totalBudget.value.replace(',', '') || '0')
 })
 </script>
 

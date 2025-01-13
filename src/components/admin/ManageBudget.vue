@@ -31,6 +31,7 @@
             variant="outlined"
             style="width: 120px; background-color: #fcdc94; border-radius: 10px"
             :menu-props="{ maxHeight: '300' }"
+            @change="onYearChange"
           ></v-select>
         </v-col>
 
@@ -55,7 +56,7 @@
       <!-- ตารางข้อมูล -->
       <v-data-table
         :headers="headers"
-        :items="serverItems"
+        :items="filteredItems"
         :loading="loading"
         item-key="id"
         class="budget-table"
@@ -75,21 +76,61 @@
   </v-main>
 
   <!-- Dialog สำหรับ Add -->
-  <v-dialog v-model="dialogAdd" max-width="400px">
-    <v-card class="pa-4" style="background-color: #f5efe4">
-      <v-card-title class="justify-space-between pb-0">
-        <span style="color: #000; font-size: 18px; font-weight: bold">เพิ่มข้อมูลใหม่</span>
-        <v-icon @click="dialogAdd = false" color="red" class="cursor-pointer justify-end"> mdi-close </v-icon>
+  <v-dialog v-model="dialogAdd" max-width="400px" class="dialog-container">
+    <v-card class="pa-4 card-dialog" style="background-color: #f5efe4; border-radius: 12px">
+      <v-card-title
+        class="d-flex align-center"
+        style="
+          background-color: #f8d8de;
+          height: 60px;
+          margin: -16px -16px 0 -16px;
+          border-bottom-left-radius: 12px;
+          border-bottom-right-radius: 12px;
+          justify-content: flex-end;
+        "
+      >
+        <v-icon
+          @click="dialogAdd = false"
+          color="red"
+          class="cursor-pointer"
+          style="font-size: 35px"
+        >
+          mdi-close
+        </v-icon>
       </v-card-title>
-      <v-card-text>
-        <v-text-field label="ID" v-model="newId" dense outlined class="mt-4"></v-text-field>
-        <v-text-field label="คณะ" v-model="newFaculty" dense outlined class="mt-3"></v-text-field>
+
+      <!-- เนื้อหาของ Dialog -->
+      <v-card-text class="pt-4">
+        <div class="form-row" style="display: flex; align-items: center; gap: 8px">
+          <label for="name" style="font-size: 18px; width: 50px">ID:</label>
+          <v-text-field
+            v-model="newId"
+            variant="outlined"
+            dense
+            style="flex: 1; margin-bottom: -15px"
+          ></v-text-field>
+        </div>
+
+        <div
+          class="form-row"
+          style="display: flex; align-items: center; gap: 8px; margin-top: 12px"
+        >
+          <label for="faculty" style="font-size: 18px; width: 50px">คณะ:</label>
+          <v-text-field
+            v-model="newFaculty"
+            variant="outlined"
+            dense
+            style="flex: 1; margin-bottom: -15px"
+          ></v-text-field>
+        </div>
       </v-card-text>
+
+      <!-- ปุ่มบันทึก -->
       <v-card-actions class="justify-end">
         <v-btn
           @click="onSaveNewItem"
           class="elevated rounded-pill"
-          style="background-color: #f5c8d0; color: #000; font-weight: bold"
+          style="background-color: #f5c8d0; color: #000; font-weight: bold; padding: 8px 16px"
         >
           บันทึก
         </v-btn>
@@ -103,26 +144,29 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
 const loading = ref(false)
-const selectedYear = ref(2024)
-const currentYear = new Date().getFullYear()
-const years = Array.from({ length: currentYear - 1974 }, (_, i) => 1975 + i) // ปรับช่วงปีให้แสดงปีปัจจุบันเป็นปีสุดท้าย
+const selectedYear = ref<number | null>(null)
+const currentYear = new Date().getFullYear() + 543 // ปีปัจจุบันใน พ.ศ.
+const years = Array.from({ length: currentYear - 2517 }, (_, i) => 2518 + i) // ช่วงปี พ.ศ. (เริ่มที่ 2518)
 const router = useRouter()
 const dialogAdd = ref(false) // สถานะการแสดง Dialog
 const newFaculty = ref('') // ชื่อคณะใหม่
-const newId = ref(0) // งบประมาณใหม่
+const newId = ref('') // ID ใหม่
+const updatedData = ref([])
 
 const serverItems = ref([
-  { id: 1, faculty: 'คณะดนตรีและการแสดง', budget: 50000 },
-  { id: 2, faculty: 'คณะบริหารธุรกิจ', budget: 70000 },
-  { id: 3, faculty: 'คณะพยาบาลศาสตร์', budget: 60000 },
-  { id: 4, faculty: 'คณะภูมิสารสนเทศศาสตร์', budget: 50000 },
-  { id: 5, faculty: 'คณะมนุษยศาสตร์และสังคมศาสตร์', budget: 70000 },
-  { id: 6, faculty: 'คณะรัฐศาสตร์และนิติศาสตร์', budget: 60000 },
-  { id: 7, faculty: 'คณะวิทยาการสารสนเทศ', budget: 50000 },
-  { id: 8, faculty: 'คณะวิทยาศาสตร์', budget: 70000 },
-  { id: 9, faculty: 'คณะวิทยาศาสตร์การกีฬา', budget: 60000 },
-  { id: 10, faculty: 'คณะวิทยาศาสตร์และศิลปศาสตร์', budget: 70000 },
-  { id: 11, faculty: 'คณะวิทยาศาสตร์และสังคมศาสตร์', budget: 60000 },
+  { id: 1, faculty: 'คณะดนตรีและการแสดง', budget: 50000, date: '13/01/2568' },
+  { id: 2, faculty: 'คณะบริหารธุรกิจ', budget: 70000, date: '13/01/2568' },
+  { id: 3, faculty: 'คณะพยาบาลศาสตร์', budget: 60000, date: '13/01/2568' },
+  { id: 4, faculty: 'คณะภูมิสารสนเทศศาสตร์', budget: 50000, date: '13/01/2568' },
+  { id: 5, faculty: 'คณะมนุษยศาสตร์และสังคมศาสตร์', budget: 70000, date: '13/01/2568' },
+  { id: 6, faculty: 'คณะรัฐศาสตร์และนิติศาสตร์', budget: 60000, date: '13/01/2568' },
+  { id: 7, faculty: 'คณะวิทยาการสารสนเทศ', budget: 50000, date: '13/01/2568' },
+  { id: 8, faculty: 'คณะวิทยาศาสตร์', budget: 70000, date: '13/01/2568' },
+  { id: 9, faculty: 'คณะวิทยาศาสตร์การกีฬา', budget: 60000, date: '13/01/2568' },
+  { id: 10, faculty: 'คณะวิทยาศาสตร์และศิลปศาสตร์', budget: 70000, date: '13/01/2568' },
+  { id: 11, faculty: 'คณะวิทยาศาสตร์และสังคมศาสตร์', budget: 60000, date: '13/01/2568' },
+  { id: 12, faculty: 'คณะวิทยาศาสตร์และศิลปศาสตร์', budget: 70000, date: '13/01/2567' },
+  { id: 13, faculty: 'คณะวิทยาศาสตร์และสังคมศาสตร์', budget: 60000, date: '13/01/2567' },
 ])
 
 const headers = [
@@ -132,7 +176,24 @@ const headers = [
 ]
 
 const totalBudget = computed(() => {
-  return serverItems.value.reduce((sum, item) => sum + item.budget, 0).toLocaleString()
+  return filteredItems.value
+    .reduce((sum, item) => {
+      // แปลงค่า budget เป็นตัวเลข หากไม่ใช่ตัวเลข
+      const budget = parseFloat(item.budget) || 0
+      return sum + budget
+    }, 0)
+    .toLocaleString()
+})
+
+// การกรองข้อมูลตามปีที่เลือก
+const filteredItems = computed(() => {
+  if (selectedYear.value) {
+    return serverItems.value.filter((item) => {
+      const itemYear = parseInt(item.date.split('/')[2]) // แยกปีจากวันที่
+      return itemYear === selectedYear.value
+    })
+  }
+  return serverItems.value // ถ้ายังไม่ได้เลือกปี, ให้แสดงข้อมูลทั้งหมด
 })
 
 const onClickEdit = () => {
@@ -145,13 +206,19 @@ const onClickAdd = () => {
 
 const onSaveNewItem = () => {
   // บันทึกข้อมูลใหม่
-  console.log('บันทึกข้อมูลใหม่:', newFaculty.value, newBudget.value)
+  console.log('บันทึกข้อมูลใหม่:', newFaculty.value, newId.value)
   dialogAdd.value = false // ปิด Dialog
 }
 
+const onYearChange = (year: number | null) => {
+  console.log('ปีที่เลือก:', year)
+}
+
 onMounted(() => {
-  // ตั้งค่า selectedYear เป็นปีปัจจุบันเมื่อโหลดหน้า
   selectedYear.value = currentYear
+  if (router.currentRoute.value.state?.updatedData) {
+    updatedData.value = router.currentRoute.value.state.updatedData
+  }
 })
 </script>
 
@@ -193,5 +260,17 @@ onMounted(() => {
 
 .budget-table {
   margin-top: 20px;
+}
+
+.dialog-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh; /* ทำให้ Dialog อยู่กลางแนวตั้ง */
+}
+
+.card-dialog {
+  width: 600px;
+  text-align: center; /* จัดข้อความตรงกลาง */
 }
 </style>
