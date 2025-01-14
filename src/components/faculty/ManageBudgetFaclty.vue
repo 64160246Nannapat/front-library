@@ -81,7 +81,7 @@
               <v-btn
                 color="#D9D9D9"
                 icon
-                @click="onMagnifyClick(item)"
+                @click="onClickDepartment(item)"
                 style="
                   border-radius: 8px;
                   width: 60px;
@@ -247,6 +247,10 @@ const onClickEdit = () => {
 
 const onClickPerson = () => {
   router.push({ name: 'manageBudPerFaculty' })
+}
+
+const onClickDepartment = () => {
+  router.push({ name: 'ManageBudDeFaculty' })
 }
 
 const onClickAdd = () => {

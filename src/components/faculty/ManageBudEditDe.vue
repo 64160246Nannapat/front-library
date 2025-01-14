@@ -11,7 +11,7 @@
             </div>
           </v-row>
           <v-row>
-            <h3 style="margin-left: 76px">คณะ วิทยาการสารสนเทศ</h3>
+            <h3 style="margin-left: 76px">สาชา วิทยาการคอมพิวเตอร์</h3>
           </v-row>
         </v-col>
 
@@ -72,31 +72,6 @@
             </v-btn>
           </v-col>
         </v-row>
-      </v-row>
-
-      <v-row align="center" justify="start" style="margin-top: 30px; margin-bottom: 10px">
-        <v-col cols="auto" class="d-flex align-center">
-          <h3 style="margin-right: 20px; margin-top: -20px">ชื่อ:</h3>
-          <v-text-field
-            v-model="searchText"
-            variant="outlined"
-            class="serch-text"
-            rounded="lg"
-            @input="onSearch"
-          ></v-text-field>
-        </v-col>
-
-        <v-col cols="auto" class="d-flex align-center" style="margin-top: -24px">
-          <v-btn
-            color="#EED3D9"
-            @click="onSearch"
-            class="custom-isbn"
-            style="height: 40px"
-            rounded="lg"
-          >
-            <v-icon size="20">mdi-magnify</v-icon>
-          </v-btn>
-        </v-col>
       </v-row>
 
       <!-- ตารางข้อมูล -->
@@ -182,82 +157,6 @@ const serverItems = ref([
   },
   { id: 6, name: 'ผศ.ดร.โกเมศ อัมพวัน', budget: 60000, date: '13/01/2568' },
   { id: 7, name: 'ดร.วรัณรัชญ์ วิริยะวิทย์', budget: 60000, date: '13/01/2568' },
-  { id: 8, name: 'ผศ.ดร.อังศุมาลี สุทธภักติ', budget: 50000, date: '13/01/2568' },
-  { id: 9, name: 'ผศ.เอกภพ บุญเพ็ง', budget: 70000, date: '13/01/2568' },
-  { id: 10, name: 'อาจารย์เหมรัศมิ์ วชิรหัตถพงศ์', budget: 60000, date: '13/01/2568' },
-  {
-    id: 11,
-    name: 'อาจารย์วิทวัส พันธุมจินดา',
-    budget: 50000,
-    date: '13/01/2568',
-  },
-  {
-    id: 12,
-    name: 'ดร. คนึงนิจ กุโบลา',
-    budget: 70000,
-    date: '13/01/2568',
-  },
-  { id: 13, name: 'ผศ.ดร.ประจักษ์ จิตเงินมะดัน', budget: 60000, date: '13/01/2568' },
-  { id: 14, name: 'ดร.กามาล บาฮะ', budget: 60000, date: '13/01/2568' },
-  { id: 15, name: 'อาจารย์สิทธิศักดิ์ แซ่จึง', budget: 60000, date: '13/01/2568' },
-  { id: 16, name: 'ผศ.พีระศักดิ์ เพียรประสิทธิ์', budget: 50000, date: '13/01/2568' },
-  { id: 17, name: 'ผศ.ดร.อธิตา อ่อนเอื้อน', budget: 70000, date: '13/01/2568' },
-  { id: 18, name: 'ผศ.วันทนา ศรีสมบูรณ์', budget: 60000, date: '13/01/2568' },
-  {
-    id: 19,
-    name: 'ผศ.ดร.ณัฐพร ภักดี',
-    budget: 50000,
-    date: '13/01/2568',
-  },
-  {
-    id: 20,
-    name: 'อาจารย์อริย์ธัช ศิรภัทร์วงศ์กร',
-    budget: 70000,
-    date: '13/01/2568',
-  },
-  { id: 21, name: 'อาจารย์จิรายุส อาบกิ่ง', budget: 60000, date: '13/01/2568' },
-  { id: 22, name: 'ดร.ธนินทร์ เมธิโยธิน', budget: 60000, date: '13/01/2568' },
-  { id: 23, name: 'ดร.พลวัต ช่อผูก', budget: 50000, date: '13/01/2568' },
-  { id: 24, name: 'อาจารย์ประวิทย์ บุญมี', budget: 70000, date: '13/01/2568' },
-  { id: 25, name: 'ผศ.ดร.สุภาวดี ศรีคำดี', budget: 60000, date: '13/01/2568' },
-  {
-    id: 26,
-    name: 'รศ.ดร.กฤษณะ ชินสาร',
-    budget: 50000,
-    date: '13/01/2568',
-  },
-  {
-    id: 27,
-    name: 'ดร.วัชรพงศ์ อยู่ขวัญ',
-    budget: 70000,
-    date: '13/01/2568',
-  },
-  { id: 28, name: 'รศ.ดร.สุนิสา ริมเจริญ', budget: 60000, date: '13/01/2568' },
-  { id: 29, name: 'ผศ.ดร.จักริน สุขสวัสดิ์ชน', budget: 60000, date: '13/01/2568' },
-  { id: 30, name: 'รศ.ดร.ณัฐนนท์ ลีลาตระกูล', budget: 60000, date: '13/01/2568' },
-  { id: 31, name: 'ผศ.ดร.อุรีรัฐ สุขสวัสดิ์ชน', budget: 60000, date: '13/01/2568' },
-  { id: 32, name: 'กุลชลี รัตนคร', budget: 60000, date: '13/01/2568' },
-  { id: 33, name: 'หรรษา รอดเงิน', budget: 60000, date: '13/01/2568' },
-  { id: 34, name: 'กรสหนันท์ ต่อพงษ์พันธุ์', budget: 60000, date: '13/01/2568' },
-  { id: 35, name: 'ณิชานันท์ ชำนาญช่าง', budget: 60000, date: '13/01/2568' },
-  { id: 36, name: 'ปัทมา วชิรพันธุ์', budget: 60000, date: '13/01/2568' },
-  { id: 37, name: 'กมลวรรณ แสงระวี', budget: 60000, date: '13/01/2568' },
-  { id: 38, name: 'เกรียงศักดิ์ ปานโพธิ์ทอง', budget: 60000, date: '13/01/2568' },
-  { id: 39, name: 'เปรมปรีดา สลับสี', budget: 60000, date: '13/01/2568' },
-  { id: 40, name: 'สิทธิพงษ์ ฉิมไทย', budget: 60000, date: '13/01/2568' },
-  { id: 41, name: 'อรอนงค์ ร้อยทา', budget: 60000, date: '13/01/2568' },
-  { id: 42, name: 'นิตยา ติรพงษ์พัฒน์', budget: 60000, date: '13/01/2568' },
-  { id: 43, name: 'กิจจา สังข์ทอง', budget: 60000, date: '13/01/2568' },
-  { id: 44, name: 'นิลรัตน์ ก้านหยั่นทอง', budget: 60000, date: '13/01/2568' },
-  { id: 45, name: 'ยุวดี แก้วหนูนา', budget: 60000, date: '13/01/2568' },
-  { id: 46, name: 'สิรภัทร ตันเสวตวงษ์', budget: 60000, date: '13/01/2568' },
-  {
-    id: 47,
-    name: 'วิทยาการข้อมูล หลักสูตรวิทยาศาสตรมหาบัณฑิต',
-    budget: 70000,
-    date: '13/12/2567',
-  },
-  { id: 48, name: 'วิทยาการข้อมูล หลักสูตรปรัชญาดุษฎีบัณฑิต', budget: 60000, date: '13/12/2567' },
 ])
 
 const headers = [
@@ -267,12 +166,12 @@ const headers = [
 ]
 
 const onClickClose = () => {
-  router.push({ name: 'manageBudPerFaculty' })
+  router.push({ name: 'ManageBudDeFaculty' })
 }
 
 const onClickCheck = () => {
   router.push({
-    name: 'manageBudPerFaculty',
+    name: 'ManageBudDeFaculty',
     state: { updatedData: serverItems.value },
   })
 }

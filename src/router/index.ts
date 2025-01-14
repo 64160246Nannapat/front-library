@@ -34,6 +34,9 @@ import ShowBudFaculty from '@/components/faculty/ShowBudgetFaculty.vue'
 import ManageBudFac from '@/components/faculty/ManageBudgetFaclty.vue'
 import ManageBudEditFac from '@/components/faculty/ManageBudgetEditFaculty.vue'
 import ManageBudPerFac from '@/components/faculty/ManageBudPerson.vue'
+import ManageEditBudPer from '@/components/faculty/ManageBudEditPer.vue'
+import ManageBudDe from '@/components/faculty/ManageBudDepartments.vue'
+import ManageEditBudDe from '@/components/faculty/ManageBudEditDe.vue'
 // import LoginView2 from '@/views/LoginView2.vue'
 
 const routes = [
@@ -170,6 +173,21 @@ const routes = [
         path: 'manage-budget-person',
         name: 'manageBudPerFaculty',
         component: ManageBudPerFac,
+      },
+      {
+        path: 'manage-edit-budget-person',
+        name: 'manageEditBudPerFaculty',
+        component: ManageEditBudPer,
+      },
+      {
+        path: 'manage-budget-department',
+        name: 'ManageBudDeFaculty',
+        component: ManageBudDe,
+      },
+      {
+        path: 'manage-edit-budget-department',
+        name: 'ManageEditBudDeFaculty',
+        component: ManageEditBudDe,
       },
     ],
     meta: { requiresAuth: true, role: 'faculty' },
