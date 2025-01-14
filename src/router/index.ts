@@ -28,6 +28,8 @@ import SumShop from '@/components/admin/SumShop.vue'
 import ManageBudget from '@/components/admin/ManageBudget.vue'
 import ManageBudgetEdit from '@/components/admin/ManageBudgetEdit.vue'
 import SumBudgetFaculty from '@/components/faculty/SumBudgetFaculty.vue'
+import SumBudAdmin from '@/components/admin/SumBudgetAdmin.vue'
+import ListAdmin from '@/components/admin/ListOfBookAdmin.vue'
 // import LoginView2 from '@/views/LoginView2.vue'
 
 const routes = [
@@ -297,7 +299,7 @@ const routes = [
       {
         path: 'sum-budget',
         name: 'sumBudgetAdmin',
-        component: SumBudget,
+        component: SumBudAdmin,
       },
       {
         path: '/show-budget/:itemId',
@@ -312,7 +314,7 @@ const routes = [
       {
         path: 'list-book-presenters',
         name: 'listBookAdmin',
-        component: ListBook,
+        component: ListAdmin,
       },
       {
         path: '/show-book/:itemId',
