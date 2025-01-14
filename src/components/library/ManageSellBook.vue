@@ -102,6 +102,8 @@
         :hide-default-footer="true"
         item-class="table-item"
         :items-per-page="-1"
+        class="no-scrollbar"
+        style="max-height: none; height: auto"
       >
         <template #item.image="{ item }">
           <v-btn
@@ -389,7 +391,7 @@ const FakeAPI = {
             id: 6,
             name: 'นันท์ณภัทร สอนสุภาพ',
             title: 'หัวไม่ดีก็มีวิธีสอบผ่าน',
-            date: '25/12/2567',
+            date: '14/01/2568',
             isbn: '9786165786195',
             shop: 'แจ่มใส',
             price: 500,
@@ -678,5 +680,27 @@ td {
 
 .select-book {
   width: 200px;
+}
+
+.no-scrollbar {
+  overflow: hidden !important; /* ปิด scrollbar ใน container หลัก */
+}
+
+.no-scrollbar .v-data-table__wrapper {
+  overflow: hidden !important; /* ปิด scrollbar ใน wrapper */
+  max-height: none !important; /* ปิดความสูงที่จำกัดและไม่ให้แสดง scrollbar */
+}
+
+.no-scrollbar .v-data-table__wrapper::-webkit-scrollbar {
+  display: none !important; /* ซ่อน scrollbar */
+}
+
+.no-scrollbar .v-data-table__wrapper {
+  -ms-overflow-style: none; /* ซ่อน scrollbar สำหรับ IE */
+  scrollbar-width: none; /* ซ่อน scrollbar สำหรับ Firefox */
+}
+
+.no-scrollbar .v-data-table__overflow {
+  overflow: hidden !important; /* ซ่อน scrollbar ใน overflow */
 }
 </style>

@@ -75,7 +75,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 
 const searchFaculty = ref('ทั้งหมด')
 const loading = ref(false)
@@ -152,6 +152,11 @@ const FakeAPI = () => {
 const onSearch = () => {
   FakeAPI()
 }
+
+watch(searchFaculty, () => {
+  onSearch() // เรียก `onSearch` ทันทีเมื่อ `searchFaculty` เปลี่ยนแปลง
+})
+
 
 // โหลดข้อมูลเริ่มต้น
 onMounted(() => {
