@@ -221,16 +221,48 @@
 
       <!-- Message Dialog -->
       <v-dialog v-model="messageDialog" max-width="500">
-        <v-card>
-          <v-card-title>ส่ง: {{ selectedItem?.name }}</v-card-title>
-          <v-card-subtitle>วันที่: {{ new Date().toLocaleDateString() }}</v-card-subtitle>
+        <v-card style="background-color: #ede8dc">
+          <!-- Header with rounded corners -->
+          <div
+            style="
+              background-color: #eed3d9;
+              padding: 16px;
+              border-top-left-radius: 0px; /* ไม่มีความมนที่มุมบนซ้าย */
+              border-top-right-radius: 0px; /* ไม่มีความมนที่มุมบนขวา */
+              border-bottom-left-radius: 16px; /* ความมนที่มุมล่างซ้าย */
+              border-bottom-right-radius: 16px; /* ความมนที่มุมล่างขวา */
+            "
+          >
+            <v-card-title>ส่ง: {{ selectedItem?.name }}</v-card-title>
+            <v-card-subtitle>{{ fullFormattedDate }}</v-card-subtitle>
+            <v-card-subtitle>เวลา: {{ fullFormattedTime }}</v-card-subtitle>
+          </div>
+
           <v-card-text>
             <v-textarea v-model="message" label="ข้อความ" rows="4" />
           </v-card-text>
+
           <v-card-actions>
             <v-spacer />
-            <v-btn color="red" text @click="messageDialog = false">ยกเลิก</v-btn>
-            <v-btn color="green" text @click="sendMessage">ส่งข้อความ</v-btn>
+            <!-- Button with border -->
+            <v-btn
+              color="black"
+              text
+              outlined
+              style="background-color: #fa8072; border: 2px; border-radius: 8px"
+              @click="messageDialog = false"
+            >
+              ยกเลิก
+            </v-btn>
+            <v-btn
+              color="black"
+              text
+              outlined
+              style="background-color: #58d68d; border: 2px; border-radius: 8px"
+              @click="sendMessage"
+            >
+              ส่งข้อความ
+            </v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -319,6 +351,15 @@ const fullFormattedDate = computed(() => {
 
   return `${dayName} ที่ ${day} ${monthName} พ.ศ. ${year}`
 })
+
+const fullFormattedTime = computed(() => {
+  const date = new Date(selectedDate.value);
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const seconds = String(date.getSeconds()).padStart(2, '0');
+
+  return `${hours}:${minutes}:${seconds}`;
+});
 
 // API ปลอมเพื่อเลียนแบบการดึงข้อมูล
 const FakeAPI = {
