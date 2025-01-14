@@ -101,6 +101,7 @@
         item-key="id"
         :hide-default-footer="true"
         item-class="table-item"
+        :items-per-page="-1"
       >
         <template #item.image="{ item }">
           <v-btn

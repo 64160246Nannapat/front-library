@@ -10,6 +10,9 @@
               <h1 style="font-size: 25px">จัดการงบประมาณ</h1>
             </div>
           </v-row>
+          <v-row>
+            <h3 style="margin-left: 76px">คณะ วิทยาการสารสนเทศ</h3>
+          </v-row>
         </v-col>
 
         <v-col cols="12" md="6" class="d-flex justify-end">
@@ -44,6 +47,12 @@
               <v-icon style="font-size: 30px">mdi-plus</v-icon>
             </v-btn>
             <v-btn
+              style="background-color: #fcdc94; width: 40px; height: 40px; margin-right: 8px"
+              @click="onClickPerson"
+            >
+              <v-icon style="font-size: 30px">mdi-account</v-icon>
+            </v-btn>
+            <v-btn
               style="background-color: #fcdc94; width: 40px; height: 40px"
               @click="onClickEdit"
             >
@@ -63,7 +72,30 @@
         :hide-default-footer="true"
         :items-per-page="-1"
       >
-        <template v-slot:top></template>
+        <template v-slot:body="{ items }">
+          <tr v-for="item in items" :key="item.id">
+            <td>{{ item.id }}</td>
+            <td>{{ item.faculty }}</td>
+            <td class="text-right">{{ item.budget }}</td>
+            <td class="text-right">
+              <v-btn
+                color="#D9D9D9"
+                icon
+                @click="onMagnifyClick(item)"
+                style="
+                  border-radius: 8px;
+                  width: 60px;
+                  height: 30px;
+                  display: flex;
+                  justify-content: center;
+                  align-items: center;
+                "
+              >
+                <v-icon>mdi-magnify</v-icon>
+              </v-btn>
+            </td>
+          </tr>
+        </template>
         <template v-slot:body.append>
           <tr>
             <td colspan="2" class="text-right font-weight-bold">รวม</td>
@@ -116,7 +148,7 @@
           class="form-row"
           style="display: flex; align-items: center; gap: 8px; margin-top: 12px"
         >
-          <label for="faculty" style="font-size: 18px; width: 50px">คณะ:</label>
+          <label for="faculty" style="font-size: 18px; width: 50px">สาขา:</label>
           <v-text-field
             v-model="newFaculty"
             variant="outlined"
@@ -155,25 +187,37 @@ const newId = ref('') // ID ใหม่
 const updatedData = ref([])
 
 const serverItems = ref([
-  { id: 1, faculty: 'คณะดนตรีและการแสดง', budget: 50000, date: '13/01/2568' },
-  { id: 2, faculty: 'คณะบริหารธุรกิจ', budget: 70000, date: '13/01/2568' },
-  { id: 3, faculty: 'คณะพยาบาลศาสตร์', budget: 60000, date: '13/01/2568' },
-  { id: 4, faculty: 'คณะภูมิสารสนเทศศาสตร์', budget: 50000, date: '13/01/2568' },
-  { id: 5, faculty: 'คณะมนุษยศาสตร์และสังคมศาสตร์', budget: 70000, date: '13/01/2568' },
-  { id: 6, faculty: 'คณะรัฐศาสตร์และนิติศาสตร์', budget: 60000, date: '13/01/2568' },
-  { id: 7, faculty: 'คณะวิทยาการสารสนเทศ', budget: 50000, date: '13/01/2568' },
-  { id: 8, faculty: 'คณะวิทยาศาสตร์', budget: 70000, date: '13/01/2568' },
-  { id: 9, faculty: 'คณะวิทยาศาสตร์การกีฬา', budget: 60000, date: '13/01/2568' },
-  { id: 10, faculty: 'คณะวิทยาศาสตร์และศิลปศาสตร์', budget: 70000, date: '13/01/2568' },
-  { id: 11, faculty: 'คณะวิทยาศาสตร์และสังคมศาสตร์', budget: 60000, date: '13/01/2568' },
-  { id: 12, faculty: 'คณะวิทยาศาสตร์และศิลปศาสตร์', budget: 70000, date: '13/01/2567' },
-  { id: 13, faculty: 'คณะวิทยาศาสตร์และสังคมศาสตร์', budget: 60000, date: '13/01/2567' },
+  { id: 1, faculty: 'วิทยาการคอมพิวเตอร์', budget: 50000, date: '13/01/2568' },
+  { id: 2, faculty: 'เทคโนโลยีสารสนเทศเพื่ออุตสาหกรรมดิจิทัล', budget: 70000, date: '13/01/2568' },
+  { id: 3, faculty: 'วิศวกรรมซอฟต์แวร์', budget: 60000, date: '13/01/2568' },
+  {
+    id: 4,
+    faculty: 'ปัญญาประดิษฐ์ประยุกต์และเทคโนโลยีอัจฉริยะ',
+    budget: 50000,
+    date: '13/01/2568',
+  },
+  {
+    id: 5,
+    faculty: 'วิทยาการข้อมูล หลักสูตรวิทยาศาสตรมหาบัณฑิต',
+    budget: 70000,
+    date: '13/01/2568',
+  },
+  { id: 6, faculty: 'วิทยาการข้อมูล หลักสูตรปรัชญาดุษฎีบัณฑิต', budget: 60000, date: '13/01/2568' },
+  { id: 7, faculty: 'สายสนับสนุนวิชาการ', budget: 60000, date: '13/01/2568' },
+  {
+    id: 8,
+    faculty: 'วิทยาการข้อมูล หลักสูตรวิทยาศาสตรมหาบัณฑิต',
+    budget: 70000,
+    date: '13/12/2567',
+  },
+  { id: 9, faculty: 'วิทยาการข้อมูล หลักสูตรปรัชญาดุษฎีบัณฑิต', budget: 60000, date: '13/12/2567' },
 ])
 
 const headers = [
   { title: 'ID', key: 'id', align: 'start' },
-  { title: 'คณะ', key: 'faculty' },
-  { title: 'งบประมาณ', key: 'budget', align: 'end' },
+  { title: 'สาขา', key: 'faculty' },
+  { title: 'งบประมาณ', key: 'budget', align: 'end'  },
+  { title: '', key: 'actions', align: 'end' },
 ]
 
 const totalBudget = computed(() => {
@@ -198,7 +242,11 @@ const filteredItems = computed(() => {
 })
 
 const onClickEdit = () => {
-  router.push({ name: 'manageBudgetEditAdmin' })
+  router.push({ name: 'manageBudEditFaculty' })
+}
+
+const onClickPerson = () => {
+  router.push({ name: 'manageBudPerFaculty' })
 }
 
 const onClickAdd = () => {

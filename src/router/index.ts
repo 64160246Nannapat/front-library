@@ -30,6 +30,10 @@ import ManageBudgetEdit from '@/components/admin/ManageBudgetEdit.vue'
 import SumBudgetFaculty from '@/components/faculty/SumBudgetFaculty.vue'
 import SumBudAdmin from '@/components/admin/SumBudgetAdmin.vue'
 import ListAdmin from '@/components/admin/ListOfBookAdmin.vue'
+import ShowBudFaculty from '@/components/faculty/ShowBudgetFaculty.vue'
+import ManageBudFac from '@/components/faculty/ManageBudgetFaclty.vue'
+import ManageBudEditFac from '@/components/faculty/ManageBudgetEditFaculty.vue'
+import ManageBudPerFac from '@/components/faculty/ManageBudPerson.vue'
 // import LoginView2 from '@/views/LoginView2.vue'
 
 const routes = [
@@ -141,6 +145,31 @@ const routes = [
         path: 'sum-budget',
         name: 'sumBudFaculty',
         component: SumBudgetFaculty,
+      },
+      {
+        path: 'sum-budget/:itemId',
+        name: 'showBudFaculty',
+        component: ShowBudFaculty,
+      },
+      {
+        path: 'manage-budget',
+        name: 'manageBudFaculty',
+        component: ManageBudFac,
+      },
+      {
+        path: 'manage-budget',
+        name: 'manageBudFaculty',
+        component: ManageBudFac,
+      },
+      {
+        path: 'manage-budget',
+        name: 'manageBudEditFaculty',
+        component: ManageBudEditFac,
+      },
+      {
+        path: 'manage-budget-person',
+        name: 'manageBudPerFaculty',
+        component: ManageBudPerFac,
       },
     ],
     meta: { requiresAuth: true, role: 'faculty' },

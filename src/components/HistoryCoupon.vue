@@ -54,6 +54,7 @@
         :loading="loading"
         @update:options="onSearch"
         :hide-default-footer="true"
+        :items-per-page="-1"
       ></v-data-table-server>
     </v-container>
   </v-main>

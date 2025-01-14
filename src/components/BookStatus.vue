@@ -65,7 +65,7 @@ import { ref, computed, watch } from 'vue'
 // วันที่
 const selectedDate = ref(new Date())
 const menuDate = ref(false)
-const itemsPerPage = ref(5)
+const itemsPerPage = ref(1000000)
 const loading = ref(false)
 const totalItems = ref(0)
 const serverItems = ref([])
@@ -140,11 +140,51 @@ const FakeAPI = {
     return new Promise((resolve) => {
       setTimeout(() => {
         const data = [
-          { id: 1, title: 'หนังสือ A', date: '01/12/2567', isbn: '978-3-16-148410-0', price: 250, quantity: 2, status: 'อนุมัติ' },
-          { id: 2, title: 'หนังสือ B', date: '02/12/2567', isbn: '978-0-306-40615-7', price: 350, quantity: 1, status: 'อนุมัติ' },
-          { id: 3, title: 'หนังสือ C', date: '03/12/2567', isbn: '978-1-4028-9462-6', price: 500, quantity: 3, status: 'ไม่อนุมัติ' },
-          { id: 4, title: 'ความรู้สึกของเราสำคัญที่สุด', date: '20/12/2567', isbn: '978-1-4028-9462-6', price: 500, quantity: 1, status: 'ไม่อนุมัติ' },
-          { id: 5, title: 'คุณคางคกไปพบนักจิตบำบัด', date: '20/12/2567', isbn: '978-1-4028-9462-6', price: 500, quantity: 1, status: 'ไม่อนุมัติ' },
+          {
+            id: 1,
+            title: 'หนังสือ A',
+            date: '01/12/2567',
+            isbn: '978-3-16-148410-0',
+            price: 250,
+            quantity: 2,
+            status: 'อนุมัติ',
+          },
+          {
+            id: 2,
+            title: 'หนังสือ B',
+            date: '02/12/2567',
+            isbn: '978-0-306-40615-7',
+            price: 350,
+            quantity: 1,
+            status: 'อนุมัติ',
+          },
+          {
+            id: 3,
+            title: 'หนังสือ C',
+            date: '03/12/2567',
+            isbn: '978-1-4028-9462-6',
+            price: 500,
+            quantity: 3,
+            status: 'ไม่อนุมัติ',
+          },
+          {
+            id: 4,
+            title: 'ความรู้สึกของเราสำคัญที่สุด',
+            date: '20/12/2567',
+            isbn: '978-1-4028-9462-6',
+            price: 500,
+            quantity: 1,
+            status: 'ไม่อนุมัติ',
+          },
+          {
+            id: 5,
+            title: 'คุณคางคกไปพบนักจิตบำบัด',
+            date: '20/12/2567',
+            isbn: '978-1-4028-9462-6',
+            price: 500,
+            quantity: 1,
+            status: 'ไม่อนุมัติ',
+          },
         ]
 
         const selectedDateString = `${String(selectedDate.getDate()).padStart(2, '0')}/${String(selectedDate.getMonth() + 1).padStart(2, '0')}/${selectedDate.getFullYear() + 543}`
@@ -181,7 +221,6 @@ watch(selectedDate, () => {
   loadItems({ page: 1, itemsPerPage: itemsPerPage.value })
 })
 </script>
-
 
 <style scoped>
 .header {

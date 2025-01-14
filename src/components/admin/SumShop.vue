@@ -46,6 +46,7 @@
         :loading="loading"
         item-key="id"
         :hide-default-footer="true"
+        :items-per-page="-1"
       >
       </v-data-table>
     </v-container>

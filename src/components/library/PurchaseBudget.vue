@@ -82,6 +82,7 @@
         item-key="id"
         :hide-default-footer="true"
         class="table"
+        :items-per-page="-1"
       >
       </v-data-table>
 

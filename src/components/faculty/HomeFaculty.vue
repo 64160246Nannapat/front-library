@@ -63,7 +63,7 @@ import checklist from '@/assets/check-list.png'
 const drawer = ref(false)
 
 const items = [
-  { title: 'จัดการงบประมาณคณะ', icon: pieCharBudget, link: '/home-faculty/book-form' },
+  { title: 'จัดการงบประมาณคณะ', icon: pieCharBudget, link: '/home-faculty/manage-budget' },
   { title: 'สรุปงบประมาณคณะ', icon: salary, link: '/home-faculty/sum-budget' },
   { title: 'E-Coupon', icon: coupon, link: '/home-faculty/coupon' },
   { title: 'ประวัติการใช้คูปอง', icon: historyCoupon, link: '/home-faculty/history-coupon' },

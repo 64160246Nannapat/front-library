@@ -10,6 +10,9 @@
               <h1 style="font-size: 25px">จัดการงบประมาณ</h1>
             </div>
           </v-row>
+          <v-row>
+            <h3 style="margin-left: 76px">คณะ วิทยาการสารสนเทศ</h3>
+          </v-row>
         </v-col>
 
         <v-col cols="12" md="6" class="d-flex justify-end">
@@ -96,9 +99,7 @@
                 @input="onInputOnlyNumber"
                 @change="updateBudget(item.id, item.budget.toString())"
                 style="
-                  width: 200px;
-                  min-width: 200px;
-                  max-width: 120px;
+                  width: 150px;
                   margin-top: 30px;
                   text-align: end;
                   position: sticky;
@@ -139,34 +140,45 @@ const kanitBoldBase64 = 'BASE64_STRING_OF_KANIT_BOLD' // ใส่ Base64 ขอ
 const kanitRegularBase64 = 'BASE64_STRING_OF_KANIT_REGULAR' // ใส่ Base64 ของ Kanit-Regular.ttf ที่แปลงแล้ว
 
 const serverItems = ref([
-  { id: 1, faculty: 'คณะดนตรีและการแสดง', budget: 50000, date: '13/01/2568' },
-  { id: 2, faculty: 'คณะบริหารธุรกิจ', budget: 70000, date: '13/01/2568' },
-  { id: 3, faculty: 'คณะพยาบาลศาสตร์', budget: 60000, date: '13/01/2568' },
-  { id: 4, faculty: 'คณะภูมิสารสนเทศศาสตร์', budget: 50000, date: '13/01/2568' },
-  { id: 5, faculty: 'คณะมนุษยศาสตร์และสังคมศาสตร์', budget: 70000, date: '13/01/2568' },
-  { id: 6, faculty: 'คณะรัฐศาสตร์และนิติศาสตร์', budget: 60000, date: '13/01/2568' },
-  { id: 7, faculty: 'คณะวิทยาการสารสนเทศ', budget: 50000, date: '13/01/2568' },
-  { id: 8, faculty: 'คณะวิทยาศาสตร์', budget: 70000, date: '13/01/2568' },
-  { id: 9, faculty: 'คณะวิทยาศาสตร์การกีฬา', budget: 60000, date: '13/01/2568' },
-  { id: 10, faculty: 'คณะวิทยาศาสตร์และศิลปศาสตร์', budget: 70000, date: '13/01/2568' },
-  { id: 11, faculty: 'คณะวิทยาศาสตร์และสังคมศาสตร์', budget: 60000, date: '13/01/2568' },
-  { id: 12, faculty: 'คณะวิทยาศาสตร์และศิลปศาสตร์', budget: 70000, date: '13/01/2567' },
-  { id: 13, faculty: 'คณะวิทยาศาสตร์และสังคมศาสตร์', budget: 60000, date: '13/01/2567' },
+  { id: 1, faculty: 'วิทยาการคอมพิวเตอร์', budget: 50000, date: '13/01/2568' },
+  { id: 2, faculty: 'เทคโนโลยีสารสนเทศเพื่ออุตสาหกรรมดิจิทัล', budget: 70000, date: '13/01/2568' },
+  { id: 3, faculty: 'วิศวกรรมซอฟต์แวร์', budget: 60000, date: '13/01/2568' },
+  {
+    id: 4,
+    faculty: 'ปัญญาประดิษฐ์ประยุกต์และเทคโนโลยีอัจฉริยะ',
+    budget: 50000,
+    date: '13/01/2568',
+  },
+  {
+    id: 5,
+    faculty: 'วิทยาการข้อมูล หลักสูตรวิทยาศาสตรมหาบัณฑิต',
+    budget: 70000,
+    date: '13/01/2568',
+  },
+  { id: 6, faculty: 'วิทยาการข้อมูล หลักสูตรปรัชญาดุษฎีบัณฑิต', budget: 60000, date: '13/01/2568' },
+  { id: 7, faculty: 'สายสนับสนุนวิชาการ', budget: 60000, date: '13/01/2568' },
+  {
+    id: 8,
+    faculty: 'วิทยาการข้อมูล หลักสูตรวิทยาศาสตรมหาบัณฑิต',
+    budget: 70000,
+    date: '13/12/2567',
+  },
+  { id: 9, faculty: 'วิทยาการข้อมูล หลักสูตรปรัชญาดุษฎีบัณฑิต', budget: 60000, date: '13/12/2567' },
 ])
 
 const headers = [
   { title: 'ID', key: 'id', align: 'start' },
-  { title: 'คณะ', key: 'faculty' },
+  { title: 'สาขา', key: 'faculty' },
   { title: 'งบประมาณ', key: 'budget', align: 'end' },
 ]
 
 const onClickClose = () => {
-  router.push({ name: 'manageBudgetAdmin' })
+  router.push({ name: 'manageBudFaculty' })
 }
 
 const onClickCheck = () => {
   router.push({
-    name: 'manageBudgetAdmin',
+    name: 'manageBudFaculty',
     state: { updatedData: serverItems.value },
   })
 }

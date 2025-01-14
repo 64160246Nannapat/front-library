@@ -65,6 +65,7 @@
         item-key="id"
         :hide-default-footer="true"
         class="table-centered"
+        :items-per-page="-1"
       >
         <!-- Slot สำหรับคอลัมน์ "จำนวน" -->
         <template #item.description="{ item }">

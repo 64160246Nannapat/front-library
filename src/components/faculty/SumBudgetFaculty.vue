@@ -71,6 +71,7 @@
         item-key="id"
         :hide-default-footer="true"
         class="table-centered"
+        :items-per-page="-1"
       >
         <!-- Slot สำหรับคอลัมน์ "จำนวน" -->
         <template #item.description="{ item }">
@@ -286,7 +287,7 @@ const onSearch = () => {
 
 const onClickBook = (item) => {
   if (item && item.id) {
-    router.push({ name: 'showBudgetExecutive', params: { itemId: item.id } })
+    router.push({ name: 'showBudFaculty', params: { itemId: item.id } })
   } else {
     console.error('Item or item.id is undefined')
   }
