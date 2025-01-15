@@ -121,6 +121,8 @@ const fetchUserData = async () => {
     if (newAccessToken) {
       // หลังจากรีเฟรช Token ใหม่แล้ว ให้ทำการดึงข้อมูลผู้ใช้
       const decoded: any = jwtDecode(newAccessToken)
+      user.value.name = `${decoded.prefix || ''} ${decoded.firstName || ''} ${decoded.lastName || ''}`.trim() || 'ไม่ทราบชื่อ'
+      user.value.role = decoded.management_position_name || decoded.position_name || 'ไม่ทราบตำแหน่ง';
       user.value.name =
         `${decoded.prefix || ''} ${decoded.firstName || ''} ${decoded.lastName || ''}`.trim() ||
         'ไม่ทราบชื่อ'
@@ -130,6 +132,8 @@ const fetchUserData = async () => {
     // Token ยังไม่หมดอายุ
     try {
       const decoded: any = jwtDecode(token)
+      user.value.name = `${decoded.prefix || ''} ${decoded.firstName || ''} ${decoded.lastName || ''}`.trim() || 'ไม่ทราบชื่อ'
+      user.value.role = decoded.management_position_name || decoded.position_name || 'ไม่ทราบตำแหน่ง';
       user.value.name =
         `${decoded.prefix || ''} ${decoded.firstName || ''} ${decoded.lastName || ''}`.trim() ||
         'ไม่ทราบชื่อ'
@@ -161,6 +165,7 @@ const items = [
 // Logout function
 const handleLogout = async () => {
   try {
+    console.log('Attempting to logout...') // ตรวจสอบว่าฟังก์ชันทำงาน
     const response = await axios.post(
       'http://localhost:3000/auth/logout',
       {},
@@ -169,15 +174,15 @@ const handleLogout = async () => {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
       },
-    )
-    console.log(response.data)
-    localStorage.clear()
-    window.location.href = '/'
+    );
+    console.log(response.data); // ตรวจสอบ response จาก API
+    localStorage.clear(); // ลบข้อมูลจาก LocalStorage
+    window.location.href = '/'; // เปลี่ยนเส้นทางไปยังหน้า login
   } catch (error) {
-    console.error('Logout error:', error)
-    alert('การออกจากระบบล้มเหลว กรุณาลองใหม่')
+    console.error('Logout error:', error); // ดู error ใน console
+    alert('การออกจากระบบล้มเหลว กรุณาลองใหม่');
   }
-}
+};
 </script>
 
 <style scoped>

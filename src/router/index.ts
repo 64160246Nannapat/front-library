@@ -15,7 +15,7 @@ import HistoryCoupon from '@/components/HistoryCoupon.vue'
 import HistorySell from '@/components/shop/HistorySell.vue'
 import SumBook from '@/components/executive/SumBook.vue'
 import ManageSellBook from '@/components/library/ManageSellBook.vue';
-import CheckBook from '@/components/library/CkeckBook.vue'
+import CheckBook from '@/components/library/CheckBook.vue'
 import PurchaseBudget from '@/components/library/PurchaseBudget.vue'
 import AddShop from '@/components/library/AddShop.vue'
 import ShowShop from '@/components/library/ShowShop.vue'
