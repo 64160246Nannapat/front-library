@@ -24,11 +24,25 @@
 
           <!-- ชื่อ -->
           <div class="form-row">
-            <label for="name" style="font-size: 18px"
-              >ชื่อผู้เสนอ<span class="required-asterisk">*</span></label
+            <label for="firstName" style="font-size: 18px"
+              >ชื่อ<span class="required-asterisk">*</span></label
             >
             <v-text-field
-              v-model="book.Name"
+              v-model="book.FirstName"
+              :rules="[rules.required]"
+              variant="outlined"
+              class="text-feild-top"
+              dense
+            ></v-text-field>
+          </div>
+
+          <!-- นามสกุล -->
+          <div class="form-row">
+            <label for="lastName" style="font-size: 18px"
+              >นามสกุล<span class="required-asterisk">*</span></label
+            >
+            <v-text-field
+              v-model="book.LastName"
               :rules="[rules.required]"
               variant="outlined"
               class="text-feild-top"
@@ -58,7 +72,7 @@
             >
             <v-select
               v-model="book.Faculty"
-              :items="faculty"
+              :items="faculties"
               :rules="[rules.required]"
               variant="outlined"
               class="text-feild-top"
@@ -68,12 +82,12 @@
 
           <!-- สาขา -->
           <div class="form-row">
-            <label for="major" style="font-size: 18px"
+            <label for="department" style="font-size: 18px"
               >สาขา<span class="required-asterisk">*</span></label
             >
             <v-select
-              v-model="book.Major"
-              :items="major"
+              v-model="book.Department"
+              :items="departments"
               :rules="[rules.required]"
               variant="outlined"
               class="text-feild-top"
@@ -83,12 +97,12 @@
 
           <!-- เบอร์ -->
           <div class="form-row">
-            <label for="phone" style="font-size: 18px"
+            <label for="tel" style="font-size: 18px"
               >เบอร์<span class="required-asterisk">*</span></label
             >
             <v-text-field
-              v-model="book.Phone"
-              :rules="[rules.required, rules.phone]"
+              v-model="book.Tel"
+              :rules="[rules.required, rules.tel]"
               variant="outlined"
               class="text-feild-top"
               dense
@@ -216,19 +230,19 @@
             ></v-text-field>
           </div>
 
+          <!-- คูปอง -->
           <div class="form-row">
-            <v-radio-group inline :rules="[rules.required, rules.radio]" class="custom-radio">
-              <v-radio label="มีคูปอง" value="one" style="font-size: 18px">
-                <template v-slot:label>
-                  <span style="font-size: 18px; white-space: nowrap" class="text-radiio">มีคูปอง</span>
-                </template>
-              </v-radio>
-              <v-radio label="ไม่มีคูปอง" value="two" style="font-size: 18px">
-                <template v-slot:label>
-                  <span style="font-size: 18px; white-space: nowrap" class="text-radiio">ไม่มีคูปอง</span>
-                </template>
-              </v-radio>
-            </v-radio-group>
+            <label for="coupon" style="font-size: 18px"
+              >คูปอง<span class="required-asterisk">*</span></label
+            >
+            <v-select
+              v-model="book.Coupon"
+              :items="couponUsed"
+              :rules="[rules.required]"
+              variant="outlined"
+              class="text-feild-top"
+              dense
+            ></v-select>
           </div>
 
           <!-- ปุ่มยืนยัน -->
@@ -237,7 +251,7 @@
             elevation="8"
             class="mt-4 confirm-btn confirm-btnheight"
             style="background-color: #eed3d9"
-            @click="submitForm(bookForm)"
+            @click="submitForm"
           >
             ยืนยัน
           </v-btn>
@@ -262,32 +276,25 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import HomeStudent from '@/components/student/HomeStudent.vue'
-import { useRoute } from 'vue-router'
-import RoleLayout from '@/components/RoleLayout.vue'
-import BookForm from '@/components/BookForm.vue'
 import axios from 'axios'
+import { onMounted, ref } from 'vue'
+import { jwtDecode } from 'jwt-decode'
+import type { VForm } from 'vuetify/components'
 
-const bookForm = ref(null)
-const formValid = ref(false)
+// import type Coupon from './Coupon.vue'
+
+const bookForm = ref<VForm | null>(null)
 const submitted = ref(false)
 const valid = ref(false) //ใช้กับ v-form
 const dialog = ref(false)
-const inline = ref(null)
-
-const route = useRoute()
-// Get role from meta
-const role = route.meta.role || 'default'
-
-// ข้อมูลในฟอร์ม
 const book = ref({
   Prefix: '',
-  Name: '',
+  FirstName: '',
+  LastName: '',
   Role: '',
   Faculty: '',
-  Phone: '',
-  Major: '',
+  Department: '',
+  Tel: '',
   Email: '',
   Store: '',
   Title: '',
@@ -297,6 +304,20 @@ const book = ref({
   Subject: '',
   Price: '',
   Count: '',
+  Coupon: '',
+  User: '',
+})
+
+const user = ref({
+  Prefix: '',
+  FirstName: '',
+  LastName: '',
+  Role: '',
+  Faculty: '',
+  Department: '',
+  Tel: '',
+  Email: '',
+  User: '',
 })
 
 const rules = {
@@ -305,29 +326,171 @@ const rules = {
   },
   email: (value: string) =>
     /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value) || 'รูปแบบอีเมลไม่ถูกต้อง',
-  phone: (value: string) => /^[0-9]{10}$/.test(value) || 'หมายเลขโทรศัพท์ต้องมี 10 หลัก',
+  tel: (value: string) => /^[0-9]{9,10}$/.test(value) || 'หมายเลขโทรศัพท์ต้องมี 9 - 10 หลัก',
   isbn: (value: string) => /^(97(8|9))?\d{9}(\d|X)$/.test(value) || 'รูปแบบ ISBN ไม่ถูกต้อง',
-  number: (value: string) => /^[1-9]+$/.test(value) || 'ต้องเป็นตัวเลขเท่านั้น',
+  number: (value: string) => /^[0-9]+(\.[0-9]+)?$/.test(value) || 'ต้องเป็นตัวเลขเท่านั้น',
   radio: (value) => !!value || 'กรุณาเลือกหนึ่งตัวเลือก',
 }
 
-const submitForm = async (bookForm: any) => {
-  if (bookForm) {
-    const { valid: isValid } = await bookForm.validate() // ตรวจสอบ validate
+// const submitForm = async () => {
+//   const form = bookForm.value // เข้าถึง bookForm จาก ref
+//   if (form && typeof form.validate === 'function') {
+//     const { valid } = await form.validate() // เรียก validate()
 
-    if (isValid) {
-      // try {
-      //   // ส่งข้อมูลไปยัง API
-      //   await axios.post('http://http://localhost:3000/', book.value);
-      submitted.value = true // ตั้งค่าสำเร็จ
-      dialog.value = true // แสดง Dialog
-      // ไม่รีเซ็ตฟอร์มที่นี่
-    } else {
-      submitted.value = false
-      console.log('Validation Failed')
-    }
+//     if (valid) {
+//       try {
+//         const formData = {
+//           user_fullname: book.value.Prefix + ' ' + book.value.FirstName + ' ' + book.value.LastName,
+//           user_name: book.value.FirstName,
+//           role_id: Number(book.value.Role),
+//           user_email: book.value.Email,
+//           user_tel: book.value.Tel,
+//           faculty_id: Number(book.value.Faculty),
+//           department_id: book.value.Department,
+//           store_id: stores.value.indexOf(book.value.Store) + 1,
+//           book_title: book.value.Title,
+//           book_author: book.value.Author,
+//           book_subject: book.value.Subject,
+//           published_year: Number(book.value.Year),
+//           ISBN: book.value.isbn,
+//           book_price: Number(book.value.Price),
+//           book_quantity: Number(book.value.Count),
+//           user_id: book.value.User ? Number(book.value.User) : null,
+//           coupon_used: book.value.Coupon,
+//         }
+
+//         const response = await axios.post('http://localhost:3000/offer-form', formData, {
+//           headers: {
+//             'Content-Type': 'application/json',
+//             Authorization: `Bearer ${localStorage.getItem('token')}`,
+//           },
+//         })
+
+//         console.log('Response:', response.data)
+//         submitted.value = true
+//         dialog.value = true
+//       } catch (error) {
+//         console.error('Error submitting form:', error)
+//         if (error.response && error.response.data) {
+//           console.log('User ID:', book.value.User)
+//           console.error('API Error:', error.response.data.message)
+//         }
+//       }
+//     } else {
+//       console.log('Validation Failed')
+//     }
+//   } else {
+//     console.error('Form reference is invalid or validate is not a function')
+//   }
+// }
+
+const fetchUserData = async () => {
+  const token = localStorage.getItem('token');
+
+  if (!token) {
+    alert('ไม่พบ Token กรุณาเข้าสู่ระบบใหม่');
+    window.location.href = '/';
+    return;
   }
-}
+
+  try {
+    let userId = null;
+    const decoded: any = isTokenExpired(token)
+      ? await refreshAndDecodeToken()
+      : jwtDecode(token);
+
+    if (decoded) {
+      userId = decoded.sub; // ดึง user_id จาก sub ใน token
+      user.value.Prefix = decoded.prefix;
+      user.value.FirstName = decoded.firstName;
+      user.value.LastName = decoded.lastName;
+      user.value.Role = decoded.offer_position;
+      user.value.Faculty = decoded.faculty;
+      user.value.Department = decoded.department;
+      user.value.Tel = decoded.tel;
+      user.value.Email = decoded.email;
+      user.value.User = userId; // เก็บ user_id ที่ดึงมา
+    }
+
+    // ตั้งค่าอื่น ๆ ให้กับ book
+    book.value.Prefix = user.value.Prefix;
+    book.value.FirstName = user.value.FirstName;
+    book.value.LastName = user.value.LastName;
+    book.value.Role = user.value.Role;
+    book.value.Faculty = user.value.Faculty;
+    book.value.Department = user.value.Department;
+    book.value.Tel = user.value.Tel;
+    book.value.Email = user.value.Email;
+    book.value.User = user.value.User;
+
+  } catch (error) {
+    console.error('Token decoding error:', error);
+  }
+};
+
+const submitForm = async () => {
+  const form = bookForm.value; // เข้าถึง bookForm จาก ref
+  if (form && typeof form.validate === 'function') {
+    const { valid } = await form.validate(); // เรียก validate()
+
+    if (valid) {
+      try {
+        const formData = {
+          user_fullname: `${book.value.Prefix} ${book.value.FirstName} ${book.value.LastName}`,
+          user_name: book.value.FirstName,
+          role_id: Number(book.value.Role),
+          user_email: book.value.Email,
+          user_tel: book.value.Tel,
+          faculty_id: Number(book.value.Faculty),
+          department_id: book.value.Department,
+          store_id: stores.value.indexOf(book.value.Store) + 1,
+          book_title: book.value.Title,
+          book_author: book.value.Author,
+          book_subject: book.value.Subject,
+          published_year: Number(book.value.Year),
+          ISBN: book.value.isbn,
+          book_price: Number(book.value.Price),
+          book_quantity: Number(book.value.Count),
+          user_id: book.value.User ? Number(book.value.User) : null, // ตรวจสอบ user_id
+          coupon_used: book.value.Coupon,
+        };
+
+        const response = await axios.post('http://localhost:3000/offer-form', formData, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        });
+
+        console.log('Response:', response.data);
+        submitted.value = true;
+        dialog.value = true;
+      } catch (error) {
+        console.error('Error submitting form:', error);
+        if (error.response && error.response.data) {
+          console.log('User ID:', book.value.User);
+          console.error('API Error:', error.response.data.message);
+        }
+      }
+    } else {
+      console.log('Validation Failed');
+    }
+  } else {
+    console.error('Form reference is invalid or validate is not a function');
+  }
+};
+
+// Helper function
+const refreshAndDecodeToken = async () => {
+  try {
+    const newAccessToken = await refreshToken();
+    return jwtDecode(newAccessToken);
+  } catch (error) {
+    console.error('Error refreshing token:', error);
+    return null;
+  }
+};
+
 
 const confirmReset = (bookForm: any) => {
   dialog.value = false // ปิด Dialog
@@ -337,11 +500,12 @@ const confirmReset = (bookForm: any) => {
 const resetForm = (bookForm: any) => {
   book.value = {
     Prefix: '',
-    Name: '',
+    FirstName: '',
+    LastName: '',
     Role: '',
     Faculty: '',
-    Phone: '',
-    Major: '',
+    Department: '',
+    Tel: '',
     Email: '',
     Store: '',
     Title: '',
@@ -357,15 +521,158 @@ const resetForm = (bookForm: any) => {
   submitted.value = false
 }
 
-const stores = ['ร้าน A', 'ร้าน B', 'ร้าน C']
+const fetchStores = async () => {
+  try {
+    const response = await axios.get('http://localhost:3000/store')
+    console.log('Response data:', response.data) // ตรวจสอบข้อมูลที่ส่งกลับมา
+    stores.value = response.data.map((store: any) => store.store_name) // ปรับตามโครงสร้างข้อมูล
+  } catch (error) {
+    console.error('Error fetching stores:', error)
+  }
+}
+
+// const fetchRoles = async () => {
+//   try {
+//     const response = await axios.get('http://localhost:3000/role')
+//     console.log('Response data:', response.data)
+
+//     const groupedRoles = {
+//       อาจารย์: response.data.filter((role: any) =>
+//         ['Teacher', 'StaffFaculty'].includes(role.role_name),
+//       ),
+//       นิสิต: response.data.filter((role: any) => role.role_name === 'Student'),
+//       บุคลากร: response.data.filter((role: any) =>
+//         ['StaffLibrary', 'Executive'].includes(role.role_name),
+//       ),
+//     }
+
+//     console.log('Grouped Roles:', groupedRoles)
+//     roles.value = Object.keys(groupedRoles) // ตั้งค่าข้อมูลสำหรับ `v-select`
+//   } catch (error) {
+//     console.error('Error fetching roles:', error)
+//   }
+// }
+
+const fetchFaculties = async () => {
+  try {
+    const response = await axios.get('http://localhost:3000/faculty')
+    console.log('Response data:', response.data) // ตรวจสอบข้อมูลที่ส่งกลับมา
+    faculties.value = response.data.map((faculty: any) => faculty.faculty_name)
+  } catch (error) {
+    console.error('Error fetching faculties:', error)
+  }
+}
+
+const fetchDepartments = async () => {
+  try {
+    const response = await axios.get('http://localhost:3000/department')
+    console.log('Response data:', response.data) // ตรวจสอบข้อมูลที่ส่งกลับมา
+    departments.value = response.data.map((department: any) => department.department_name)
+  } catch (error) {
+    console.error('Error fetching departments:', error)
+  }
+}
+
+const isTokenExpired = (token: string) => {
+  const decoded: any = jwtDecode(token)
+  const currentTime = Date.now() / 1000 // Convert to seconds
+  return decoded.exp < currentTime // Compare expiration time
+}
+
+const refreshToken = async () => {
+  const refreshToken = localStorage.getItem('refresh_token')
+  if (refreshToken) {
+    try {
+      const response = await axios.post('http://localhost:3000/auth/refresh', { refreshToken })
+      const { access_token, refresh_token } = response.data
+      // เก็บ Access Token และ Refresh Token ใหม่
+      localStorage.setItem('token', access_token)
+      localStorage.setItem('refresh_token', refresh_token)
+      return access_token // คืนค่าใหม่ของ access_token
+    } catch (error) {
+      console.error('ไม่สามารถรีเฟรช token ได้:', error)
+      localStorage.removeItem('token')
+      localStorage.removeItem('refresh_token')
+      window.location.href = '/'
+    }
+  } else {
+    alert('ไม่พบ Refresh Token')
+    window.location.href = '/'
+  }
+}
+
+// const fetchUserData = async () => {
+//   const token = localStorage.getItem('token')
+
+//   if (!token) {
+//     alert('ไม่พบ Token กรุณาเข้าสู่ระบบใหม่')
+//     window.location.href = '/'
+//     return
+//   }
+
+//   try {
+//     let userId = null
+//     if (isTokenExpired(token)) {
+//       // ถ้า Token หมดอายุ ให้รีเฟรชด้วย Refresh Token
+//       const newAccessToken = await refreshToken()
+//       if (newAccessToken) {
+//         const decoded: any = jwtDecode(newAccessToken)
+//         userId = decoded.sub // ดึง user_id จาก sub ใน token
+//         user.value.Prefix = decoded.prefix
+//         user.value.FirstName = decoded.firstName
+//         user.value.LastName = decoded.lastName
+//         user.value.Role = decoded.offer_position
+//         user.value.Faculty = decoded.faculty
+//         user.value.Department = decoded.department
+//         user.value.Tel = decoded.tel
+//         user.value.Email = decoded.email
+//         user.value.User = userId // เก็บ user_id ที่ดึงมา
+//       }
+//     } else {
+//       const decoded: any = jwtDecode(token)
+//       userId = decoded.sub // ดึง user_id จาก sub ใน token
+//       user.value.Prefix = decoded.prefix
+//       user.value.FirstName = decoded.firstName
+//       user.value.LastName = decoded.lastName
+//       user.value.Role = decoded.offer_position
+//       user.value.Faculty = decoded.faculty
+//       user.value.Department = decoded.department
+//       user.value.Tel = decoded.tel
+//       user.value.Email = decoded.email
+//       user.value.User = userId // เก็บ user_id ที่ดึงมา
+//     }
+
+//     // ทำการตั้งค่าอื่น ๆ ให้กับ book
+//     book.value.Prefix = user.value.Prefix
+//     book.value.FirstName = user.value.FirstName
+//     book.value.LastName = user.value.LastName
+//     book.value.Role = user.value.Role
+//     book.value.Faculty = user.value.Faculty
+//     book.value.Department = user.value.Department
+//     book.value.Tel = user.value.Tel
+//     book.value.Email = user.value.Email
+//     user.value.User = user.value.User
+//   } catch (error) {
+//     console.error('Token decoding error:', error)
+//   }
+// }
+
+onMounted(async () => {
+  await fetchUserData()
+  console.log('Component mounted')
+  await Promise.all([
+    fetchStores(),
+    // fetchRoles(),
+    fetchFaculties(),
+    fetchDepartments(),
+  ])
+})
+
+const stores = ref<string[]>([])
 const roles = ['อาจารย์', 'นิสิต', 'บุคลากร', 'นักวิจัย']
-const faculty = ['คณะวิทยาศาสตร์', 'คณะบริหาร', 'คณะวิทยาการสารสนเทศ', 'คณะวิศวกรรมศาสตร์']
-const major = [
-  'สาขาวิชาวิทยาการคอมพิวเตอร์',
-  'สาขาวิชาเทคโนโลยีสารสนเทศเพื่ออุตสาหกรรมดิจิทัล',
-  'สาขาวิชาวิศวกรรมซอฟต์แวร์',
-  'สาขาวิชาปัญญาประดิษฐ์ประยุกต์และเทคโนโลยีอัจฉริยะ',
-]
+const couponUsed = ['มีคูปอง', 'ไม่มีคูปอง']
+const faculties = ref<string[]>([])
+const departments = ref<string[]>([])
 </script>
 
 <style scoped>

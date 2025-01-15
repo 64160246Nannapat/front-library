@@ -122,14 +122,14 @@ const fetchUserData = async () => {
       // หลังจากรีเฟรช Token ใหม่แล้ว ให้ทำการดึงข้อมูลผู้ใช้
       const decoded: any = jwtDecode(newAccessToken)
       user.value.name = `${decoded.prefix || ''} ${decoded.firstName || ''} ${decoded.lastName || ''}`.trim() || 'ไม่ทราบชื่อ'
-      user.value.role = decoded.position_name || 'ไม่ทราบตำแหน่ง' // เปลี่ยนจาก role เป็น position_name
+      user.value.role = decoded.management_position_name || decoded.position_name || 'ไม่ทราบตำแหน่ง';
     }
   } else {
     // Token ยังไม่หมดอายุ
     try {
       const decoded: any = jwtDecode(token)
       user.value.name = `${decoded.prefix || ''} ${decoded.firstName || ''} ${decoded.lastName || ''}`.trim() || 'ไม่ทราบชื่อ'
-      user.value.role = decoded.position_name || 'ไม่ทราบตำแหน่ง' // เปลี่ยนจาก role เป็น position_name
+      user.value.role = decoded.management_position_name || decoded.position_name || 'ไม่ทราบตำแหน่ง';
     } catch (error) {
       console.error('Token decoding error:', error)
     }
