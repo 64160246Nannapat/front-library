@@ -269,6 +269,7 @@ const onSearch = async () => {
   total.value.quantity = filteredItems.reduce((sum, item) => sum + item.quantity, 0)
   serverItems.value = filteredItems
   loading.value = false
+  menuDate.value = false
 }
 
 onMounted(() => {

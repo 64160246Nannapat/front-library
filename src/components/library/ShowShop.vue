@@ -224,6 +224,7 @@ const loadItems = () => {
     })
     .finally(() => {
       loading.value = false
+      menuDate.value = false
     })
 }
 

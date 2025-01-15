@@ -231,6 +231,7 @@ const loadItems = ({ page, itemsPerPage }: { page: number; itemsPerPage: number 
     })
     serverItems.value = filteredItems
     loading.value = false
+    menuDate.value = false
   })
 }
 

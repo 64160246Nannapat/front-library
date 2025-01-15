@@ -285,6 +285,7 @@ const onSearch = () => {
     }
 
     loading.value = false
+    menuDate.value = false
   })
 }
 

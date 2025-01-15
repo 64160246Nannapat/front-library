@@ -103,7 +103,6 @@
         item-class="table-item"
         :items-per-page="-1"
         class="no-scrollbar"
-        style="max-height: none; height: auto"
       >
         <template #item.image="{ item }">
           <v-btn
@@ -353,13 +352,13 @@ const fullFormattedDate = computed(() => {
 })
 
 const fullFormattedTime = computed(() => {
-  const date = new Date(selectedDate.value);
-  const hours = String(date.getHours()).padStart(2, '0');
-  const minutes = String(date.getMinutes()).padStart(2, '0');
-  const seconds = String(date.getSeconds()).padStart(2, '0');
+  const date = new Date(selectedDate.value)
+  const hours = String(date.getHours()).padStart(2, '0')
+  const minutes = String(date.getMinutes()).padStart(2, '0')
+  const seconds = String(date.getSeconds()).padStart(2, '0')
 
-  return `${hours}:${minutes}:${seconds}`;
-});
+  return `${hours}:${minutes}:${seconds}`
+})
 
 // API ปลอมเพื่อเลียนแบบการดึงข้อมูล
 const FakeAPI = {
@@ -471,6 +470,8 @@ const onSearch = () => {
           return item.author.toLowerCase().includes(searchValue)
         return true
       })
+
+      menuDate.value = false
     }
 
     // หากไม่มีการกรองเพิ่มเติมและไม่มีวันที่ที่เลือก ให้แสดงข้อมูลทั้งหมด
@@ -487,6 +488,7 @@ const onSearch = () => {
     }
 
     loading.value = false
+    menuDate.value = false
   })
 }
 
@@ -724,24 +726,6 @@ td {
 }
 
 .no-scrollbar {
-  overflow: hidden !important; /* ปิด scrollbar ใน container หลัก */
-}
-
-.no-scrollbar .v-data-table__wrapper {
-  overflow: hidden !important; /* ปิด scrollbar ใน wrapper */
-  max-height: none !important; /* ปิดความสูงที่จำกัดและไม่ให้แสดง scrollbar */
-}
-
-.no-scrollbar .v-data-table__wrapper::-webkit-scrollbar {
-  display: none !important; /* ซ่อน scrollbar */
-}
-
-.no-scrollbar .v-data-table__wrapper {
-  -ms-overflow-style: none; /* ซ่อน scrollbar สำหรับ IE */
-  scrollbar-width: none; /* ซ่อน scrollbar สำหรับ Firefox */
-}
-
-.no-scrollbar .v-data-table__overflow {
-  overflow: hidden !important; /* ซ่อน scrollbar ใน overflow */
+  overflow-y: hidden;
 }
 </style>

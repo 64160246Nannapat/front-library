@@ -157,7 +157,6 @@ watch(searchFaculty, () => {
   onSearch() // เรียก `onSearch` ทันทีเมื่อ `searchFaculty` เปลี่ยนแปลง
 })
 
-
 // โหลดข้อมูลเริ่มต้น
 onMounted(() => {
   FakeAPI()
