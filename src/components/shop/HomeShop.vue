@@ -99,7 +99,7 @@ const items = [
   text-decoration: none;
   color: #333333;
   font-family: 'Arial', sans-serif;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: bold;
 }
 
