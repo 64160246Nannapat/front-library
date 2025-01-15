@@ -2,33 +2,12 @@
   <v-main style="height: 500px; margin-top: 55px">
     <v-container>
       <div class="header">
-        <img class="header-image" src="@/assets/store (2).png" alt="Library Image" />
-        <h1>ร้านค้า</h1>
+        <img class="header-image" src="@/assets/shop (1).png" alt="Library Image" />
+        <h1>สรุปร้านค้า</h1>
       </div>
 
-      <v-row>
-        <v-col cols="auto">
-          <div class="formatted-date-display">
-            <h2>{{ fullFormattedDate }}</h2>
-          </div>
-        </v-col>
-      </v-row>
-
-      <v-row align="center">
-        <v-col cols="auto" class="d-flex align-center">
-          <h3 style="margin-right: 20px; margin-top: -20px">ร้านค้า:</h3>
-          <div>
-            <v-select
-              :items="['ทั้งหมด', 'แจ่มใส', 'นายอินทร์', 'Book & Print', 'KP Book']"
-              v-model="searchShop"
-              class="select-faculty"
-              variant="outlined"
-              rounded="lg"
-            ></v-select>
-          </div>
-        </v-col>
-
-        <v-col cols="auto" class="ml-auto d-flex align-center" style="margin-top: -25px">
+      <v-row align="center" justify="center" style="margin-top: -25px">
+        <v-col cols="auto" class="d-flex justify-center align-center">
           <v-menu v-model="menuDate" :close-on-content-click="false" transition="scale-transition">
             <template v-slot:activator="{ on, props }">
               <v-text-field
@@ -47,9 +26,16 @@
                 variant="outlined"
               />
             </template>
-
             <v-date-picker v-model="selectedDate" @input="menuDate = false" locale="th" />
           </v-menu>
+        </v-col>
+      </v-row>
+
+      <v-row>
+        <v-col cols="auto">
+          <div class="formatted-date-display">
+            <h2>{{ fullFormattedDate }}</h2>
+          </div>
         </v-col>
       </v-row>
 
@@ -84,11 +70,10 @@ const total = ref({
 // Headers สำหรับ v-data-table
 const headers = [
   { title: 'ลำดับ', key: 'id', align: 'start' },
-  { title: 'ชื่อหนังสือ', key: 'title' },
-  { title: 'ISBN', key: 'isbn' },
   { title: 'ร้านค้า', key: 'shop' },
-  { title: 'จำนวน', key: 'quantity' },
-  { title: 'ราคาสุทธิ', key: 'price' },
+  { title: 'ชื่อผู้ติดต่อ', key: 'name' },
+  { title: 'E-mail', key: 'email' },
+  { title: 'เบอร์โทรศัพท์', key: 'phone' },
 ]
 
 // ฟอร์แมตวันที่
@@ -145,47 +130,42 @@ const FakeAPI = {
         const data = [
           {
             id: 1,
-            title: 'ความรู้สึกของเราสำคัญที่สุด',
-            isbn: 9786161857707,
             shop: 'KP Book',
-            quantity: 1,
-            price: 250,
+            name: 'นางสาว นวพรรษ สีหาบุตร',
+            email: 'nawapat@go.buu.ac.th',
+            phone: '0909999999',
             date: '20/12/2567',
           },
           {
             id: 2,
-            title: 'วิทยาศาสตร์ของการใช้ชีวิต = The science of living',
-            isbn: 9786162875434,
-            shop: 'KP Book',
-            quantity: 1,
-            price: 250,
+            shop: 'แจ่มใส',
+            name: 'นางสาว นันท์ณภัทร สอนสุภาพ',
+            email: 'nawapat@go.buu.ac.th',
+            phone: '0909999999',
             date: '20/12/2567',
           },
           {
             id: 3,
-            title: 'คุณคางคกไปพบนักจิตบำบัด',
-            isbn: 9786160459049,
-            shop: 'แจ่มใส',
-            quantity: 1,
-            price: 250,
+            shop: 'นายอินทร์',
+            name: 'นาย ใจดี มีมาก',
+            email: 'nawapat@go.buu.ac.th',
+            phone: '0909999999',
             date: '25/12/2567',
           },
           {
             id: 4,
-            title: 'ร่างกายไม่เคยโกหก = What every body is saying',
-            isbn: 9786162875687,
-            shop: 'นายอินทร์',
-            quantity: 1,
-            price: 250,
+            shop: 'SE-ED',
+            name: 'นาย สมศรี ใจดี',
+            email: 'nawapat@go.buu.ac.th',
+            phone: '0909999999',
             date: '25/12/2567',
           },
           {
             id: 5,
-            title: 'ภาวะลื่นไหล ทำอะไรก็ง่ายหมด = Productivity flow',
-            isbn: 9786169373964,
-            shop: 'Book & Print',
-            quantity: 1,
-            price: 250,
+            shop: 'MebBook',
+            name: 'นางสาว สมหมาย มีมาก',
+            email: 'nawapat@go.buu.ac.th',
+            phone: '0909999999',
             date: '25/12/2567',
           },
         ]
@@ -271,7 +251,7 @@ h1 {
   overflow: visible; /* แสดงข้อความที่เกิน */
   text-overflow: unset; /* ปิด ellipsis (...) */
   width: 100px;
-  min-width: 200px;
+  min-width: 250px;
   text-align: center; /* จัดข้อความอยู่กลาง */
   justify-content: center;
   align-content: center;

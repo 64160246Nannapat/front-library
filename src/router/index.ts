@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import BookForm from '../components/BookForm.vue'
+import BookForm from '@/components/BookForm.vue'
 import BookStatus from '@/components/BookStatus.vue'
 import HomeStudent from '@/components/student/HomeStudent.vue'
 import Login from '@/views/LoginView.vue'
@@ -21,6 +21,23 @@ import AddShop from '@/components/library/AddShop.vue'
 import ShowShop from '@/components/library/ShowShop.vue'
 import ListBook from '@/components/library/ListOfBook.vue'
 import ShowBook from '@/components/library/ShowBook.vue'
+import ListExecutive from '@/components/executive/ListOfBookExecutive.vue'
+import SumBudget from '@/components/executive/SumBudget.vue'
+import ShowBudget from '@/components/executive/ShowBudget.vue'
+import SumShop from '@/components/admin/SumShop.vue'
+import ManageBudget from '@/components/admin/ManageBudget.vue'
+import ManageBudgetEdit from '@/components/admin/ManageBudgetEdit.vue'
+import SumBudgetFaculty from '@/components/faculty/SumBudgetFaculty.vue'
+import SumBudAdmin from '@/components/admin/SumBudgetAdmin.vue'
+import ListAdmin from '@/components/admin/ListOfBookAdmin.vue'
+import ShowBudFaculty from '@/components/faculty/ShowBudgetFaculty.vue'
+import ManageBudFac from '@/components/faculty/ManageBudgetFaclty.vue'
+import ManageBudEditFac from '@/components/faculty/ManageBudgetEditFaculty.vue'
+import ManageBudPerFac from '@/components/faculty/ManageBudPerson.vue'
+import ManageEditBudPer from '@/components/faculty/ManageBudEditPer.vue'
+import ManageBudDe from '@/components/faculty/ManageBudDepartments.vue'
+import ManageEditBudDe from '@/components/faculty/ManageBudEditDe.vue'
+// import LoginView2 from '@/views/LoginView2.vue'
 
 const routes = [
   {
@@ -127,6 +144,51 @@ const routes = [
         name: 'historyCouponFaculty',
         component: HistoryCoupon,
       },
+      {
+        path: 'sum-budget',
+        name: 'sumBudFaculty',
+        component: SumBudgetFaculty,
+      },
+      {
+        path: 'sum-budget/:itemId',
+        name: 'showBudFaculty',
+        component: ShowBudFaculty,
+      },
+      {
+        path: 'manage-budget',
+        name: 'manageBudFaculty',
+        component: ManageBudFac,
+      },
+      {
+        path: 'manage-budget',
+        name: 'manageBudFaculty',
+        component: ManageBudFac,
+      },
+      {
+        path: 'manage-budget',
+        name: 'manageBudEditFaculty',
+        component: ManageBudEditFac,
+      },
+      {
+        path: 'manage-budget-person',
+        name: 'manageBudPerFaculty',
+        component: ManageBudPerFac,
+      },
+      {
+        path: 'manage-edit-budget-person',
+        name: 'manageEditBudPerFaculty',
+        component: ManageEditBudPer,
+      },
+      {
+        path: 'manage-budget-department',
+        name: 'ManageBudDeFaculty',
+        component: ManageBudDe,
+      },
+      {
+        path: 'manage-edit-budget-department',
+        name: 'ManageEditBudDeFaculty',
+        component: ManageEditBudDe,
+      },
     ],
     meta: { requiresAuth: true, role: 'faculty' },
   },
@@ -223,6 +285,36 @@ const routes = [
         name: 'historyCouponExecutive',
         component: HistoryCoupon,
       },
+      {
+        path: 'list-book-executive',
+        name: 'listBookExecutive',
+        component: ListExecutive,
+      },
+      {
+        path: '/show-book/:itemId',
+        name: 'showBookExecutive',
+        component: ShowBook
+      },
+      {
+        path: 'sum-budget',
+        name: 'sumBudgetExecutive',
+        component: SumBudget,
+      },
+      {
+        path: '/show-budget/:itemId',
+        name: 'showBudgetExecutive',
+        component: ShowBudget
+      },
+      {
+        path: 'show-shop',
+        name: 'showShopExecutive',
+        component: ShowShop,
+      },
+      {
+        path: 'sum-shop',
+        name: 'sumShopExecutive',
+        component: SumShop,
+      },
     ],
     meta: { requiresAuth: true, role: 'executive' },
   },
@@ -240,6 +332,71 @@ const routes = [
         path: 'book-status',
         name: 'bookstatusAdmin',
         component: BookStatus,
+      },
+      {
+        path: 'purchase-budget',
+        name: 'purchaseBudgetAdmin',
+        component: PurchaseBudget,
+      },
+      {
+        path: 'check-book',
+        name: 'checkBookAdmin',
+        component: CheckBook,
+      },
+      {
+        path: 'sum-budget',
+        name: 'sumBudgetAdmin',
+        component: SumBudAdmin,
+      },
+      {
+        path: '/show-budget/:itemId',
+        name: 'showBudgetAdmin',
+        component: ShowBudget
+      },
+      {
+        path: 'manage-sell-book',
+        name: 'ManageSellBookAdmin',
+        component: ManageSellBook,
+      },
+      {
+        path: 'list-book-presenters',
+        name: 'listBookAdmin',
+        component: ListAdmin,
+      },
+      {
+        path: '/show-book/:itemId',
+        name: 'showBookAdmin',
+        component: ShowBook
+      },
+      {
+        path: 'sum-book',
+        name: 'sumBookAdmin',
+        component: SumBook,
+      },
+      {
+        path: 'add-shop',
+        name: 'addShopAdmin',
+        component: AddShop,
+      },
+      {
+        path: 'show-shop',
+        name: 'showShopAdmin',
+        component: ShowShop,
+      },
+      {
+        path: 'sum-shop',
+        name: 'sumShopAdmin',
+        component: SumShop,
+      },
+      {
+        path: 'manage-budget',
+        name: 'manageBudgetAdmin',
+        component: ManageBudget,
+      },
+      {
+        path: 'manage-budget-edit',
+        name: 'manageBudgetEditAdmin',
+        component: ManageBudgetEdit,
       },
     ],
     meta: { requiresAuth: true, role: 'admin' },
@@ -308,6 +465,31 @@ const routes = [
     path: '/show-book-presenters',
     name: 'showBook',
     component: ShowBook,
+  },
+  {
+    path: '/list-book-executive',
+    name: 'listBook',
+    component: ListExecutive,
+  },
+  {
+    path: '/sum-budget',
+    name: 'sumBudget',
+    component: SumBudget,
+  },
+  {
+    path: '/sum-shop',
+    name: 'sumShop',
+    component: SumShop,
+  },
+  {
+    path: '/manage-budget',
+    name: 'manageBudget',
+    component: ManageBudget,
+  },
+  {
+    path: '/sum-budget',
+    name: 'sumBud',
+    component: SumBudgetFaculty,
   },
 
 ]

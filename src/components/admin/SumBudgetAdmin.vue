@@ -2,9 +2,47 @@
   <v-main style="height: 500px; margin-top: 55px">
     <v-container>
       <div class="header">
-        <img class="header-image" src="@/assets/list.png" alt="Library Image" />
-        <h1>รายชื่อผู้เสนอหนังสือ</h1>
+        <img class="header-image" src="@/assets/salary (1).png" alt="Library Image" />
+        <h1>สรุปงบประมาณ</h1>
+        <v-row align="center" class="date-status-row" justify="end">
+          <v-col cols="auto">
+            <v-menu
+              v-model="menuDate"
+              :close-on-content-click="false"
+              transition="scale-transition"
+            >
+              <template v-slot:activator="{ on, props }">
+                <v-text-field
+                  v-bind="props"
+                  v-on="on"
+                  v-model="formattedDate"
+                  placeholder="dd/mm/yyyy"
+                  class="custom-date-picker"
+                  hide-details
+                  rounded="lg"
+                  readonly
+                  flat
+                  solo
+                  prepend-inner-icon="$calendar"
+                  suffix-icon="mdi-calendar"
+                  variant="outlined"
+                />
+              </template>
+
+              <v-date-picker v-model="selectedDate" locale="th" @input="onSearch" />
+            </v-menu>
+          </v-col>
+        </v-row>
       </div>
+
+      <!-- Formatted Date Display -->
+      <v-row>
+        <v-col cols="auto">
+          <div class="formatted-date-display">
+            <h2>{{ fullFormattedDate }}</h2>
+          </div>
+        </v-col>
+      </v-row>
 
       <v-row align="center">
         <v-col cols="auto" class="d-flex align-center">
@@ -18,29 +56,6 @@
             @input="onSearch"
           ></v-select>
         </v-col>
-
-        <v-col cols="auto" class="ml-auto d-flex align-center">
-          <h3 style="margin-right: 20px; margin-top: -20px">ชื่อ:</h3>
-          <v-text-field
-            v-model="searchText"
-            variant="outlined"
-            class="serch-text"
-            rounded="lg"
-            @input="onSearch"
-          ></v-text-field>
-        </v-col>
-
-        <v-col cols="auto" style="margin-top: -24px">
-          <v-btn
-            color="#EED3D9"
-            @click="onSearch"
-            class="custom-isbn"
-            style="height: 40px"
-            rounded="lg"
-          >
-            <v-icon size="20">mdi-magnify</v-icon>
-          </v-btn>
-        </v-col>
       </v-row>
 
       <v-data-table
@@ -53,7 +68,7 @@
         :items-per-page="-1"
       >
         <!-- Slot สำหรับคอลัมน์ "จำนวน" -->
-        <template #item.quantity="{ item }">
+        <template #item.description="{ item }">
           <div
             style="
               display: flex;
@@ -65,7 +80,7 @@
           >
             <v-btn
               style="
-                background-color: #c7c8cc;
+                background-color: #eed3d9;
                 width: 100px;
                 height: 25px;
                 font-size: 14px;
@@ -74,21 +89,7 @@
               "
               @click="onClickBook(item)"
             >
-              2 เล่ม
-            </v-btn>
-            <v-btn
-              style="
-                background-color: #b4c7e4;
-                width: 100px;
-                height: 25px;
-                font-size: 14px;
-                line-height: 1;
-                margin-top: 8px;
-                margin-bottom: 8px;
-              "
-              @click="onClickForm(item)"
-            >
-              เสนอ
+              รายละเอียด
             </v-btn>
           </div>
         </template>
@@ -103,28 +104,70 @@ import { useRouter } from 'vue-router'
 
 // วันที่
 const selectedDate = ref(new Date())
+const menuDate = ref(false)
 const searchFaculty = ref('ทั้งหมด')
-const searchText = ref('')
 const loading = ref(false)
 const serverItems = ref([])
 const router = useRouter()
 // Headers สำหรับ v-data-table
 const headers = [
   { title: 'ลำดับ', key: 'id', align: 'start' },
-  { title: 'ข้อมูลผู้คัดเลือก', key: 'name' },
   { title: 'คณะ', key: 'faculty' },
-  { title: 'หน่วยงาน/สาขา', key: 'department' },
-  { title: 'E-mail', key: 'email' },
-  { title: 'เบอร์โทรศัพท์', key: 'phone' },
-  { title: 'สถานะ', key: 'status' },
-  { title: 'จำนวน', key: 'quantity' },
+  { title: 'งบประมาณที่ให้', key: 'budget' },
+  { title: 'งบประมาณที่ใช้', key: 'usebudget' },
+  { title: 'คงเหลือ', key: 'remain' },
+  { title: 'รายละเอียด', key: 'description' },
 ]
+
+// ฟอร์แมตวันที่
+const formattedDate = computed(() => {
+  if (!selectedDate.value) return ''
+  const date = new Date(selectedDate.value)
+  const day = String(date.getDate()).padStart(2, '0')
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const year = date.getFullYear() + 543
+  return `${day}/${month}/${year}`
+})
+
+const fullFormattedDate = computed(() => {
+  if (!selectedDate.value) return ''
+  const date = new Date(selectedDate.value)
+
+  const days = [
+    'วันอาทิตย์',
+    'วันจันทร์',
+    'วันอังคาร',
+    'วันพุธ',
+    'วันพฤหัสบดี',
+    'วันศุกร์',
+    'วันเสาร์',
+  ]
+  const months = [
+    'มกราคม',
+    'กุมภาพันธ์',
+    'มีนาคม',
+    'เมษายน',
+    'พฤษภาคม',
+    'มิถุนายน',
+    'กรกฎาคม',
+    'สิงหาคม',
+    'กันยายน',
+    'ตุลาคม',
+    'พฤศจิกายน',
+    'ธันวาคม',
+  ]
+
+  const dayName = days[date.getDay()]
+  const day = date.getDate()
+  const monthName = months[date.getMonth()]
+  const year = date.getFullYear() + 543
+
+  return `${dayName} ที่ ${day} ${monthName} พ.ศ. ${year}`
+})
 
 // API ปลอมเพื่อเลียนแบบการดึงข้อมูล
 const FakeAPI = {
   async fetch({
-    page,
-    itemsPerPage,
     faculty,
     name,
   }: {
@@ -138,57 +181,51 @@ const FakeAPI = {
         let data = [
           {
             id: 1,
-            name: 'นันท์ณภัทร สอนสุภาพ',
             faculty: 'วิทยาการสารสนเทศ',
-            department: 'วิทยาการคอมพิวเตอร์',
-            email: 'nan@mail.com',
-            phone: '0999999999',
-            status: 'อาจายร์',
+            budget: '200,000',
+            usebudget: '158,700',
+            remain: '41,300',
+            date: '09/01/2568',
           },
           {
             id: 2,
-            name: 'นวพรรณ สีหบุตร',
-            faculty: 'วิทยาการสารสนเทศ',
-            department: 'วิทยาการคอมพิวเตอร์',
-            email: 'nan@mail.com',
-            phone: '0999999999',
-            status: 'นิสิต',
+            faculty: 'วิทยาศาสตร์',
+            budget: '200,000',
+            usebudget: '158,700',
+            remain: '41,300',
+            date: '20/12/2567',
           },
           {
             id: 3,
-            name: 'สมศรี ดีใจ',
             faculty: 'บริหาร',
-            department: 'บัญชีบัณฑิต',
-            email: 'nan@mail.com',
-            phone: '0999999999',
-            status: 'อาจายร์',
+            budget: '200,000',
+            usebudget: '158,700',
+            remain: '41,300',
+            date: '20/12/2567',
           },
           {
             id: 4,
-            name: 'สมหมาย ใจดี',
             faculty: 'วิศวกรรมศาสตร์',
-            department: 'วิศวกรรมโยธา',
-            email: 'nan@mail.com',
-            phone: '0999999999',
-            status: 'นิสิต',
+            budget: '200,000',
+            usebudget: '158,700',
+            remain: '41,300',
+            date: '20/12/2567',
           },
           {
             id: 5,
-            name: 'ศรีสมาย บันเทิง',
-            faculty: 'วิทยาศาสตร์',
-            department: 'เคมี',
-            email: 'nan@mail.com',
-            phone: '0999999999',
-            status: 'อาจายร์',
+            faculty: 'เภสัชศาสตร์',
+            budget: '200,000',
+            usebudget: '158,700',
+            remain: '41,300',
+            date: '09/01/2568',
           },
           {
             id: 6,
-            name: 'ใส่ใจ ใส่ไข่',
-            faculty: 'วิทยาศาสตร์',
-            department: 'คณิตศาตร์',
-            email: 'nan@mail.com',
-            phone: '0999999999',
-            status: 'นิสิต',
+            faculty: 'ครุศาสตร์',
+            budget: '200,000',
+            usebudget: '158,700',
+            remain: '41,300',
+            date: '09/01/2568',
           },
         ]
 
@@ -213,41 +250,45 @@ const onSearch = () => {
   FakeAPI.fetch({ page: 1, itemsPerPage: 10 }).then((items: any[]) => {
     let filteredItems = items
 
+    // ฟอร์แมตวันที่ที่เลือกเป็นรูปแบบ "dd/mm/yyyy" เพื่อใช้ในการกรอง
+    const selectedFormattedDate = formattedDate.value
+
+    if (selectedDate.value && selectedFormattedDate) {
+      filteredItems = filteredItems.filter((item) => item.date === selectedFormattedDate)
+    }
+
     // กรองข้อมูลตามคณะที่เลือก (ถ้ามีการเลือกคณะ)
     if (searchFaculty.value && searchFaculty.value !== 'ทั้งหมด') {
       filteredItems = filteredItems.filter((item) => item.faculty === searchFaculty.value)
     }
 
-    // กรองข้อมูลตามชื่อ (ถ้ามีการพิมพ์)
-    if (searchText.value) {
-      const searchValue = searchText.value.toLowerCase()
-      filteredItems = filteredItems.filter((item) => item.name.toLowerCase().includes(searchValue))
+    // หากไม่มีการกรองเพิ่มเติมและไม่มีวันที่ที่เลือก ให้แสดงข้อมูลทั้งหมด
+    if (!selectedDate.value && (!searchFaculty.value || searchFaculty.value === 'ทั้งหมด')) {
+      filteredItems = items
     }
 
     // อัปเดตข้อมูลในตาราง
     serverItems.value = filteredItems
+
+    // แจ้งเตือนถ้าไม่มีข้อมูลตรงกับเงื่อนไข
+    if (filteredItems.length === 0) {
+      console.warn('ไม่พบข้อมูลที่ตรงกับเงื่อนไขที่เลือก')
+    }
+
     loading.value = false
   })
 }
 
 const onClickBook = (item) => {
   if (item && item.id) {
-    router.push({ name: 'showBookLibrary', params: { itemId: item.id } })
-  } else {
-    console.error('Item or item.id is undefined')
-  }
-}
-
-const onClickForm = (item) => {
-  if (item && item.id) {
-    router.push({ name: 'BookFormLibrary', params: { itemId: item.id } })
+    router.push({ name: 'showBudgetAdmin', params: { itemId: item.id } })
   } else {
     console.error('Item or item.id is undefined')
   }
 }
 
 // ติดตามการเปลี่ยนแปลงของ searchFaculty และเรียก onSearch
-watch(searchFaculty, () => {
+watch([selectedDate, searchFaculty], () => {
   onSearch()
 })
 

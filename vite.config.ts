@@ -7,6 +7,7 @@ import vueJsx from '@vitejs/plugin-vue-jsx'
 
 // https://vite.dev/config/
 export default defineConfig({
+  assetsInclude: ['**/*.ttf', '**/*.woff', '**/*.woff2'],
   plugins: [
     vue(),
     vueJsx(),

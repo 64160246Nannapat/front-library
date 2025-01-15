@@ -232,7 +232,7 @@ const onSearch = () => {
 
 const onClickBook = (item) => {
   if (item && item.id) {
-    router.push({ name: 'showBookLibrary', params: { itemId: item.id } })
+    router.push({ name: 'showBookAdmin', params: { itemId: item.id } })
   } else {
     console.error('Item or item.id is undefined')
   }
@@ -240,7 +240,7 @@ const onClickBook = (item) => {
 
 const onClickForm = (item) => {
   if (item && item.id) {
-    router.push({ name: 'BookFormLibrary', params: { itemId: item.id } })
+    router.push({ name: 'BookFormAdmin', params: { itemId: item.id } })
   } else {
     console.error('Item or item.id is undefined')
   }

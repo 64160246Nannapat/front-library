@@ -76,20 +76,6 @@
             >
               2 เล่ม
             </v-btn>
-            <v-btn
-              style="
-                background-color: #b4c7e4;
-                width: 100px;
-                height: 25px;
-                font-size: 14px;
-                line-height: 1;
-                margin-top: 8px;
-                margin-bottom: 8px;
-              "
-              @click="onClickForm(item)"
-            >
-              เสนอ
-            </v-btn>
           </div>
         </template>
       </v-data-table>
@@ -232,15 +218,7 @@ const onSearch = () => {
 
 const onClickBook = (item) => {
   if (item && item.id) {
-    router.push({ name: 'showBookLibrary', params: { itemId: item.id } })
-  } else {
-    console.error('Item or item.id is undefined')
-  }
-}
-
-const onClickForm = (item) => {
-  if (item && item.id) {
-    router.push({ name: 'BookFormLibrary', params: { itemId: item.id } })
+    router.push({ name: 'showBookExecutive', params: { itemId: item.id } })
   } else {
     console.error('Item or item.id is undefined')
   }

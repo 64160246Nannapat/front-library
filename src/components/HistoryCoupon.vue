@@ -20,6 +20,7 @@
                   placeholder="dd/mm/yyyy"
                   class="custom-date-picker"
                   hide-details
+                  rounded="lg"
                   readonly
                   flat
                   solo
@@ -29,12 +30,13 @@
                 />
               </template>
 
-              <v-date-picker v-model="selectedDate" @input="menuDate = false" locale="th" />
+              <v-date-picker v-model="selectedDate" locale="th" @input="onSearch" />
             </v-menu>
           </v-col>
         </v-row>
       </div>
 
+      <!-- Formatted Date Display -->
       <v-row>
         <v-col cols="auto">
           <div class="formatted-date-display">
@@ -50,14 +52,16 @@
         :items="serverItems"
         :items-length="totalItems"
         :loading="loading"
-        @update:options="loadItems"
+        @update:options="onSearch"
+        :hide-default-footer="true"
+        :items-per-page="-1"
       ></v-data-table-server>
     </v-container>
   </v-main>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 
 // วันที่
 const selectedDate = ref(new Date())
@@ -66,7 +70,6 @@ const itemsPerPage = ref(5)
 const loading = ref(false)
 const totalItems = ref(0)
 const serverItems = ref([])
-
 // Headers สำหรับ v-data-table
 const headers = [
   { title: 'ลำดับ', key: 'id', align: 'start' },
@@ -126,39 +129,97 @@ const fullFormattedDate = computed(() => {
 // API ปลอมเพื่อเลียนแบบการดึงข้อมูล
 const FakeAPI = {
   async fetch({ page, itemsPerPage }: { page: number; itemsPerPage: number }) {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       setTimeout(() => {
         const data = [
-          { id: 1, title: 'หนังสือ A', date: '01/12/2567', isbn: '978-3-16-148410-0', shop: 'แจ่มใส', price: 250, quantity: 2,  },
-          { id: 2, title: 'หนังสือ B', date: '02/12/2567', isbn: '978-0-306-40615-7', shop: 'แจ่มใส', price: 350, quantity: 1, },
-          { id: 3, title: 'หนังสือ C', date: '03/12/2567', isbn: '978-1-4028-9462-6', shop: 'แจ่มใส', price: 500, quantity: 3,  },
-          { id: 4, title: 'ความรู้สึกของเราสำคัญที่สุด', date: '20/12/2567', isbn: '978-1-4028-9462-6', shop: 'แจ่มใส', price: 500, quantity: 1,  },
-          { id: 5, title: 'คุณคางคกไปพบนักจิตบำบัด', date: '20/12/2567', isbn: '978-1-4028-9462-6', shop: 'แจ่มใส', price: 500, quantity: 1,  },
+          {
+            id: 1,
+            title: 'หนังสือ A',
+            date: '01/12/2567',
+            isbn: '978-3-16-148410-0',
+            shop: 'แจ่มใส',
+            price: 250,
+            quantity: 2,
+          },
+          {
+            id: 2,
+            title: 'หนังสือ B',
+            date: '02/12/2567',
+            isbn: '978-0-306-40615-7',
+            shop: 'แจ่มใส',
+            price: 350,
+            quantity: 1,
+          },
+          {
+            id: 3,
+            title: 'หนังสือ C',
+            date: '03/12/2567',
+            isbn: '978-1-4028-9462-6',
+            shop: 'แจ่มใส',
+            price: 500,
+            quantity: 3,
+          },
+          {
+            id: 4,
+            title: 'ความรู้สึกของเราสำคัญที่สุด',
+            date: '20/12/2567',
+            isbn: '978-1-4028-9462-6',
+            shop: 'แจ่มใส',
+            price: 500,
+            quantity: 1,
+          },
+          {
+            id: 5,
+            title: 'คุณคางคกไปพบนักจิตบำบัด',
+            date: '20/12/2567',
+            isbn: '978-1-4028-9462-6',
+            shop: 'แจ่มใส',
+            price: 500,
+            quantity: 1,
+          },
         ]
 
-        const start = (page - 1) * itemsPerPage
-        const end = start + itemsPerPage
-
-        resolve({
-          items: data.slice(start, end),
-          total: data.length,
-        })
+        resolve(data)
       }, 500)
     })
   },
 }
 
-// โหลดข้อมูล
-const loadItems = ({ page, itemsPerPage }: { page: number; itemsPerPage: number }) => {
+const onSearch = () => {
   loading.value = true
-  FakeAPI.fetch({ page, itemsPerPage }).then(({ items, total }) => {
-    serverItems.value = items
-    totalItems.value = total
+  FakeAPI.fetch({ page: 1, itemsPerPage: 10 }).then((items) => {
+    let filteredItems = items
+
+    if (selectedDate.value) {
+      const selectedFormattedDate = formattedDate.value
+      filteredItems = filteredItems.filter((item) => item.date === selectedFormattedDate)
+    }
+
+    // หากไม่มีการกรองเพิ่มเติมและไม่มีวันที่ที่เลือก ให้แสดงข้อมูลทั้งหมด
+    if (!selectedDate.value) {
+      filteredItems = items
+    }
+
+    // อัปเดตข้อมูลตาราง
+    serverItems.value = filteredItems
+
+    // หากไม่มีข้อมูลให้เตือนใน console
+    if (filteredItems.length === 0) {
+      console.warn('No data found with the selected criteria.')
+    }
+
     loading.value = false
   })
 }
-</script>
 
+onMounted(() => {
+  const today = new Date()
+  selectedDate.value = today
+  onSearch() // เรียกฟังก์ชันค้นหาทันทีเมื่อเริ่มต้น
+})
+
+watch([selectedDate], onSearch, { immediate: true })
+</script>
 
 <style scoped>
 .header {

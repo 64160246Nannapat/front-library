@@ -27,6 +27,7 @@
         :loading="loading"
         show-items-per-page="false"
         :hide-default-footer="true"
+        :items-per-page="-1"
       />
     </v-container>
   </v-main>

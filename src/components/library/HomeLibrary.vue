@@ -11,8 +11,8 @@
       <v-spacer></v-spacer>
       <v-toolbar-items class="d-flex align-center">
         <div class="d-flex flex-column align-end" style="margin-right: 20px">
-          <span class="name" style="font-size: 16px;">{{ user.name }}</span>
-          <span class="position" style="margin-top: 5px; font-size: 14px;">{{ user.role }}</span>
+          <span class="name" style="font-size: 16px">{{ user.name }}</span>
+          <span class="position" style="margin-top: 5px; font-size: 14px">{{ user.role }}</span>
         </div>
       </v-toolbar-items>
     </v-app-bar>
@@ -123,6 +123,10 @@ const fetchUserData = async () => {
       const decoded: any = jwtDecode(newAccessToken)
       user.value.name = `${decoded.prefix || ''} ${decoded.firstName || ''} ${decoded.lastName || ''}`.trim() || 'ไม่ทราบชื่อ'
       user.value.role = decoded.management_position_name || decoded.position_name || 'ไม่ทราบตำแหน่ง';
+      user.value.name =
+        `${decoded.prefix || ''} ${decoded.firstName || ''} ${decoded.lastName || ''}`.trim() ||
+        'ไม่ทราบชื่อ'
+      user.value.role = decoded.position_name || 'ไม่ทราบตำแหน่ง' // เปลี่ยนจาก role เป็น position_name
     }
   } else {
     // Token ยังไม่หมดอายุ
@@ -130,6 +134,10 @@ const fetchUserData = async () => {
       const decoded: any = jwtDecode(token)
       user.value.name = `${decoded.prefix || ''} ${decoded.firstName || ''} ${decoded.lastName || ''}`.trim() || 'ไม่ทราบชื่อ'
       user.value.role = decoded.management_position_name || decoded.position_name || 'ไม่ทราบตำแหน่ง';
+      user.value.name =
+        `${decoded.prefix || ''} ${decoded.firstName || ''} ${decoded.lastName || ''}`.trim() ||
+        'ไม่ทราบชื่อ'
+      user.value.role = decoded.position_name || 'ไม่ทราบตำแหน่ง' // เปลี่ยนจาก role เป็น position_name
     } catch (error) {
       console.error('Token decoding error:', error)
     }
