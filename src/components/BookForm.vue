@@ -10,7 +10,7 @@
         <v-form ref="bookForm" v-model="valid">
           <!-- คำนำหน้าชื่อ -->
           <div class="form-row">
-            <label for="name" style="font-size: 18px"
+            <label for="name" style="font-size: 17px"
               >คำนำหน้า <span class="required-asterisk">*</span></label
             >
             <v-text-field
@@ -24,7 +24,7 @@
 
           <!-- ชื่อ -->
           <div class="form-row">
-            <label for="firstName" style="font-size: 18px"
+            <label for="firstName" style="font-size: 17px"
               >ชื่อ<span class="required-asterisk">*</span></label
             >
             <v-text-field
@@ -38,7 +38,7 @@
 
           <!-- นามสกุล -->
           <div class="form-row">
-            <label for="lastName" style="font-size: 18px"
+            <label for="lastName" style="font-size: 17px"
               >นามสกุล<span class="required-asterisk">*</span></label
             >
             <v-text-field
@@ -52,7 +52,7 @@
 
           <!-- ตำแหน่ง -->
           <div class="form-row">
-            <label for="role" style="font-size: 18px"
+            <label for="role" style="font-size: 17px"
               >ตำแหน่ง<span class="required-asterisk">*</span></label
             >
             <v-select
@@ -67,7 +67,7 @@
 
           <!-- คณะ -->
           <div class="form-row">
-            <label for="faculty" style="font-size: 18px"
+            <label for="faculty" style="font-size: 17px"
               >คณะ<span class="required-asterisk">*</span></label
             >
             <v-select
@@ -82,7 +82,7 @@
 
           <!-- สาขา -->
           <div class="form-row">
-            <label for="department" style="font-size: 18px"
+            <label for="department" style="font-size: 17px"
               >สาขา<span class="required-asterisk">*</span></label
             >
             <v-select
@@ -97,7 +97,7 @@
 
           <!-- เบอร์ -->
           <div class="form-row">
-            <label for="tel" style="font-size: 18px"
+            <label for="tel" style="font-size: 17px"
               >เบอร์<span class="required-asterisk">*</span></label
             >
             <v-text-field
@@ -111,7 +111,7 @@
 
           <!-- E-mail -->
           <div class="form-row">
-            <label for="email" style="font-size: 18px"
+            <label for="email" style="font-size: 17px"
               >E-mail<span class="required-asterisk">*</span></label
             >
             <v-text-field
@@ -125,7 +125,7 @@
 
           <!-- ชื่อร้านค้า (Dropdown) -->
           <div class="form-row">
-            <label for="store" style="font-size: 18px"
+            <label for="store" style="font-size: 17px"
               >ชื่อร้านค้า<span class="required-asterisk">*</span></label
             >
             <v-select
@@ -140,7 +140,7 @@
 
           <!-- ชื่อหนังสือ -->
           <div class="form-row">
-            <label for="title" style="font-size: 18px"
+            <label for="title" style="font-size: 17px"
               >ชื่อหนังสือ<span class="required-asterisk">*</span></label
             >
             <v-text-field
@@ -154,7 +154,7 @@
 
           <!-- ผู้แต่ง -->
           <div class="form-row">
-            <label for="author" style="font-size: 18px">ผู้ชื่อแต่ง</label>
+            <label for="author" style="font-size: 17px">ผู้ชื่อแต่ง</label>
             <v-text-field
               v-model="book.Author"
               variant="outlined"
@@ -165,7 +165,7 @@
 
           <!-- ปีพิมพ์ -->
           <div class="form-row">
-            <label for="year" style="font-size: 18px">ปีพิมพ์</label>
+            <label for="year" style="font-size: 17px">ปีพิมพ์</label>
             <v-text-field
               v-model="book.Year"
               variant="outlined"
@@ -176,12 +176,12 @@
 
           <!-- ISBN -->
           <div class="form-row">
-            <label for="isbn" style="font-size: 18px"
+            <label for="isbn" style="font-size: 17px"
               >ISBN<span class="required-asterisk">*</span></label
             >
             <v-text-field
               v-model="book.isbn"
-              :rules="[rules.required, rules.isbn]"
+              :rules="[rules.required, rules.required]"
               variant="outlined"
               class="text-feild-top"
               dense
@@ -190,7 +190,7 @@
 
           <!-- รายวิชา -->
           <div class="form-row">
-            <label for="subject" style="font-size: 18px"
+            <label for="subject" style="font-size: 17px"
               >รายวิชา<span class="required-asterisk">*</span></label
             >
             <v-text-field
@@ -204,7 +204,7 @@
 
           <!-- ราคาสุทธิ -->
           <div class="form-row">
-            <label for="price" style="font-size: 18px"
+            <label for="price" style="font-size: 17px"
               >ราคาสุทธิ<span class="required-asterisk">*</span></label
             >
             <v-text-field
@@ -218,7 +218,7 @@
 
           <!-- จำนวนเล่ม -->
           <div class="form-row">
-            <label for="count" style="font-size: 18px"
+            <label for="count" style="font-size: 17px"
               >จำนวนเล่ม<span class="required-asterisk">*</span></label
             >
             <v-text-field
@@ -232,7 +232,7 @@
 
           <!-- คูปอง -->
           <div class="form-row">
-            <label for="coupon" style="font-size: 18px"
+            <label for="coupon" style="font-size: 17px"
               >คูปอง<span class="required-asterisk">*</span></label
             >
             <v-select
@@ -260,13 +260,37 @@
         <v-dialog v-model="dialog" max-width="400px">
           <v-card class="dialog">
             <v-card-title class="text-center" style="font-weight: bold; font-size: 22px">
-              🎉 ส่งข้อมูลสำเร็จ!
+              ยืนยันการส่งแบบฟอร์ม
             </v-card-title>
             <v-card-text class="text-center" style="font-size: 18px">
-              ข้อมูลของคุณถูกส่งเรียบร้อยแล้ว
+              คุณต้องการส่งแบบฟอร์มหรือไม่
             </v-card-text>
             <v-card-actions justify-center>
-              <v-btn class="btn-dialog" @click="confirmReset(bookForm)"> ตกลง </v-btn>
+              <v-btn
+                color="black"
+                text
+                @click="dialog = false"
+                style="
+                  font-weight: bold;
+                  border: 2px;
+                  border-radius: 8px;
+                  background-color: #f36c60;
+                "
+              >
+                ยกเลิก
+              </v-btn>
+              <v-btn
+                color="black"
+                style="
+                  font-weight: bold;
+                  border: 2px;
+                  border-radius: 8px;
+                  background-color: #72d572;
+                "
+                @click="confirmReset(bookForm)"
+              >
+                ยืนยัน
+              </v-btn>
             </v-card-actions>
           </v-card>
         </v-dialog>
@@ -385,53 +409,50 @@ const rules = {
 // }
 
 const fetchUserData = async () => {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('token')
 
   if (!token) {
-    alert('ไม่พบ Token กรุณาเข้าสู่ระบบใหม่');
-    window.location.href = '/';
-    return;
+    alert('ไม่พบ Token กรุณาเข้าสู่ระบบใหม่')
+    window.location.href = '/'
+    return
   }
 
   try {
-    let userId = null;
-    const decoded: any = isTokenExpired(token)
-      ? await refreshAndDecodeToken()
-      : jwtDecode(token);
+    let userId = null
+    const decoded: any = isTokenExpired(token) ? await refreshAndDecodeToken() : jwtDecode(token)
 
     if (decoded) {
-      userId = decoded.sub; // ดึง user_id จาก sub ใน token
-      user.value.Prefix = decoded.prefix;
-      user.value.FirstName = decoded.firstName;
-      user.value.LastName = decoded.lastName;
-      user.value.Role = decoded.offer_position;
-      user.value.Faculty = decoded.faculty;
-      user.value.Department = decoded.department;
-      user.value.Tel = decoded.tel;
-      user.value.Email = decoded.email;
-      user.value.User = userId; // เก็บ user_id ที่ดึงมา
+      userId = decoded.sub // ดึง user_id จาก sub ใน token
+      user.value.Prefix = decoded.prefix
+      user.value.FirstName = decoded.firstName
+      user.value.LastName = decoded.lastName
+      user.value.Role = decoded.offer_position
+      user.value.Faculty = decoded.faculty
+      user.value.Department = decoded.department
+      user.value.Tel = decoded.tel
+      user.value.Email = decoded.email
+      user.value.User = userId // เก็บ user_id ที่ดึงมา
     }
 
     // ตั้งค่าอื่น ๆ ให้กับ book
-    book.value.Prefix = user.value.Prefix;
-    book.value.FirstName = user.value.FirstName;
-    book.value.LastName = user.value.LastName;
-    book.value.Role = user.value.Role;
-    book.value.Faculty = user.value.Faculty;
-    book.value.Department = user.value.Department;
-    book.value.Tel = user.value.Tel;
-    book.value.Email = user.value.Email;
-    book.value.User = user.value.User;
-
+    book.value.Prefix = user.value.Prefix
+    book.value.FirstName = user.value.FirstName
+    book.value.LastName = user.value.LastName
+    book.value.Role = user.value.Role
+    book.value.Faculty = user.value.Faculty
+    book.value.Department = user.value.Department
+    book.value.Tel = user.value.Tel
+    book.value.Email = user.value.Email
+    book.value.User = user.value.User
   } catch (error) {
-    console.error('Token decoding error:', error);
+    console.error('Token decoding error:', error)
   }
-};
+}
 
 const submitForm = async () => {
-  const form = bookForm.value; // เข้าถึง bookForm จาก ref
+  const form = bookForm.value // เข้าถึง bookForm จาก ref
   if (form && typeof form.validate === 'function') {
-    const { valid } = await form.validate(); // เรียก validate()
+    const { valid } = await form.validate() // เรียก validate()
 
     if (valid) {
       try {
@@ -453,44 +474,43 @@ const submitForm = async () => {
           book_quantity: Number(book.value.Count),
           user_id: book.value.User ? Number(book.value.User) : null, // ตรวจสอบ user_id
           coupon_used: book.value.Coupon,
-        };
+        }
 
         const response = await axios.post('http://localhost:3000/offer-form', formData, {
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
-        });
+        })
 
-        console.log('Response:', response.data);
-        submitted.value = true;
-        dialog.value = true;
+        console.log('Response:', response.data)
+        submitted.value = true
+        dialog.value = true
       } catch (error) {
-        console.error('Error submitting form:', error);
+        console.error('Error submitting form:', error)
         if (error.response && error.response.data) {
-          console.log('User ID:', book.value.User);
-          console.error('API Error:', error.response.data.message);
+          console.log('User ID:', book.value.User)
+          console.error('API Error:', error.response.data.message)
         }
       }
     } else {
-      console.log('Validation Failed');
+      console.log('Validation Failed')
     }
   } else {
-    console.error('Form reference is invalid or validate is not a function');
+    console.error('Form reference is invalid or validate is not a function')
   }
-};
+}
 
 // Helper function
 const refreshAndDecodeToken = async () => {
   try {
-    const newAccessToken = await refreshToken();
-    return jwtDecode(newAccessToken);
+    const newAccessToken = await refreshToken()
+    return jwtDecode(newAccessToken)
   } catch (error) {
-    console.error('Error refreshing token:', error);
-    return null;
+    console.error('Error refreshing token:', error)
+    return null
   }
-};
-
+}
 
 const confirmReset = (bookForm: any) => {
   dialog.value = false // ปิด Dialog
@@ -728,7 +748,7 @@ h1 {
 }
 
 .confirm-btn {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: bold;
   text-align: center;
   justify-content: center;
@@ -739,7 +759,7 @@ h1 {
 }
 
 .confirm-btnheight {
-  width: 150px;
+  width: 100px;
   height: 50px;
 }
 
