@@ -125,7 +125,6 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { jsPDF } from 'jspdf'
-import 'jspdf-autotable'
 
 const loading = ref(false)
 const selectedYear = ref<number | null>(null)
@@ -172,31 +171,14 @@ const onClickCheck = () => {
 }
 
 const onClickFile = () => {
-  const doc = new jsPDF() // สร้างเอกสาร PDF ใหม่
+  const doc = new jsPDF()
 
-  // เพิ่มฟอนต์ลงใน VFS
-  doc.addFileToVFS('Kanit-Bold.ttf', kanitBoldBase64)
-  doc.addFileToVFS('Kanit-Regular.ttf', kanitRegularBase64)
-
-  // เพิ่มฟอนต์ใน PDF
-  doc.addFont('Kanit-Bold.ttf', 'Kanit-Bold', 'normal')
-  doc.addFont('Kanit-Regular.ttf', 'Kanit-Regular', 'normal')
-
-  // กำหนดการใช้ฟอนต์
-  doc.setFont('Kanit-Regular') // ใช้ฟอนต์ Kanit-Regular
-
-  // กำหนดหัวข้อ PDF และข้อมูล
   doc.setFontSize(18)
-  doc.text('สรุปงบประมาณ', 14, 20)
+  doc.text('สรุปงบประมาณ', 10, 10)
 
-  // เพิ่มวัน/เวลา ที่สร้างไฟล์
-  const date = new Date()
-  const formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`
   doc.setFontSize(12)
-  doc.text(`วันที่สร้างไฟล์: ${formattedDate}`, 14, 30)
+  doc.text(`วันที่สร้างไฟล์: ${new Date().toLocaleDateString()}`, 10, 20)
 
-  // สร้างตารางข้อมูล
-  const tableHeaders = ['ลำดับ', 'คณะ', 'จำนวนเงิน (บาท)']
   const tableData = serverItems.value.map((item, index) => [
     (index + 1).toString(),
     item.faculty,
@@ -204,23 +186,17 @@ const onClickFile = () => {
   ])
 
   doc.autoTable({
-    head: [tableHeaders],
+    head: [['ลำดับ', 'คณะ', 'จำนวนเงิน (บาท)']],
     body: tableData,
-    startY: 40,
-    styles: {
-      fontSize: 10,
-    },
-    headStyles: {
-      fillColor: [255, 204, 0], // สีพื้นหลังหัวตาราง
-    },
+    startY: 30,
   })
 
-  // รวมจำนวนเงิน
-  const totalText = `รวมงบประมาณ: ${totalBudget.value} บาท`
-  doc.setFontSize(14)
-  doc.text(totalText, 14, doc.lastAutoTable.finalY + 10)
+  doc.text(
+    `รวมงบประมาณ: ${serverItems.value.reduce((sum, item) => sum + item.budget, 0).toLocaleString()} บาท`,
+    10,
+    doc.lastAutoTable.finalY + 10,
+  )
 
-  // ดาวน์โหลดไฟล์ PDF
   doc.save('budget-summary.pdf')
 }
 
