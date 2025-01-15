@@ -26,6 +26,7 @@
                   prepend-inner-icon="$calendar"
                   suffix-icon="mdi-calendar"
                   variant="outlined"
+                  rounded="lg"
                 />
               </template>
 
@@ -52,12 +53,24 @@
         :hide-default-footer="true"
         :items-per-page="-1"
       />
+
+      <v-divider></v-divider>
+
+      <!-- รวมข้อมูล -->
+      <v-row class="mt-4">
+        <v-col cols="6" class="text-start">
+          รวม: <b>{{ total.price }}</b> บาท
+        </v-col>
+        <v-col cols="6" class="text-end">
+          จำนวน: <b>{{ total.quantity }}</b> เล่ม
+        </v-col>
+      </v-row>
     </v-container>
   </v-main>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 
 // วันที่
 const selectedDate = ref(new Date())
@@ -129,53 +142,63 @@ const FakeAPI = {
         const data = [
           {
             id: 1,
-            title: 'หนังสือ A',
+            title: 'ความรู้สึกของเราสำคัญที่สุด',
             date: '01/12/2567',
-            isbn: '978-3-16-148410-0',
+            isbn: '9786161857707',
             price: 250,
             quantity: 2,
             type: 'มีคูปอง',
           },
           {
             id: 2,
-            title: 'หนังสือ B',
+            title: 'วิทยาศาสตร์ของการใช้ชีวิต = The science of living',
             date: '02/12/2567',
-            isbn: '978-0-306-40615-7',
+            isbn: '9786162875434',
             price: 350,
             quantity: 1,
             type: 'ไม่มีคูปอง',
           },
           {
             id: 3,
-            title: 'หนังสือ C',
+            title:
+              'คุณคางคกไปพบนักจิตบำบัด : การผจญภัยทางจิตวิทยา = Counselling for toads : a psychological adventure ',
             date: '03/12/2567',
-            isbn: '978-1-4028-9462-6',
+            isbn: '9786160459049',
             price: 500,
             quantity: 3,
-            type: 'ไม่คูปอง',
+            type: 'ไม่มีคูปอง',
           },
           {
             id: 4,
-            title: 'ความรู้สึกของเราสำคัญที่สุด',
+            title: 'ร่างกายไม่เคยโกหก = What every body is saying',
             date: '20/12/2567',
-            isbn: '978-1-4028-9462-6',
+            isbn: '9786162875687',
             price: 500,
             quantity: 1,
-            type: 'ไม่คูปอง',
+            type: 'ไม่มีคูปอง',
           },
           {
             id: 5,
-            title: 'คุณคางคกไปพบนักจิตบำบัด',
+            title: 'ภาวะลื่นไหล ทำอะไรก็ง่ายหมด = Productivity flow',
             date: '20/12/2567',
-            isbn: '978-1-4028-9462-6',
+            isbn: '9786169373964',
             price: 500,
             quantity: 1,
-            type: 'มัคูปอง',
+            type: 'มีคูปอง',
+          },
+          {
+            id: 6,
+            title: 'หัวไม่ดีก็มีวิธีสอบผ่าน',
+            date: '20/12/2567',
+            isbn: '9786165786195',
+            price: 500,
+            quantity: 1,
+            type: 'มีคูปอง',
           },
         ]
 
         resolve({
-          items: data.slice(start, end),
+          items: data,
           total: data.length,
         })
       }, 500)
@@ -183,15 +206,44 @@ const FakeAPI = {
   },
 }
 
+// คำนวณราคาและจำนวนหนังสือรวม
+const total = computed(() => {
+  const price = serverItems.value.reduce((sum, item) => sum + item.price * item.quantity, 0)
+  const quantity = serverItems.value.reduce((sum, item) => sum + item.quantity, 0)
+  return {
+    price, // รวมราคา
+    quantity, // รวมจำนวน
+  }
+})
+
 // โหลดข้อมูล
 const loadItems = ({ page, itemsPerPage }: { page: number; itemsPerPage: number }) => {
   loading.value = true
   FakeAPI.fetch({ page, itemsPerPage }).then(({ items, total }) => {
-    serverItems.value = items
-    totalItems.value = total
+    // กรองข้อมูลตามวันที่ที่เลือก
+    const filteredItems = items.filter((item) => {
+      // แปลงวันที่ใน item จาก dd/mm/yyyy เป็น Date object
+      const [day, month, year] = item.date.split('/').map((part) => parseInt(part))
+      const itemDate = new Date(year - 543, month - 1, day) // ลด 543 ปีสำหรับปีไทย
+
+      // เปรียบเทียบวันที่
+      return itemDate.toDateString() === selectedDate.value.toDateString()
+    })
+    serverItems.value = filteredItems
     loading.value = false
   })
 }
+
+const onSearch = () => {
+  loadItems({ page: 1, itemsPerPage: 5 }) // เรียกใช้ฟังก์ชันกรองเมื่อวันที่เปลี่ยน
+}
+
+watch([selectedDate], onSearch, { immediate: true })
+
+// โหลดข้อมูลเริ่มต้น
+onMounted(() => {
+  loadItems({ page: 1, itemsPerPage: 5 })
+})
 </script>
 
 <style scoped>

@@ -251,7 +251,7 @@ h1 {
   overflow: visible; /* แสดงข้อความที่เกิน */
   text-overflow: unset; /* ปิด ellipsis (...) */
   width: 100px;
-  min-width: 250px;
+  min-width: 200px;
   text-align: center; /* จัดข้อความอยู่กลาง */
   justify-content: center;
   align-content: center;

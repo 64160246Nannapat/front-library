@@ -7,14 +7,17 @@
 
         <v-row align="center" class="date-status-row" justify="end">
           <v-col cols="auto">
-            <v-file-input
-              v-model="uploadedFile"
-              label="อัปโหลดไฟล์ Excel"
+            <!-- ปุ่มสำหรับเลือกไฟล์ -->
+            <v-btn @click="triggerFileInput" style="background-color: #eed3d9">
+              <span style="color: black; font-weight: bold">Upload File</span>
+            </v-btn>
+            <!-- Hidden file input -->
+            <input
+              ref="fileInput"
+              type="file"
               accept=".xls, .xlsx, .csv"
-              class="file-upload"
-              variant="outlined"
-              show-size
-              clearable
+              style="display: none"
+              @change="handleFileChange"
             />
           </v-col>
         </v-row>
@@ -37,21 +40,19 @@
 import { ref } from 'vue'
 import * as XLSX from 'xlsx'
 
-const loading = ref(false)
+const fileInput = ref<HTMLInputElement | null>(null)
 const uploadedFile = ref<File | null>(null)
 
-const handleFileUpload = () => {
-  if (uploadedFile.value) {
-    const reader = new FileReader()
-    reader.onload = (event) => {
-      const data = new Uint8Array(event.target?.result as ArrayBuffer)
-      const workbook = XLSX.read(data, { type: 'array' })
-      const sheetName = workbook.SheetNames[0]
-      const sheet = workbook.Sheets[sheetName]
-      const jsonData = XLSX.utils.sheet_to_json(sheet)
-      console.log('ข้อมูลจาก Excel:', jsonData)
-    }
-    reader.readAsArrayBuffer(uploadedFile.value)
+const triggerFileInput = () => {
+  fileInput.value?.click()
+}
+
+const handleFileChange = (event: Event) => {
+  const target = event.target as HTMLInputElement
+  if (target.files && target.files.length > 0) {
+    uploadedFile.value = target.files[0]
+    console.log('เลือกไฟล์:', uploadedFile.value.name)
+    // คุณสามารถเพิ่มฟังก์ชันเพื่ออ่านไฟล์ได้ที่นี่
   }
 }
 
@@ -59,36 +60,43 @@ const handleFileUpload = () => {
 const serverItems = ref([
   {
     id: 1,
-    title: 'หนังสือ A',
-    isbn: '978-3-16-148410-0',
+    title: 'ความรู้สึกของเราสำคัญที่สุด',
+    isbn: '9786161857707',
     price: 250,
     quantity: 2,
   },
   {
     id: 2,
-    title: 'หนังสือ B',
-    isbn: '978-0-306-40615-7',
+    title: 'วิทยาศาสตร์ของการใช้ชีวิต = The science of living',
+    isbn: '9786162875434',
     price: 350,
     quantity: 1,
   },
   {
     id: 3,
-    title: 'หนังสือ C',
-    isbn: '978-1-4028-9462-6',
+    title: 'คุณคางคกไปพบนักจิตบำบัด : การผจญภัยทางจิตวิทยา = Counselling for toads : a psychological adventure',
+    isbn: '9786160459049',
     price: 500,
     quantity: 3,
   },
   {
     id: 4,
-    title: 'ความรู้สึกของเราสำคัญที่สุด',
-    isbn: '978-1-4028-9462-6',
+    title: 'ร่างกายไม่เคยโกหก = What every body is saying',
+    isbn: '9786162875687',
     price: 500,
     quantity: 1,
   },
   {
     id: 5,
-    title: 'คุณคางคกไปพบนักจิตบำบัด',
-    isbn: '978-1-4028-9462-6',
+    title: 'ภาวะลื่นไหล ทำอะไรก็ง่ายหมด = Productivity flow',
+    isbn: '9786169373964',
+    price: 500,
+    quantity: 1,
+  },
+  {
+    id: 6,
+    title: 'หัวไม่ดีก็มีวิธีสอบผ่าน',
+    isbn: '9786165786195',
     price: 500,
     quantity: 1,
   },
@@ -190,16 +198,24 @@ h1 {
   table-layout: auto; /* ช่วยให้ตารางขยายได้ตามขนาดข้อมูล */
 }
 
-th,
-td {
-  padding: 16px;
-  text-align: left;
-  width: 16%; /* ปรับความกว้างให้แต่ละคอลัมน์สมดุล */
+/* กำหนด style ของส่วนหัวตาราง */
+th {
+  font-weight: bold; /* ตัวหนังสือเป็นตัวหนา */
+  font-size: 20px; /* ขนาดตัวอักษร */
+  text-align: center; /* จัดข้อความให้อยู่กลาง */
+  background-color: #f5f5f5; /* พื้นหลังสีอ่อน */
+  color: #333; /* สีตัวอักษร */
+  padding: 16px; /* เพิ่มช่องว่างในเซลล์ */
+  border-bottom: 2px solid #ccc; /* เส้นขอบล่าง */
 }
 
-th {
-  font-weight: bold;
-  font-size: 20px;
+/* กำหนด style ของข้อมูลในตาราง */
+td {
+  font-weight: normal; /* ตัวหนังสือปกติ */
+  font-size: 18px; /* ขนาดตัวอักษร */
+  text-align: left; /* จัดข้อความชิดซ้าย */
+  padding: 16px; /* เพิ่มช่องว่างในเซลล์ */
+  border-bottom: 1px solid #ddd; /* เส้นขอบล่าง */
 }
 
 .formatted-date-display {

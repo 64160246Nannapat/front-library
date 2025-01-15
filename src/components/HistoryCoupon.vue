@@ -36,7 +36,7 @@
         </v-row>
       </div>
 
-      <!-- Formatted Date Display -->
+      <!-- แสดงวันที่ฟอร์แมต -->
       <v-row>
         <v-col cols="auto">
           <div class="formatted-date-display">
@@ -46,7 +46,7 @@
       </v-row>
 
       <!-- ตารางข้อมูล -->
-      <v-data-table-server
+      <v-data-table
         v-model:items-per-page="itemsPerPage"
         :headers="headers"
         :items="serverItems"
@@ -54,8 +54,20 @@
         :loading="loading"
         @update:options="onSearch"
         :hide-default-footer="true"
-        :items-per-page="-1"
-      ></v-data-table-server>
+      >
+      </v-data-table>
+
+      <v-divider></v-divider>
+
+      <!-- รวมข้อมูล -->
+      <v-row class="mt-4">
+        <v-col cols="6" class="text-start">
+          รวม: <b>{{ total.price }}</b> บาท
+        </v-col>
+        <v-col cols="6" class="text-end">
+          จำนวน: <b>{{ total.quantity }}</b> เล่ม
+        </v-col>
+      </v-row>
     </v-container>
   </v-main>
 </template>
@@ -66,7 +78,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 // วันที่
 const selectedDate = ref(new Date())
 const menuDate = ref(false)
-const itemsPerPage = ref(5)
+const itemsPerPage = ref(1000000)
 const loading = ref(false)
 const totalItems = ref(0)
 const serverItems = ref([])
@@ -134,45 +146,55 @@ const FakeAPI = {
         const data = [
           {
             id: 1,
-            title: 'หนังสือ A',
+            title: 'ความรู้สึกของเราสำคัญที่สุด',
             date: '01/12/2567',
-            isbn: '978-3-16-148410-0',
+            isbn: '9786161857707',
             shop: 'แจ่มใส',
             price: 250,
             quantity: 2,
           },
           {
             id: 2,
-            title: 'หนังสือ B',
+            title: 'วิทยาศาสตร์ของการใช้ชีวิต = The science of living',
             date: '02/12/2567',
-            isbn: '978-0-306-40615-7',
+            isbn: '9786162875434',
             shop: 'แจ่มใส',
             price: 350,
             quantity: 1,
           },
           {
             id: 3,
-            title: 'หนังสือ C',
+            title:
+              'คุณคางคกไปพบนักจิตบำบัด : การผจญภัยทางจิตวิทยา = Counselling for toads : a psychological adventure',
             date: '03/12/2567',
-            isbn: '978-1-4028-9462-6',
+            isbn: '9786160459049',
             shop: 'แจ่มใส',
             price: 500,
             quantity: 3,
           },
           {
             id: 4,
-            title: 'ความรู้สึกของเราสำคัญที่สุด',
+            title: 'ร่างกายไม่เคยโกหก = What every body is saying',
             date: '20/12/2567',
-            isbn: '978-1-4028-9462-6',
+            isbn: '9786162875687',
             shop: 'แจ่มใส',
             price: 500,
             quantity: 1,
           },
           {
             id: 5,
-            title: 'คุณคางคกไปพบนักจิตบำบัด',
+            title: 'ภาวะลื่นไหล ทำอะไรก็ง่ายหมด = Productivity flow',
             date: '20/12/2567',
-            isbn: '978-1-4028-9462-6',
+            isbn: '9786169373964',
+            shop: 'แจ่มใส',
+            price: 500,
+            quantity: 1,
+          },
+          {
+            id: 6,
+            title: 'หัวไม่ดีก็มีวิธีสอบผ่าน',
+            date: '20/12/2567',
+            isbn: '9786165786195',
             shop: 'แจ่มใส',
             price: 500,
             quantity: 1,
@@ -202,6 +224,7 @@ const onSearch = () => {
 
     // อัปเดตข้อมูลตาราง
     serverItems.value = filteredItems
+    totalItems.value = filteredItems.length // จำนวนรายการทั้งหมด
 
     // หากไม่มีข้อมูลให้เตือนใน console
     if (filteredItems.length === 0) {
@@ -211,6 +234,16 @@ const onSearch = () => {
     loading.value = false
   })
 }
+
+// คำนวณราคาและจำนวนหนังสือรวม
+const total = computed(() => {
+  const price = serverItems.value.reduce((sum, item) => sum + item.price * item.quantity, 0)
+  const quantity = serverItems.value.reduce((sum, item) => sum + item.quantity, 0)
+  return {
+    price, // รวมราคา
+    quantity, // รวมจำนวน
+  }
+})
 
 onMounted(() => {
   const today = new Date()
@@ -252,7 +285,7 @@ h1 {
   overflow: visible; /* แสดงข้อความที่เกิน */
   text-overflow: unset; /* ปิด ellipsis (...) */
   width: 100px;
-  min-width: 300px;
+  min-width: 200px;
   text-align: center; /* จัดข้อความอยู่กลาง */
   justify-content: center;
   align-content: center;
