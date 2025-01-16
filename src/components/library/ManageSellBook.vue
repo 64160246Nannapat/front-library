@@ -1,5 +1,5 @@
 <template>
-  <v-main style="height: 500px; margin-top: 55px">
+  <v-main style="height: 500px;margin-top: 55px">
     <v-container>
       <div class="header">
         <img class="header-image" src="@/assets/bookLibrary.png" alt="Library Image" />
@@ -614,7 +614,7 @@ h1 {
 .custom-date-picker {
   font-size: 20px;
   white-space: nowrap; /* ห้ามตัดข้อความขึ้นบรรทัดใหม่ */
-  overflow: visible; /* แสดงข้อความที่เกิน */
+  overflow: hidden; /* แสดงข้อความที่เกิน */
   text-overflow: unset; /* ปิด ellipsis (...) */
   width: 100px;
   min-width: 200px;
@@ -658,7 +658,7 @@ h1 {
   text-align: center; /* จัดข้อความให้อยู่กลาง */
   background-color: transparent;
   white-space: normal; /* ป้องกันการหักบรรทัด */
-  overflow: visible !important;
+  overflow: hidden !important;
 }
 
 .custom-table {

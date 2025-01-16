@@ -67,7 +67,9 @@
         <template v-slot:body.append>
           <tr>
             <td colspan="2" class="text-right font-weight-bold">รวม</td>
-            <td class="text-right font-weight-bold">{{ totalBudget }}</td>
+            <td class="text-right font-weight-bold">
+              {{ totalBudget }}
+            </td>
           </tr>
         </template>
       </v-data-table>
