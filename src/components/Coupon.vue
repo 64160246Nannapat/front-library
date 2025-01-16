@@ -1,5 +1,5 @@
 <template>
-  <v-main style="height: 500px">
+  <v-main style="height: 500px; margin-top: -45px">
 
     <v-main>
       <v-container class="ecoupon-container">
@@ -95,8 +95,8 @@ import HomeTeacher from '@/components/teacher/HomeTeacher.vue'
 .coupon-card {
   background-color: #ef9595;
   border-radius: 16px;
-  width: 500px;
-  height: 700px;
+  width: 400px;
+  height: 600px;
   padding: 20px;
   text-align: center;
 }
@@ -118,6 +118,7 @@ import HomeTeacher from '@/components/teacher/HomeTeacher.vue'
   height: 100px;
   width: 600px;
   max-width: 340px;
+  border-radius: 10px;
   border: none; /* ไม่มีขอบ */
   text-align: center; /* จัดตัวอักษรให้อยู่ตรงกลาง */
   display: flex;
@@ -138,17 +139,18 @@ import HomeTeacher from '@/components/teacher/HomeTeacher.vue'
 }
 
 .qr-code-image {
-  width: 300px;
+  width: 250px;
 }
 
 .text-card {
-  font-size: 30px;
+  font-size: 25px;
   color: #000;
 }
 
 .text-card-sub {
-  font-size: 20px;
+  font-size: 18px;
   color: #000;
+  margin-top: 8px;
 }
 
 .text-magin {
