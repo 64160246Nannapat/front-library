@@ -97,10 +97,9 @@
       <v-data-table
         :headers="headers"
         :items="serverItems"
-        :loading="loading"
-        item-key="id"
+        style="width: 100%; table-layout: fixed; border-collapse: collapse"
+        class="custom-table no-scrollbar"
         :hide-default-footer="true"
-        class="table no-scrollbar"
         :items-per-page="-1"
       >
         <template #item.image="{ item }">
@@ -149,12 +148,13 @@
                 <div style="display: flex; flex-direction: column; align-items: center; gap: 10px">
                   <v-select
                     v-model="selcet.approvalStatus"
-                    :items="['รอการอนุมัติ', 'กำลังดำเนินการ', 'ไม่อนุมัติคำสั่งซื้อ']"
+                    :items="['รอการอนุมัติ', 'กำลังดำเนินการ', 'ไม่อนุมัติการซื้อ']"
                     solo
                     dense
                     outlined
                     hide-details
                     variant="outlined"
+                    class="custom-select"
                     style="
                       width: 120px !important;
                       height: 60px !important;
@@ -189,18 +189,21 @@
 
       <!-- Image Viewer Dialog -->
       <v-dialog v-model="dialog" max-width="600">
-        <v-card>
+        <v-card style="background-color: #e5e1da; border-radius: 16px">
+          <v-card-actions style="background-color: #cecbcb">
+            <v-btn text @click="dialog = false" style="font-size: 20px; font-weight: bold">
+              <v-icon>mdi-close-thick</v-icon>
+            </v-btn>
+          </v-card-actions>
+
+          <v-spacer></v-spacer>
           <v-img
             :src="selectedBookImage"
             max-height="600"
             contain
             @click="toggleImage"
-            style="padding: 16px"
+            style="padding: 16px; margin-top: 10px; margin-bottom: 20px"
           ></v-img>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn color="red" text @click="dialog = false">ปิด</v-btn>
-          </v-card-actions>
         </v-card>
       </v-dialog>
 
@@ -242,7 +245,12 @@
           </div>
 
           <v-card-text>
-            <v-textarea style="margin-top: 8px" v-model="message" label="ข้อความ" rows="8" />
+            <v-textarea
+              style="margin-top: 8px; border: 1px solid #ddd"
+              v-model="message"
+              label="ข้อความ"
+              rows="8"
+            />
           </v-card-text>
 
           <v-card-actions style="margin-bottom: 10px; margin-right: 12px">
@@ -653,72 +661,55 @@ h1 {
   overflow: visible !important;
 }
 
-.v-simple-table {
-  margin: 0 auto;
-  border-collapse: collapse;
-  overflow-y: hidden !important;
-  overflow-x: hidden !important;
-  table-layout: fixed; /* ปรับให้ตารางขยายตามเนื้อหาภายใน */
-}
-
-.table-item {
-  min-width: 100px; /* ปรับความกว้างขั้นต่ำของคอลัมน์ */
-}
-
-.v-data-table-header th {
-  white-space: nowrap;
-  overflow: visible !important;
-  text-overflow: unset;
-  padding: 8px;
-  text-align: left;
-  font-size: 18px;
-}
-
-.v-data-table {
-  table-layout: auto; /* ปรับให้คอลัมน์ขยายตามข้อมูล */
+.custom-table {
+  table-layout: fixed; /* ทำให้คอลัมน์มีความกว้างคงที่ */
   width: 100%;
-  max-width: 100%;
-  overflow: hidden !important;
+  border-collapse: collapse; /* ลบเส้นว่างระหว่างเซลล์ */
+  overflow: hidden;
+  max-height: none;
 }
 
-.v-data-table th {
-  white-space: normal; /* ห้ามตัดข้อความ */
-  padding: 8px;
-  text-align: left;
+.custom-table th {
+  white-space: nowrap; /* ป้องกันการตัดข้อความ */
+  text-align: left; /* จัดข้อความให้อยู่ด้านซ้าย */
+  padding: 12px 16px; /* เพิ่มระยะห่างระหว่างข้อความ */
+  border: 1px solid #ddd; /* เพิ่มเส้นแบ่งระหว่างเซลล์ */
+  overflow: hidden;
 }
 
-.v-data-table td {
-  white-space: normal; /* ห้ามตัดข้อความ */
-  overflow: visible !important; /* ไม่ซ่อนข้อความที่เกินขอบเขต */
-  text-overflow: unset; /* ปิดการตัดข้อความ */
-  padding: 8px;
-  text-align: left;
+.custom-table td {
+  white-space: nowrap; /* ป้องกันการตัดข้อความ */
+  text-align: left; /* จัดข้อความให้อยู่ด้านซ้าย */
+  padding: 12px 16px; /* เพิ่มระยะห่างระหว่างข้อความ */
+  border: 1px solid #ddd; /* เพิ่มเส้นแบ่งระหว่างเซลล์ */
+  overflow: hidden;
 }
 
-th {
-  padding: 8px;
-  text-align: left;
-  line-height: 40px;
-  width: auto; /* ปรับให้หัวข้อตารางขยายตามข้อมูล */
+.custom-table th {
+  background-color: #f5f5f5; /* สีพื้นหลังหัวตาราง */
+  font-weight: bold; /* ทำให้ข้อความหัวตารางหนา */
+  font-size: 16px; /* ปรับขนาดฟอนต์ */
 }
 
-td {
-  width: auto;
-  padding: 8px;
-  text-align: left;
-  white-space: normal; /* ให้ข้อความยาวได้ */
-  overflow: visible !important; /* แสดงข้อความที่เกินขอบเขต */
-  text-overflow: unset; /* ปิดการตัดข้อความ */
+.custom-table td {
+  font-size: 14px; /* ขนาดฟอนต์ของข้อมูล */
+  line-height: 1.5; /* ระยะห่างระหว่างบรรทัด */
+  overflow: hidden;
 }
 
-.v-data-table th {
-  text-overflow: unset; /* ปิดการใช้ ... สำหรับข้อความยาว */
+.custom-table th {
+  overflow: hidden; /* ซ่อนข้อความที่เกิน */
+  text-overflow: ellipsis; /* เพิ่ม ... เมื่อข้อความเกินขอบเขต */
 }
 
-.v-data-table td {
-  white-space: normal; /* ให้ข้อมูลยาวได้ */
-  overflow: visible !important; /* แสดงข้อความที่เกินขอบเขต */
-  text-overflow: unset; /* ปิดการตัดข้อความ */
+.custom-table td {
+  overflow: hidden; /* ซ่อนข้อความที่เกิน */
+  text-overflow: ellipsis; /* เพิ่ม ... เมื่อข้อความเกินขอบเขต */
+}
+
+/* ปรับตารางให้อยู่กลาง */
+.v-data-table {
+  margin: 0 auto;
 }
 
 .formatted-date-display {
@@ -751,13 +742,26 @@ td {
 }
 
 .no-scrollbar {
-  overflow-y: hidden !important; /* ซ่อน scrollbar ในแนวตั้ง */
-  overflow-x: hidden !important; /* ซ่อน scrollbar ในแนวนอน */
+  overflow-x: hidden;
+  overflow-y: hidden;
+  overflow: hidden !important; /* ซ่อนทั้งแนวตั้งและแนวนอน */
   -ms-overflow-style: none; /* สำหรับ IE และ Edge */
   scrollbar-width: none; /* สำหรับ Firefox */
 }
 
 .no-scrollbar::-webkit-scrollbar {
-  display: none; /* ซ่อน scrollbar สำหรับ Chrome, Safari และ Edge */
+  display: none; /* ซ่อน scrollbar สำหรับ Chrome, Safari */
+}
+
+.custom-select .v-input__control .v-input__slot {
+  font-size: 10px !important; /* ปรับขนาดฟอนต์ให้เล็กลง */
+}
+
+.custom-select .v-select__selections {
+  font-size: 10px !important; /* ปรับขนาดฟอนต์ในรายการเลือก */
+}
+
+.custom-select .v-select__input {
+  font-size: 10px !important; /* ปรับขนาดฟอนต์ในช่องป้อนข้อมูล */
 }
 </style>
