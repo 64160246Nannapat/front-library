@@ -100,9 +100,8 @@
         :loading="loading"
         item-key="id"
         :hide-default-footer="true"
-        item-class="table-item"
+        class="table no-scrollbar"
         :items-per-page="-1"
-        class="no-scrollbar"
       >
         <template #item.image="{ item }">
           <v-btn
@@ -123,7 +122,12 @@
         </template>
 
         <template #item.check="{ item }">
-          <v-radio-group v-model="item.checkStatus" row @change="confirmCheckStatus(item)">
+          <v-radio-group
+            v-model="item.checkStatus"
+            row
+            @change="confirmCheckStatus(item)"
+            style="margin-top: 20px"
+          >
             <v-radio label="ไม่ซ้ำ" value="yes">
               <template v-slot:label>
                 <span style="font-size: 14px; white-space: nowrap">ไม่ซ้ำ</span>
@@ -144,18 +148,17 @@
               <v-col>
                 <div style="display: flex; flex-direction: column; align-items: center; gap: 10px">
                   <v-select
-                    v-model="item.approvalStatus"
-                    :items="['รอการอนุมัติ', 'ซื้อ', 'ไม่ซื้อ']"
+                    v-model="selcet.approvalStatus"
+                    :items="['รอการอนุมัติ', 'กำลังดำเนินการ', 'ไม่อนุมัติคำสั่งซื้อ']"
                     solo
                     dense
                     outlined
                     hide-details
                     variant="outlined"
-                    class="select-confirm text-select"
                     style="
-                      width: 120px;
-                      height: 60px;
-                      font-size: 8px;
+                      width: 120px !important;
+                      height: 60px !important;
+                      font-size: 8px !important;
                       line-height: 30px;
                       margin-top: 8px;
                     "
@@ -219,7 +222,7 @@
       </v-dialog>
 
       <!-- Message Dialog -->
-      <v-dialog v-model="messageDialog" max-width="500">
+      <v-dialog v-model="messageDialog" max-width="800">
         <v-card style="background-color: #ede8dc">
           <!-- Header with rounded corners -->
           <div
@@ -233,22 +236,31 @@
             "
           >
             <v-card-title>ส่ง: {{ selectedItem?.name }}</v-card-title>
-            <v-card-subtitle>{{ fullFormattedDate }}</v-card-subtitle>
-            <v-card-subtitle>เวลา: {{ fullFormattedTime }}</v-card-subtitle>
+            <v-card-subtitle>E-mail: {{ selectedItem?.email }}</v-card-subtitle>
+            <v-card-subtitle>วันที่: {{ fullDate }}</v-card-subtitle>
+            <v-card-subtitle>เวลา: {{ fullTime }}</v-card-subtitle>
           </div>
 
           <v-card-text>
-            <v-textarea v-model="message" label="ข้อความ" rows="4" />
+            <v-textarea style="margin-top: 8px" v-model="message" label="ข้อความ" rows="8" />
           </v-card-text>
 
-          <v-card-actions>
+          <v-card-actions style="margin-bottom: 10px; margin-right: 12px">
             <v-spacer />
             <!-- Button with border -->
             <v-btn
               color="black"
               text
               outlined
-              style="background-color: #fa8072; border: 2px; border-radius: 8px"
+              style="
+                background-color: #fa8072;
+                border: 2px;
+                border-radius: 8px;
+                font-size: 14px;
+                font-weight: bold;
+                width: 100px;
+                height: 40px;
+              "
               @click="messageDialog = false"
             >
               ยกเลิก
@@ -257,7 +269,15 @@
               color="black"
               text
               outlined
-              style="background-color: #58d68d; border: 2px; border-radius: 8px"
+              style="
+                background-color: #58d68d;
+                border: 2px;
+                border-radius: 8px;
+                font-size: 14px;
+                font-weight: bold;
+                width: 100px;
+                height: 40px;
+              "
               @click="sendMessage"
             >
               ส่งข้อความ
@@ -285,11 +305,17 @@ const serverItems = ref([])
 const dialog = ref(false)
 const selectedBookImage = ref('')
 
+const fullDate = ref('')
+const fullTime = ref('')
 // Dialog Management
 const messageDialog = ref(false)
 const confirmDialog = ref(false)
 const selectedItem = ref(null)
 const message = ref('')
+
+const selcet = ref({
+  approvalStatus: 'รอการอนุมัติ', // กำหนดค่าเริ่มต้นให้เป็น 'รอการอนุมัติ'
+})
 
 // Headers สำหรับ v-data-table
 const headers = [
@@ -351,14 +377,25 @@ const fullFormattedDate = computed(() => {
   return `${dayName} ที่ ${day} ${monthName} พ.ศ. ${year}`
 })
 
-const fullFormattedTime = computed(() => {
-  const date = new Date(selectedDate.value)
-  const hours = String(date.getHours()).padStart(2, '0')
-  const minutes = String(date.getMinutes()).padStart(2, '0')
-  const seconds = String(date.getSeconds()).padStart(2, '0')
+const onMessageClick = (item) => {
+  selectedItem.value = item
+  updateDateTime() // เรียกใช้ฟังก์ชันอัปเดตวันเวลา
+  messageDialog.value = true // เปิด dialog
+}
 
-  return `${hours}:${minutes}:${seconds}`
-})
+const updateDateTime = () => {
+  const now = new Date() // ดึงวันเวลาปัจจุบัน
+  fullDate.value = now.toLocaleDateString('th-TH', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  })
+  fullTime.value = now.toLocaleTimeString('th-TH', {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  })
+}
 
 // API ปลอมเพื่อเลียนแบบการดึงข้อมูล
 const FakeAPI = {
@@ -377,10 +414,11 @@ const FakeAPI = {
             quantity: 2,
             status: 'เสนอหนังสือ',
             author: 'อีดงกวี',
+            email: 'nan@gmail.com',
           },
           {
             id: 2,
-            name: 'นันท์ณภัทร สอนสุภาพ',
+            name: 'สมศรี ดีใจ',
             title: 'วิทยาศาสตร์ของการใช้ชีวิต = The science of living',
             date: '02/12/2567',
             isbn: '9780306406157',
@@ -389,10 +427,11 @@ const FakeAPI = {
             quantity: 1,
             status: 'Book Fair',
             author: 'Dr. Stuart Farrimond',
+            email: 'somsi@gmail.com',
           },
           {
             id: 3,
-            name: 'นันท์ณภัทร สอนสุภาพ',
+            name: 'มงคล ปีใหม่',
             title:
               'คุณคางคกไปพบนักจิตบำบัด : การผจญภัยทางจิตวิทยา = Counselling for toads : a psychological adventure ',
             date: '03/12/2567',
@@ -402,10 +441,11 @@ const FakeAPI = {
             quantity: 3,
             status: 'Book Fair',
             author: 'Robert de Board',
+            email: 'monkol@gmail.com',
           },
           {
             id: 4,
-            name: 'นันท์ณภัทร สอนสุภาพ',
+            name: 'เปี๊ยก แฮปปี้',
             title: 'ร่างกายไม่เคยโกหก = What every body is saying',
             date: '20/12/2567',
             isbn: '9787402894626',
@@ -414,6 +454,7 @@ const FakeAPI = {
             quantity: 1,
             status: 'Book Fair',
             author: 'Joe Navarro',
+            email: 'piek@gmail.com',
           },
           {
             id: 5,
@@ -426,10 +467,11 @@ const FakeAPI = {
             quantity: 1,
             status: 'เสนอหนังสือ',
             author: 'สิทธินันท์ พลวิสุทธิ์ศักดิ์',
+            email: 'nawapat@gmail.com',
           },
           {
             id: 6,
-            name: 'นันท์ณภัทร สอนสุภาพ',
+            name: 'สีดา จันทรา',
             title: 'หัวไม่ดีก็มีวิธีสอบผ่าน',
             date: '14/01/2568',
             isbn: '9786165786195',
@@ -438,6 +480,7 @@ const FakeAPI = {
             quantity: 1,
             status: 'เสนอหนังสือ',
             author: 'จิตเกษม น้อยไร่ภูมิ',
+            email: 'sita@gmail.com',
           },
         ]
 
@@ -519,11 +562,6 @@ const cancelCheckStatus = () => {
 const confirmStatusChange = () => {
   console.log('ยืนยันสถานะ:', confirmData.value)
   confirmDialog.value = false
-}
-
-const onMessageClick = (item) => {
-  selectedItem.value = item
-  messageDialog.value = true
 }
 
 const sendMessage = () => {
@@ -612,78 +650,65 @@ h1 {
   text-align: center; /* จัดข้อความให้อยู่กลาง */
   background-color: transparent;
   white-space: normal; /* ป้องกันการหักบรรทัด */
-  overflow: visible;
+  overflow: visible !important;
 }
 
 .v-simple-table {
-  width: 100%;
-  max-width: 100%;
   margin: 0 auto;
-  font-size: 20px;
   border-collapse: collapse;
-  overflow-x: auto;
-  table-layout: auto; /* ปรับให้ตารางขยายตามเนื้อหาภายใน */
+  overflow-y: hidden !important;
+  overflow-x: hidden !important;
+  table-layout: fixed; /* ปรับให้ตารางขยายตามเนื้อหาภายใน */
 }
 
 .table-item {
-  min-width: 150px; /* ปรับความกว้างขั้นต่ำของคอลัมน์ */
+  min-width: 100px; /* ปรับความกว้างขั้นต่ำของคอลัมน์ */
 }
 
-.v-data-table-header th,
-th {
-  white-space: normal;
-  overflow: visible;
+.v-data-table-header th {
+  white-space: nowrap;
+  overflow: visible !important;
   text-overflow: unset;
-  word-wrap: break-word;
-  width: auto;
-  padding: 16px;
+  padding: 8px;
   text-align: left;
-  font-weight: bold;
-  font-size: 16px;
+  font-size: 18px;
 }
 
 .v-data-table {
   table-layout: auto; /* ปรับให้คอลัมน์ขยายตามข้อมูล */
   width: 100%;
   max-width: 100%;
+  overflow: hidden !important;
 }
 
 .v-data-table th {
   white-space: normal; /* ห้ามตัดข้อความ */
-  width: auto; /* ปรับความกว้างของคอลัมน์ตามข้อมูล */
-  padding: 16px;
+  padding: 8px;
   text-align: left;
-  font-weight: bold;
-  font-size: 16px;
 }
 
 .v-data-table td {
   white-space: normal; /* ห้ามตัดข้อความ */
-  overflow: visible; /* ไม่ซ่อนข้อความที่เกินขอบเขต */
+  overflow: visible !important; /* ไม่ซ่อนข้อความที่เกินขอบเขต */
   text-overflow: unset; /* ปิดการตัดข้อความ */
-  word-wrap: break-word; /* ให้อักษรยาวแสดงในบรรทัดใหม่ */
-  padding: 16px;
+  padding: 8px;
   text-align: left;
 }
 
 th {
-  padding: 16px;
+  padding: 8px;
   text-align: left;
-  font-weight: bold;
-  font-size: 24px;
   line-height: 40px;
   width: auto; /* ปรับให้หัวข้อตารางขยายตามข้อมูล */
-  word-wrap: break-word;
 }
 
 td {
   width: auto;
-  padding: 16px;
+  padding: 8px;
   text-align: left;
   white-space: normal; /* ให้ข้อความยาวได้ */
-  overflow: visible; /* แสดงข้อความที่เกินขอบเขต */
+  overflow: visible !important; /* แสดงข้อความที่เกินขอบเขต */
   text-overflow: unset; /* ปิดการตัดข้อความ */
-  word-wrap: break-word; /* ช่วยให้ข้อความยาวมากสามารถตัดบรรทัดใหม่ได้ */
 }
 
 .v-data-table th {
@@ -692,7 +717,7 @@ td {
 
 .v-data-table td {
   white-space: normal; /* ให้ข้อมูลยาวได้ */
-  overflow: visible; /* แสดงข้อความที่เกินขอบเขต */
+  overflow: visible !important; /* แสดงข้อความที่เกินขอบเขต */
   text-overflow: unset; /* ปิดการตัดข้อความ */
 }
 
@@ -726,6 +751,13 @@ td {
 }
 
 .no-scrollbar {
-  overflow-y: hidden;
+  overflow-y: hidden !important; /* ซ่อน scrollbar ในแนวตั้ง */
+  overflow-x: hidden !important; /* ซ่อน scrollbar ในแนวนอน */
+  -ms-overflow-style: none; /* สำหรับ IE และ Edge */
+  scrollbar-width: none; /* สำหรับ Firefox */
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none; /* ซ่อน scrollbar สำหรับ Chrome, Safari และ Edge */
 }
 </style>
