@@ -258,36 +258,51 @@
         </v-form>
         <!-- dialog ยืนยันการส่งข้อมูล-->
         <v-dialog v-model="dialog" max-width="400px">
-          <v-card class="dialog">
-            <v-card-title class="text-center" style="font-weight: bold; font-size: 22px">
+          <v-card class="dialog" style="background-color: #ede8dc">
+            <v-card-title
+              class="text-start"
+              style="
+                font-weight: bold;
+                background-color: #eed3d9;
+                padding: 16px;
+                border-top-left-radius: 0px; /* ไม่มีความมนที่มุมบนซ้าย */
+                border-top-right-radius: 0px; /* ไม่มีความมนที่มุมบนขวา */
+                border-bottom-left-radius: 16px; /* ความมนที่มุมล่างซ้าย */
+                border-bottom-right-radius: 16px;
+                font-size: 20px;
+              "
+            >
               ยืนยันการส่งแบบฟอร์ม
             </v-card-title>
-            <v-card-text class="text-center" style="font-size: 18px">
-              คุณต้องการส่งแบบฟอร์มหรือไม่
+            <v-card-text class="text-start" style="font-size: 16px">
+              คุณต้องการส่งแบบฟอร์มหรือไม่?
             </v-card-text>
-            <v-card-actions justify-center>
+            <v-card-actions justify="start">
               <v-btn
                 color="black"
                 text
-                @click="dialog = false"
+                @click="cancelForm"
                 style="
                   font-weight: bold;
                   border: 2px;
                   border-radius: 8px;
-                  background-color: #f36c60;
+                  background-color: #fa8072;
+                  margin-bottom: 8px;
                 "
               >
                 ยกเลิก
               </v-btn>
+
               <v-btn
                 color="black"
                 style="
                   font-weight: bold;
                   border: 2px;
                   border-radius: 8px;
-                  background-color: #72d572;
+                  background-color: #58d68d;
+                  margin-bottom: 8px;
                 "
-                @click="confirmReset(bookForm)"
+                @click="confirmForm(bookForm)"
               >
                 ยืนยัน
               </v-btn>
@@ -455,44 +470,8 @@ const submitForm = async () => {
     const { valid } = await form.validate() // เรียก validate()
 
     if (valid) {
-      try {
-        const formData = {
-          user_fullname: `${book.value.Prefix} ${book.value.FirstName} ${book.value.LastName}`,
-          user_name: book.value.FirstName,
-          role_id: Number(book.value.Role),
-          user_email: book.value.Email,
-          user_tel: book.value.Tel,
-          faculty_id: Number(book.value.Faculty),
-          department_id: book.value.Department,
-          store_id: stores.value.indexOf(book.value.Store) + 1,
-          book_title: book.value.Title,
-          book_author: book.value.Author,
-          book_subject: book.value.Subject,
-          published_year: Number(book.value.Year),
-          ISBN: book.value.isbn,
-          book_price: Number(book.value.Price),
-          book_quantity: Number(book.value.Count),
-          user_id: book.value.User ? Number(book.value.User) : null, // ตรวจสอบ user_id
-          coupon_used: book.value.Coupon,
-        }
-
-        const response = await axios.post('http://localhost:3000/offer-form', formData, {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-        })
-
-        console.log('Response:', response.data)
-        submitted.value = true
-        dialog.value = true
-      } catch (error) {
-        console.error('Error submitting form:', error)
-        if (error.response && error.response.data) {
-          console.log('User ID:', book.value.User)
-          console.error('API Error:', error.response.data.message)
-        }
-      }
+      // หาก valid ให้แสดง dialog เพื่อยืนยันการส่งแบบฟอร์ม
+      dialog.value = true
     } else {
       console.log('Validation Failed')
     }
@@ -512,9 +491,51 @@ const refreshAndDecodeToken = async () => {
   }
 }
 
-const confirmReset = (bookForm: any) => {
-  dialog.value = false // ปิด Dialog
-  resetForm(bookForm) // รีเซ็ตค่าฟอร์มหลังจากกด "ตกลง"
+const cancelForm = () => {
+  dialog.value = false; // ปิด dialog
+  resetForm(bookForm.value); // ล้างค่าฟอร์ม
+};
+
+const confirmForm = async (bookForm: any) => {
+  try {
+    const formData = {
+      user_fullname: `${book.value.Prefix} ${book.value.FirstName} ${book.value.LastName}`,
+      user_name: book.value.FirstName,
+      role_id: Number(book.value.Role),
+      user_email: book.value.Email,
+      user_tel: book.value.Tel,
+      faculty_id: Number(book.value.Faculty),
+      department_id: book.value.Department,
+      store_id: stores.value.indexOf(book.value.Store) + 1,
+      book_title: book.value.Title,
+      book_author: book.value.Author,
+      book_subject: book.value.Subject,
+      published_year: Number(book.value.Year),
+      ISBN: book.value.isbn,
+      book_price: Number(book.value.Price),
+      book_quantity: Number(book.value.Count),
+      user_id: book.value.User ? Number(book.value.User) : null, // ตรวจสอบ user_id
+      coupon_used: book.value.Coupon,
+    }
+
+    const response = await axios.post('http://localhost:3000/offer-form', formData, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
+    })
+
+    console.log('Response:', response.data)
+    submitted.value = true
+    dialog.value = false // ปิด dialog
+    resetForm(bookForm) // ล้างค่าฟอร์ม
+  } catch (error) {
+    console.error('Error submitting form:', error)
+    if (error.response && error.response.data) {
+      console.log('User ID:', book.value.User)
+      console.error('API Error:', error.response.data.message)
+    }
+  }
 }
 
 const resetForm = (bookForm: any) => {
@@ -764,7 +785,7 @@ h1 {
 }
 
 .dialog {
-  background-color: #eed3d9;
+  width: 500px;
 }
 
 .btn-dialog {
