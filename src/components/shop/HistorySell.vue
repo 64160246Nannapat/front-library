@@ -58,10 +58,10 @@
 
       <!-- รวมข้อมูล -->
       <v-row class="mt-4">
-        <v-col cols="6" class="text-start">
+        <v-col cols="6" class="text-start" style="font-weight: bold">
           รวม: <b>{{ total.price }}</b> บาท
         </v-col>
-        <v-col cols="6" class="text-end">
+        <v-col cols="6" class="text-end" style="font-weight: bold">
           จำนวน: <b>{{ total.quantity }}</b> เล่ม
         </v-col>
       </v-row>
@@ -162,7 +162,7 @@ const FakeAPI = {
             id: 3,
             title:
               'คุณคางคกไปพบนักจิตบำบัด : การผจญภัยทางจิตวิทยา = Counselling for toads : a psychological adventure ',
-            date: '03/12/2567',
+            date: '16/01/2568',
             isbn: '9786160459049',
             price: 500,
             quantity: 3,
@@ -171,7 +171,7 @@ const FakeAPI = {
           {
             id: 4,
             title: 'ร่างกายไม่เคยโกหก = What every body is saying',
-            date: '20/12/2567',
+            date: '16/01/2568',
             isbn: '9786162875687',
             price: 500,
             quantity: 1,
@@ -180,7 +180,7 @@ const FakeAPI = {
           {
             id: 5,
             title: 'ภาวะลื่นไหล ทำอะไรก็ง่ายหมด = Productivity flow',
-            date: '20/12/2567',
+            date: '16/01/2568',
             isbn: '9786169373964',
             price: 500,
             quantity: 1,
@@ -189,7 +189,7 @@ const FakeAPI = {
           {
             id: 6,
             title: 'หัวไม่ดีก็มีวิธีสอบผ่าน',
-            date: '20/12/2567',
+            date: '16/01/2568',
             isbn: '9786165786195',
             price: 500,
             quantity: 1,

@@ -125,6 +125,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { jsPDF } from 'jspdf'
+import WebFontLoader from 'webfontloader'
 
 const loading = ref(false)
 const selectedYear = ref<number | null>(null)
@@ -134,8 +135,8 @@ const totalBudgetInput = ref(0)
 const router = useRouter()
 
 // ฟอนต์ Base64 ที่แปลงแล้ว
-const kanitBoldBase64 = 'BASE64_STRING_OF_KANIT_BOLD' // ใส่ Base64 ของ Kanit-Bold.ttf ที่แปลงแล้ว
-const kanitRegularBase64 = 'BASE64_STRING_OF_KANIT_REGULAR' // ใส่ Base64 ของ Kanit-Regular.ttf ที่แปลงแล้ว
+const kanitBoldBase64 = 'S2FuaXQtQm9sZC50dGY=' // ใส่ Base64 ของ Kanit-Bold.ttf ที่แปลงแล้ว
+const kanitRegularBase64 = 'S2FuaXQtUmVndWxhci50dGY=' // ใส่ Base64 ของ Kanit-Regular.ttf ที่แปลงแล้ว
 
 const serverItems = ref([
   { id: 1, faculty: 'คณะดนตรีและการแสดง', budget: 50000, date: '13/01/2568' },
@@ -170,12 +171,31 @@ const onClickCheck = () => {
   })
 }
 
+// โหลดฟอนต์ Kanit ผ่าน WebFontLoader
+WebFontLoader.load({
+  google: {
+    families: ['Kanit'],
+  },
+  active: function () {
+    console.log('Font Kanit loaded successfully')
+  },
+})
+
 const onClickFile = () => {
   const doc = new jsPDF()
 
+  // โหลดฟอนต์ Kanit Bold และ Kanit Regular (Base64)
+  doc.addFileToVFS('Kanit-Bold.ttf', kanitBoldBase64)
+  doc.addFileToVFS('Kanit-Regular.ttf', kanitRegularBase64)
+
+  // ตั้งฟอนต์เป็น Kanit Bold
+  doc.setFont('Kanit-Bold')
+
+  // เพิ่มข้อความที่ต้องการใส่ใน PDF
   doc.setFontSize(18)
   doc.text('สรุปงบประมาณ', 10, 10)
 
+  doc.setFont('Kanit-Regular')
   doc.setFontSize(12)
   doc.text(`วันที่สร้างไฟล์: ${new Date().toLocaleDateString()}`, 10, 20)
 
