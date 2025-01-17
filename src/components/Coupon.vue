@@ -12,7 +12,7 @@
             </div>
           </v-col>
           <v-col>
-            <v-card class="mx-auto card-money">
+            <v-card class="mx-auto card-money justify-end">
               <v-card-title class="card-money-title">E-coupon คงเหลือ</v-card-title>
 
               <v-card-subtitle class="card-money-subtitle">0 บาท</v-card-subtitle>
