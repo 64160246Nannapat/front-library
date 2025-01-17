@@ -1,5 +1,5 @@
 <template>
-  <v-main style="height: 500px;margin-top: 55px">
+  <v-main style="height: 500px; margin-top: 55px">
     <v-container>
       <div class="header">
         <img class="header-image" src="@/assets/bookLibrary.png" alt="Library Image" />
@@ -614,7 +614,6 @@ h1 {
 .custom-date-picker {
   font-size: 20px;
   white-space: nowrap; /* ห้ามตัดข้อความขึ้นบรรทัดใหม่ */
-  overflow: hidden; /* แสดงข้อความที่เกิน */
   text-overflow: unset; /* ปิด ellipsis (...) */
   width: 100px;
   min-width: 200px;
@@ -665,7 +664,6 @@ h1 {
   table-layout: fixed; /* ทำให้คอลัมน์มีความกว้างคงที่ */
   width: 100%;
   border-collapse: collapse; /* ลบเส้นว่างระหว่างเซลล์ */
-  overflow: hidden;
   max-height: none;
 }
 
@@ -674,7 +672,6 @@ h1 {
   text-align: left; /* จัดข้อความให้อยู่ด้านซ้าย */
   padding: 12px 16px; /* เพิ่มระยะห่างระหว่างข้อความ */
   border: 1px solid #ddd; /* เพิ่มเส้นแบ่งระหว่างเซลล์ */
-  overflow: hidden;
 }
 
 .custom-table td {
@@ -682,7 +679,6 @@ h1 {
   text-align: left; /* จัดข้อความให้อยู่ด้านซ้าย */
   padding: 12px 16px; /* เพิ่มระยะห่างระหว่างข้อความ */
   border: 1px solid #ddd; /* เพิ่มเส้นแบ่งระหว่างเซลล์ */
-  overflow: hidden;
 }
 
 .custom-table th {
@@ -694,16 +690,13 @@ h1 {
 .custom-table td {
   font-size: 14px; /* ขนาดฟอนต์ของข้อมูล */
   line-height: 1.5; /* ระยะห่างระหว่างบรรทัด */
-  overflow: hidden;
 }
 
 .custom-table th {
-  overflow: hidden; /* ซ่อนข้อความที่เกิน */
   text-overflow: ellipsis; /* เพิ่ม ... เมื่อข้อความเกินขอบเขต */
 }
 
 .custom-table td {
-  overflow: hidden; /* ซ่อนข้อความที่เกิน */
   text-overflow: ellipsis; /* เพิ่ม ... เมื่อข้อความเกินขอบเขต */
 }
 

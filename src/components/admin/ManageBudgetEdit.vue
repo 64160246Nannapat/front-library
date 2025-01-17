@@ -125,6 +125,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { jsPDF } from 'jspdf'
+import autoTable from 'jspdf-autotable'
 import WebFontLoader from 'webfontloader'
 
 const loading = ref(false)
@@ -133,10 +134,6 @@ const currentYear = new Date().getFullYear() + 543 // ปีปัจจุบ�
 const years = Array.from({ length: currentYear - 2517 }, (_, i) => 2518 + i) // ช่วงปี พ.ศ. (เริ่มที่ 2518)
 const totalBudgetInput = ref(0)
 const router = useRouter()
-
-// ฟอนต์ Base64 ที่แปลงแล้ว
-const kanitBoldBase64 = 'S2FuaXQtQm9sZC50dGY=' // ใส่ Base64 ของ Kanit-Bold.ttf ที่แปลงแล้ว
-const kanitRegularBase64 = 'S2FuaXQtUmVndWxhci50dGY=' // ใส่ Base64 ของ Kanit-Regular.ttf ที่แปลงแล้ว
 
 const serverItems = ref([
   { id: 1, faculty: 'คณะดนตรีและการแสดง', budget: 50000, date: '13/01/2568' },
@@ -171,52 +168,80 @@ const onClickCheck = () => {
   })
 }
 
-// โหลดฟอนต์ Kanit ผ่าน WebFontLoader
-WebFontLoader.load({
-  google: {
-    families: ['Kanit'],
-  },
-  active: function () {
-    console.log('Font Kanit loaded successfully')
-  },
-})
+const loadFontAsBase64 = async (url: string): Promise<string> => {
+  const response = await fetch(url)
+  if (!response.ok) throw new Error('Cannot load font')
+  const buffer = await response.arrayBuffer()
+  return btoa(String.fromCharCode(...new Uint8Array(buffer)))
+}
 
-const onClickFile = () => {
+const onClickFile = async () => {
   const doc = new jsPDF()
 
-  // โหลดฟอนต์ Kanit Bold และ Kanit Regular (Base64)
-  doc.addFileToVFS('Kanit-Bold.ttf', kanitBoldBase64)
-  doc.addFileToVFS('Kanit-Regular.ttf', kanitRegularBase64)
+  // โหลดฟอนต์ Sarabun
+  const fontBase64 = await loadFontAsBase64('/Sarabun/Sarabun-Regular.ttf')
 
-  // ตั้งฟอนต์เป็น Kanit Bold
-  doc.setFont('Kanit-Bold')
+  // เพิ่มฟอนต์เข้าใน jsPDF
+  doc.addFileToVFS('Sarabun-Regular.ttf', fontBase64)
+  doc.addFont('Sarabun-Regular.ttf', 'Sarabun', 'normal')
 
-  // เพิ่มข้อความที่ต้องการใส่ใน PDF
+  // ตั้งค่าฟอนต์เริ่มต้น
+  doc.setFont('Sarabun', 'normal')
+  doc.setFontSize(16)
+
+  // ฟอร์แมตวันที่
+  const formatter = new Intl.DateTimeFormat('th-TH', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  })
+  const formattedDate = formatter.format(new Date())
+
+  // เพิ่มข้อความใน PDF
   doc.setFontSize(18)
-  doc.text('สรุปงบประมาณ', 10, 10)
+  // คำนวณตำแหน่ง x ให้ข้อความอยู่กลาง
+  const text = 'สรุปงบประมาณ'
+  const x = (doc.internal.pageSize.width - doc.getTextWidth(text)) / 2 // ตำแหน่ง x ให้อยู่กลาง
+  const y = 10 // ตำแหน่ง y (สามารถปรับได้ตามต้องการ)
 
-  doc.setFont('Kanit-Regular')
-  doc.setFontSize(12)
-  doc.text(`วันที่สร้างไฟล์: ${new Date().toLocaleDateString()}`, 10, 20)
+  doc.text(text, x, y)
 
+  doc.setFontSize(14)
+  doc.text(`${formattedDate}`, 10, 20)
+
+  // เตรียมข้อมูลตาราง
   const tableData = serverItems.value.map((item, index) => [
     (index + 1).toString(),
-    item.faculty,
-    item.budget.toLocaleString(),
+    item.faculty, // ชื่อคณะเป็นภาษาไทย
+    item.budget.toLocaleString(), // จำนวนเงิน
   ])
 
-  doc.autoTable({
+  // ใช้ autoTable พร้อมกำหนดฟอนต์ภาษาไทย
+  autoTable(doc, {
     head: [['ลำดับ', 'คณะ', 'จำนวนเงิน (บาท)']],
     body: tableData,
     startY: 30,
+    styles: {
+      font: 'Sarabun', // กำหนดฟอนต์
+      fontSize: 12, // ขนาดตัวอักษร
+    },
+    headStyles: {
+      fillColor: [0, 76, 153], // สีพื้นหลังของหัวตาราง (ใช้ RGB หรือ [R, G, B])
+      textColor: [255, 255, 255], // สีตัวอักษรของหัวตาราง (ใช้ RGB หรือ [R, G, B])
+      font: 'Sarabun', // ฟอนต์สำหรับหัวตาราง
+      fontSize: 14, // ขนาดตัวอักษรสำหรับหัวตาราง
+    },
   })
 
+  // เพิ่มผลรวมด้านล่าง
   doc.text(
-    `รวมงบประมาณ: ${serverItems.value.reduce((sum, item) => sum + item.budget, 0).toLocaleString()} บาท`,
+    `งบประมาณรวม ${serverItems.value.reduce((sum, item) => sum + item.budget, 0).toLocaleString()} บาท`,
     10,
     doc.lastAutoTable.finalY + 10,
   )
 
+  // บันทึก PDF
   doc.save('budget-summary.pdf')
 }
 
@@ -231,38 +256,7 @@ const filteredItems = computed(() => {
   return serverItems.value // ถ้ายังไม่ได้เลือกปี, ให้แสดงข้อมูลทั้งหมด
 })
 
-const updateTotalBudget = () => {
-  // อัปเดต totalBudgetInput เมื่อแก้ไข
-  totalBudgetInput.value = parseFloat(totalBudgetInput.value.toString()) || 0
-
-  // อัปเดตค่า totalBudget ที่คำนวณใหม่
-  totalBudget.value = totalBudgetInput.value
-}
-
-const totalBudget = computed(() => {
-  return filteredItems.value
-    .reduce((sum, item) => {
-      // แปลงค่า budget เป็นตัวเลข หากไม่ใช่ตัวเลข
-      const budget = parseFloat(item.budget) || 0
-      return sum + budget
-    }, 0)
-    .toLocaleString()
-})
-
-const updateBudget = (id: number, newBudget: string) => {
-  const item = serverItems.value.find((item) => item.id === id)
-  if (item) {
-    item.budget = parseInt(newBudget) || 0 // อัปเดตค่า budget
-  }
-}
-
-const onInputOnlyNumber = (event) => {
-  const value = event.target.value
-  event.target.value = value.replace(/[^0-9]/g, '') // ลบค่าที่ไม่ใช่ตัวเลข
-}
-
 onMounted(() => {
-  // ตั้งค่า selectedYear เป็นปีปัจจุบันเมื่อโหลดหน้า
   selectedYear.value = currentYear
 })
 </script>
