@@ -36,11 +36,30 @@
         </v-row>
       </div>
 
-      <v-row>
-        <v-col cols="auto">
+      <v-row class="d-flex" style="width: 100%">
+        <v-col cols="auto" class="d-flex justify-start">
           <div class="formatted-date-display">
             <h2>{{ fullFormattedDate }}</h2>
           </div>
+        </v-col>
+
+        <v-spacer></v-spacer>
+        <!-- เพิ่มช่องว่างระหว่างวันที่และปุ่ม -->
+
+        <v-col cols="auto" class="d-flex justify-end">
+          <v-btn
+            style="
+              margin-right: -20px;
+              background-color: #c7c8cc;
+              width: 200px;
+              height: 40px;
+              font-size: 14px;
+              font-weight: bold;
+            "
+            @click="onClickFile"
+            ><v-icon left style="margin-right: 8px; font-weight: bold">mdi-tray-arrow-down</v-icon>
+            DOWNLOAD PDF
+          </v-btn>
         </v-col>
       </v-row>
 
@@ -52,6 +71,7 @@
         @update:options="loadItems"
         :hide-default-footer="true"
         :items-per-page="-1"
+        style="margin-top: 30px"
       />
 
       <v-divider></v-divider>
