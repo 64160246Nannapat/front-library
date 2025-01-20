@@ -10,15 +10,17 @@
         <v-form ref="bookForm" v-model="valid">
           <!-- คำนำหน้าชื่อ -->
           <div class="form-row">
-            <label for="name" style="font-size: 17px"
-              >คำนำหน้า <span class="required-asterisk">*</span></label
-            >
+            <label for="name" style="font-size: 17px">
+              คำนำหน้า <span class="required-asterisk">*</span>
+            </label>
             <v-text-field
               v-model="book.Prefix"
               :rules="[rules.required]"
               variant="outlined"
               class="text-feild-top text"
               dense
+              disabled
+              :style="{ opacity: 8.5 }"
             ></v-text-field>
           </div>
 
@@ -33,6 +35,7 @@
               variant="outlined"
               class="text-feild-top"
               dense
+              :readonly="isReadonly"
             ></v-text-field>
           </div>
 
@@ -47,6 +50,7 @@
               variant="outlined"
               class="text-feild-top"
               dense
+              :readonly="isReadonly"
             ></v-text-field>
           </div>
 
@@ -62,6 +66,7 @@
               variant="outlined"
               class="text-feild-top"
               dense
+              :readonly="isReadonly"
             ></v-select>
           </div>
 
@@ -77,6 +82,7 @@
               variant="outlined"
               class="text-feild-top"
               dense
+              :readonly="isReadonly"
             ></v-select>
           </div>
 
@@ -92,6 +98,7 @@
               variant="outlined"
               class="text-feild-top"
               dense
+              :readonly="isReadonly"
             ></v-select>
           </div>
 
@@ -106,6 +113,7 @@
               variant="outlined"
               class="text-feild-top"
               dense
+              :readonly="isReadonly"
             ></v-text-field>
           </div>
 
@@ -120,6 +128,7 @@
               variant="outlined"
               class="text-feild-top"
               dense
+              :readonly="isReadonly"
             ></v-text-field>
           </div>
 
@@ -274,9 +283,16 @@
             >
               ยืนยันการส่งแบบฟอร์ม
             </v-card-title>
-            <v-card-text class="text-start" style="font-size: 16px">
-              คุณต้องการส่งแบบฟอร์มหรือไม่?
+            <v-card-text class="text-start" style="font-size: 14px; color: #808080">
+              <div>ชื่อ: {{ book.FirstName }} {{ book.LastName }}</div>
+              <div>ตำแหน่ง: {{ book.Role }}</div>
+              <div>คณะ: {{ book.Faculty }}</div>
+              <div>ร้าน: {{ book.Store }}</div>
+              <div>ชื่อหนังสือ: {{ book.Title }}</div>
+              <div>ราคา/จำนวน: {{ book.Price }} บาท, {{ book.Count }} เล่ม</div>
+              <div>คูปอง: {{ book.Coupon }}</div>
             </v-card-text>
+
             <v-card-actions justify="start">
               <v-btn
                 color="black"
@@ -321,7 +337,7 @@ import { jwtDecode } from 'jwt-decode'
 import type { VForm } from 'vuetify/components'
 
 // import type Coupon from './Coupon.vue'
-
+const isReadonly = ref(false)
 const bookForm = ref<VForm | null>(null)
 const submitted = ref(false)
 const valid = ref(false) //ใช้กับ v-form
@@ -459,6 +475,8 @@ const fetchUserData = async () => {
     book.value.Tel = user.value.Tel
     book.value.Email = user.value.Email
     book.value.User = user.value.User
+
+    isReadonly.value = true
   } catch (error) {
     console.error('Token decoding error:', error)
   }
@@ -492,9 +510,10 @@ const refreshAndDecodeToken = async () => {
 }
 
 const cancelForm = () => {
-  dialog.value = false; // ปิด dialog
-  resetForm(bookForm.value); // ล้างค่าฟอร์ม
-};
+  dialog.value = false // ปิด dialog
+  // ล้างค่าฟอร์มที่กรอก (เฉพาะ bookForm)
+  resetForm(bookForm.value)
+}
 
 const confirmForm = async (bookForm: any) => {
   try {

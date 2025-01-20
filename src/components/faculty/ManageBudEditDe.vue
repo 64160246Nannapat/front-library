@@ -126,7 +126,8 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { jsPDF } from 'jspdf'
-import 'jspdf-autotable'
+import autoTable from 'jspdf-autotable'
+import BuuLogo from '@/assets/Buu-logo11.png'
 
 const loading = ref(false)
 const selectedYear = ref<number | null>(null)
@@ -176,57 +177,125 @@ const onClickCheck = () => {
   })
 }
 
-const onClickFile = () => {
-  const doc = new jsPDF() // สร้างเอกสาร PDF ใหม่
+const loadFontAsBase64 = async (url: string): Promise<string> => {
+  const response = await fetch(url)
+  if (!response.ok) throw new Error('Cannot load font')
+  const buffer = await response.arrayBuffer()
+  return btoa(String.fromCharCode(...new Uint8Array(buffer)))
+}
 
-  // เพิ่มฟอนต์ลงใน VFS
-  doc.addFileToVFS('Kanit-Bold.ttf', kanitBoldBase64)
-  doc.addFileToVFS('Kanit-Regular.ttf', kanitRegularBase64)
+const imageBuu = async () => {
+  const response = await fetch(BuuLogo)
+  const blob = await response.blob()
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onloadend = () => resolve(reader.result.split(',')[1]) // Return base64 string
+    reader.onerror = reject
+    reader.readAsDataURL(blob)
+  })
+}
 
-  // เพิ่มฟอนต์ใน PDF
-  doc.addFont('Kanit-Bold.ttf', 'Kanit-Bold', 'normal')
-  doc.addFont('Kanit-Regular.ttf', 'Kanit-Regular', 'normal')
+// ฟอร์แมตวันที่แบบกำหนดเอง
+const formatDatePdf = (): string => {
+  const now = new Date()
+  const yearBuddhist = now.getFullYear() + 543 // เปลี่ยนเป็นปี พ.ศ.
+  const month = String(now.getMonth() + 1).padStart(2, '0') // เดือน (01-12)
+  const day = String(now.getDate()).padStart(2, '0') // วัน (01-31)
+  const hours = String(now.getHours()).padStart(2, '0') // ชั่วโมง (00-23)
+  const minutes = String(now.getMinutes()).padStart(2, '0') // นาที (00-59)
+  return `${day}/${month}/${yearBuddhist} ${hours}:${minutes}`
+}
 
-  // กำหนดการใช้ฟอนต์
-  doc.setFont('Kanit-Regular') // ใช้ฟอนต์ Kanit-Regular
+const onClickFile = async () => {
+  const doc = new jsPDF()
 
-  // กำหนดหัวข้อ PDF และข้อมูล
-  doc.setFontSize(18)
-  doc.text('สรุปงบประมาณ', 14, 20)
+  // โหลดฟอนต์ Sarabun
+  const fontBase64 = await loadFontAsBase64('/Sarabun/Sarabun-Regular.ttf')
 
-  // เพิ่มวัน/เวลา ที่สร้างไฟล์
-  const date = new Date()
-  const formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`
-  doc.setFontSize(12)
-  doc.text(`วันที่สร้างไฟล์: ${formattedDate}`, 14, 30)
+  // เพิ่มฟอนต์เข้าใน jsPDF
+  doc.addFileToVFS('Sarabun-Regular.ttf', fontBase64)
+  doc.addFont('Sarabun-Regular.ttf', 'Sarabun', 'normal')
 
-  // สร้างตารางข้อมูล
-  const tableHeaders = ['ลำดับ', 'คณะ', 'จำนวนเงิน (บาท)']
+  // ตั้งค่าฟอนต์เริ่มต้น
+  doc.setFont('Sarabun', 'normal')
+  doc.setFontSize(16)
+
+  // โหลดรูป BUU logo
+  const logoBase64 = await imageBuu()
+
+  // เพิ่มรูปภาพบนสุดของ PDF
+  const logoWidth = 30 // ความกว้างของโลโก้
+  const logoHeight = 30 // ความสูงของโลโก้
+  const logoX = (doc.internal.pageSize.width - logoWidth) / 2 // ตำแหน่ง X ให้อยู่กลาง
+  const logoY = 20 // ตำแหน่ง Y
+  doc.addImage(logoBase64, 'PNG', logoX, logoY, logoWidth, logoHeight)
+
+  // ฟอร์แมตวันที่
+  const formattedDate = formatDatePdf()
+
+  // เพิ่มข้อความใน PDF หลังจากโลโก้
+  doc.setFontSize(16)
+  const text = 'สรุปงบประมาณ'
+  const text_x = (doc.internal.pageSize.width - doc.getTextWidth(text)) / 2
+  const text_y = logoY + logoHeight + 10 // วางข้อความถัดจากโลโก้
+  doc.text(text, text_x, text_y)
+
+  doc.setFontSize(14)
+  const text1 = 'ประจำปี 2568'
+  const text1_x = (doc.internal.pageSize.width - doc.getTextWidth(text1)) / 2
+  const text1_y = text_y + 10 // เพิ่มค่าตำแหน่ง Y ให้ข้อความถัดลงมา
+  doc.text(text1, text1_x, text1_y)
+
+  doc.setFontSize(14)
+  const text2 = 'สาขา วิทยาการคอมพิวเตอร์'
+  const text2_x = (doc.internal.pageSize.width - doc.getTextWidth(text2)) / 2
+  const text2_y = text1_y + 10 // เพิ่มค่าตำแหน่ง Y ให้ข้อความถัดลงมา
+  doc.text(text2, text2_x, text2_y)
+
+  doc.setFontSize(11)
+  const dateX = doc.internal.pageSize.width - doc.getTextWidth(formattedDate) - 10 // ห่างจากขอบขวา 10 หน่วย
+  const dateY = 10 // ห่างจากขอบบน 10 หน่วย
+  doc.text(formattedDate, dateX, dateY)
+
+  // เตรียมข้อมูลตาราง
   const tableData = serverItems.value.map((item, index) => [
     (index + 1).toString(),
-    item.name,
-    item.budget.toLocaleString(),
+    item.name, // ชื่อคณะเป็นภาษาไทย
+    item.budget.toLocaleString(), // จำนวนเงิน
   ])
 
-  doc.autoTable({
-    head: [tableHeaders],
+  // ใช้ autoTable พร้อมกำหนดฟอนต์ภาษาไทย
+  autoTable(doc, {
+    head: [['ลำดับ', 'รายชื่อ', 'จำนวนเงิน (บาท)']],
     body: tableData,
-    startY: 40,
+    startY: text2_y + 20, // เพิ่มระยะห่างจากข้อความก่อนหน้านี้ (เพิ่มจาก text2_y)
     styles: {
-      fontSize: 10,
+      font: 'Sarabun', // กำหนดฟอนต์
+      fontSize: 12, // ขนาดตัวอักษร
     },
     headStyles: {
-      fillColor: [255, 204, 0], // สีพื้นหลังหัวตาราง
+      fillColor: [102, 102, 0], // สีพื้นหลังของหัวตาราง
+      textColor: [255, 255, 255], // สีตัวอักษรของหัวตาราง
+      font: 'Sarabun',
+      fontSize: 12,
     },
   })
 
-  // รวมจำนวนเงิน
-  const totalText = `รวมงบประมาณ: ${totalBudget.value} บาท`
-  doc.setFontSize(14)
-  doc.text(totalText, 14, doc.lastAutoTable.finalY + 10)
+  // เพิ่มผลรวมด้านล่าง
+  const totalBudget = serverItems.value.reduce((sum, item) => sum + item.budget, 0).toLocaleString()
+  const totalText = `งบประมาณรวม ${totalBudget} บาท`
 
-  // ดาวน์โหลดไฟล์ PDF
-  doc.save('budget-summary.pdf')
+  // เพิ่มขนาดตัวหนังสือ
+  doc.setFontSize(14) // ตั้งขนาดตัวหนังสือเป็น 14 (หรือขนาดที่ต้องการ)
+
+  doc.text(
+    totalText,
+    doc.internal.pageSize.width - doc.getTextWidth(totalText) - 10,
+    doc.lastAutoTable.finalY + 10,
+  )
+
+  // บันทึก PDF
+  doc.save('budget-summary-department.pdf')
 }
 
 // การกรองข้อมูลตามปีที่เลือก

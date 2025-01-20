@@ -60,7 +60,6 @@
         <v-col cols="auto">
           <v-text-field
             v-model="searchText"
-            placeholder="ค้นหา..."
             variant="outlined"
             class="serch-text"
             rounded="lg"
@@ -97,7 +96,7 @@
       <v-data-table
         :headers="headers"
         :items="serverItems"
-        style="width: 100%; table-layout: fixed; border-collapse: collapse"
+        style="width: 100%; table-layout: auto; border-collapse: collapse"
         class="custom-table no-scrollbar"
         :hide-default-footer="true"
         :items-per-page="-1"
@@ -155,13 +154,7 @@
                     hide-details
                     variant="outlined"
                     class="custom-select"
-                    style="
-                      width: 120px !important;
-                      height: 60px !important;
-                      font-size: 8px !important;
-                      line-height: 30px;
-                      margin-top: 8px;
-                    "
+                    :item-size="20"
                   />
 
                   <v-btn
@@ -746,15 +739,50 @@ h1 {
   display: none; /* ซ่อน scrollbar สำหรับ Chrome, Safari */
 }
 
-.custom-select .v-input__control .v-input__slot {
-  font-size: 10px !important; /* ปรับขนาดฟอนต์ให้เล็กลง */
+.custom-select {
+  font-size: 12px !important;
+  height: 36px !important;
+  line-height: 1 !important;
 }
 
-.custom-select .v-select__selections {
-  font-size: 10px !important; /* ปรับขนาดฟอนต์ในรายการเลือก */
+::v-deep(.v-list-item) {
+  min-height: 24px !important; /* ลดความสูงของรายการ */
+  padding: 2px 8px !important; /* ปรับ padding */
 }
 
-.custom-select .v-select__input {
-  font-size: 10px !important; /* ปรับขนาดฟอนต์ในช่องป้อนข้อมูล */
+::v-deep(.v-list-item__title) {
+  font-size: 10px !important; /* ลดขนาดตัวอักษรของรายการ */
+  line-height: 1.2 !important; /* ปรับ line-height */
+  white-space: nowrap; /* ป้องกันข้อความล้น */
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+::v-deep(.v-overlay .v-list-item) {
+  font-size: 10px !important; /* ลดขนาดตัวอักษรใน overlay */
+  min-height: 24px !important; /* ลดความสูงของแต่ละรายการใน overlay */
+  padding: 2px 8px !important; /* ลด padding */
+}
+
+::v-deep(.v-select__selections) {
+  font-size: 12px !important; /* ลดขนาดตัวอักษรที่เลือกแล้ว */
+}
+
+::v-deep(.v-overlay) {
+  font-size: 10px !important; /* ลดขนาดตัวอักษรใน overlay menu */
+}
+::v-deep(.custom-select .v-input__control) {
+  min-height: 30px !important;
+  padding: 0 8px !important;
+}
+
+::v-deep(.custom-select .v-select__selections) {
+  font-size: 12px !important;
+}
+
+::v-deep(.custom-select .v-select__control) {
+  font-size: 12px !important;
+  height: 36px !important;
+  line-height: 1.2 !important;
 }
 </style>

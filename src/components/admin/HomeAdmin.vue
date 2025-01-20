@@ -11,7 +11,7 @@
       <v-spacer></v-spacer>
       <v-toolbar-items class="d-flex align-center">
         <div class="d-flex flex-column align-end" style="margin-right: 20px">
-          <span class="name">นันท์ณภัทร สอนสุภาพ</span>
+          <span class="name">นางสาว นันท์ณภัทร สอนสุภาพ</span>
           <span class="position" style="margin-top: 5px">เจ้าหน้าที่สำนักหอสมุด</span>
         </div>
       </v-toolbar-items>
@@ -132,13 +132,13 @@ const items = [
 }
 
 .name {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: bold;
   margin-right: 10px;
 }
 
 .position {
-  font-size: 16px;
+  font-size: 14px;
   color: gray;
 }
 </style>

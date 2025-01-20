@@ -268,13 +268,15 @@ const onClickFile = async () => {
   })
 
   // เพิ่มผลรวมด้านล่าง
+  const totalBudget = serverItems.value.reduce((sum, item) => sum + item.budget, 0).toLocaleString()
+  const totalText = `งบประมาณรวม ${totalBudget} บาท`
+
+  // เพิ่มขนาดตัวหนังสือ
+  doc.setFontSize(14) // ตั้งขนาดตัวหนังสือเป็น 14 (หรือขนาดที่ต้องการ)
+
   doc.text(
-    `งบประมาณรวม ${serverItems.value.reduce((sum, item) => sum + item.budget, 0).toLocaleString()} บาท`,
-    doc.internal.pageSize.width -
-      doc.getTextWidth(
-        `งบประมาณรวม ${serverItems.value.reduce((sum, item) => sum + item.budget, 0).toLocaleString()} บาท`,
-      ) -
-      10,
+    totalText,
+    doc.internal.pageSize.width - doc.getTextWidth(totalText) - 10,
     doc.lastAutoTable.finalY + 10,
   )
 

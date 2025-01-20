@@ -15,13 +15,13 @@
             <v-card class="mx-auto card-money justify-end">
               <v-card-title class="card-money-title">E-coupon คงเหลือ</v-card-title>
 
-              <v-card-subtitle class="card-money-subtitle">0 บาท</v-card-subtitle>
+              <v-card-subtitle class="card-money-subtitle">3,000 บาท</v-card-subtitle>
             </v-card>
           </v-col>
         </v-row>
 
         <!-- Coupon Section -->
-        <v-row justify="center" class="mt-5">
+        <v-row justify="center" class="mt-10">
           <v-card class="mx-auto text-white coupon-card" color="#EF9595">
             <template v-slot:prepend>
               <v-avatar
@@ -41,7 +41,7 @@
                 <v-list-item-subtitle class="text-card-sub text-magin"
                   >คณะวิทยาการสารสนเทศ</v-list-item-subtitle
                 >
-                <v-list-item-title class="text-card"> 0 </v-list-item-title>
+                <v-list-item-title class="text-card"> 3,000 </v-list-item-title>
                 <v-list-item-subtitle class="text-card-sub">บาท</v-list-item-subtitle>
               </v-list-item>
             </v-card-actions>
@@ -115,7 +115,7 @@ import HomeTeacher from '@/components/teacher/HomeTeacher.vue'
 
 .card-money {
   background-color: #e0e6f0;
-  height: 100px;
+  height: 110px;
   width: 600px;
   max-width: 340px;
   border-radius: 10px;
@@ -166,5 +166,6 @@ import HomeTeacher from '@/components/teacher/HomeTeacher.vue'
 .card-money-subtitle {
   font-size: 20px; /* ขนาดตัวอักษรคำอธิบาย */
   color: #666;
+  margin-bottom: 10px;
 }
 </style>
