@@ -127,6 +127,7 @@ import { useRouter } from 'vue-router'
 import { jsPDF } from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import WebFontLoader from 'webfontloader'
+import BuuLogo from '@/assets/Buu-logo11.png'
 
 const loading = ref(false)
 const selectedYear = ref<number | null>(null)
@@ -175,6 +176,28 @@ const loadFontAsBase64 = async (url: string): Promise<string> => {
   return btoa(String.fromCharCode(...new Uint8Array(buffer)))
 }
 
+const imageBuu = async () => {
+  const response = await fetch(BuuLogo)
+  const blob = await response.blob()
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onloadend = () => resolve(reader.result.split(',')[1]) // Return base64 string
+    reader.onerror = reject
+    reader.readAsDataURL(blob)
+  })
+}
+
+// ฟอร์แมตวันที่แบบกำหนดเอง
+const formatDatePdf = (): string => {
+  const now = new Date()
+  const yearBuddhist = now.getFullYear() + 543 // เปลี่ยนเป็นปี พ.ศ.
+  const month = String(now.getMonth() + 1).padStart(2, '0') // เดือน (01-12)
+  const day = String(now.getDate()).padStart(2, '0') // วัน (01-31)
+  const hours = String(now.getHours()).padStart(2, '0') // ชั่วโมง (00-23)
+  const minutes = String(now.getMinutes()).padStart(2, '0') // นาที (00-59)
+  return `${day}/${month}/${yearBuddhist} ${hours}:${minutes}`
+}
+
 const onClickFile = async () => {
   const doc = new jsPDF()
 
@@ -189,26 +212,36 @@ const onClickFile = async () => {
   doc.setFont('Sarabun', 'normal')
   doc.setFontSize(16)
 
+  // โหลดรูป BUU logo
+  const logoBase64 = await imageBuu()
+
+  // เพิ่มรูปภาพบนสุดของ PDF
+  const logoWidth = 30 // ความกว้างของโลโก้
+  const logoHeight = 30 // ความสูงของโลโก้
+  const logoX = (doc.internal.pageSize.width - logoWidth) / 2 // ตำแหน่ง X ให้อยู่กลาง
+  const logoY = 20 // ตำแหน่ง Y
+  doc.addImage(logoBase64, 'PNG', logoX, logoY, logoWidth, logoHeight)
+
   // ฟอร์แมตวันที่
-  const formatter = new Intl.DateTimeFormat('th-TH', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  })
-  const formattedDate = formatter.format(new Date())
+  const formattedDate = formatDatePdf()
 
-  // เพิ่มข้อความใน PDF
-  doc.setFontSize(18)
-  // คำนวณตำแหน่ง x ให้ข้อความอยู่กลาง
+  // เพิ่มข้อความใน PDF หลังจากโลโก้
+  doc.setFontSize(16)
   const text = 'สรุปงบประมาณ'
-  const x = (doc.internal.pageSize.width - doc.getTextWidth(text)) / 2 // ตำแหน่ง x ให้อยู่กลาง
-  const y = 10 // ตำแหน่ง y (สามารถปรับได้ตามต้องการ)
-
-  doc.text(text, x, y)
+  const text_x = (doc.internal.pageSize.width - doc.getTextWidth(text)) / 2
+  const text_y = logoY + logoHeight + 10 // วางข้อความถัดจากโลโก้
+  doc.text(text, text_x, text_y)
 
   doc.setFontSize(14)
-  doc.text(`${formattedDate}`, 10, 20)
+  const text1 = 'ประจำปี 2568'
+  const text1_x = (doc.internal.pageSize.width - doc.getTextWidth(text1)) / 2
+  const text1_y = text_y + 10 // เพิ่มค่าตำแหน่ง Y ให้ข้อความถัดลงมา
+  doc.text(text1, text1_x, text1_y)
+
+  doc.setFontSize(11)
+  const dateX = doc.internal.pageSize.width - doc.getTextWidth(formattedDate) - 10 // ห่างจากขอบขวา 10 หน่วย
+  const dateY = 10 // ห่างจากขอบบน 10 หน่วย
+  doc.text(formattedDate, dateX, dateY)
 
   // เตรียมข้อมูลตาราง
   const tableData = serverItems.value.map((item, index) => [
@@ -221,23 +254,27 @@ const onClickFile = async () => {
   autoTable(doc, {
     head: [['ลำดับ', 'คณะ', 'จำนวนเงิน (บาท)']],
     body: tableData,
-    startY: 30,
+    startY: text_y + 20, // เริ่มตารางหลังจากข้อความ
     styles: {
       font: 'Sarabun', // กำหนดฟอนต์
       fontSize: 12, // ขนาดตัวอักษร
     },
     headStyles: {
-      fillColor: [0, 76, 153], // สีพื้นหลังของหัวตาราง (ใช้ RGB หรือ [R, G, B])
-      textColor: [255, 255, 255], // สีตัวอักษรของหัวตาราง (ใช้ RGB หรือ [R, G, B])
-      font: 'Sarabun', // ฟอนต์สำหรับหัวตาราง
-      fontSize: 14, // ขนาดตัวอักษรสำหรับหัวตาราง
+      fillColor: [102, 102, 0], // สีพื้นหลังของหัวตาราง
+      textColor: [255, 255, 255], // สีตัวอักษรของหัวตาราง
+      font: 'Sarabun',
+      fontSize: 12,
     },
   })
 
   // เพิ่มผลรวมด้านล่าง
   doc.text(
     `งบประมาณรวม ${serverItems.value.reduce((sum, item) => sum + item.budget, 0).toLocaleString()} บาท`,
-    10,
+    doc.internal.pageSize.width -
+      doc.getTextWidth(
+        `งบประมาณรวม ${serverItems.value.reduce((sum, item) => sum + item.budget, 0).toLocaleString()} บาท`,
+      ) -
+      10,
     doc.lastAutoTable.finalY + 10,
   )
 
