@@ -5,13 +5,11 @@ import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
 //import vueDevTools from 'vite-plugin-vue-devtools'
 
-// https://vite.dev/config/
 export default defineConfig({
   assetsInclude: ['**/*.ttf', '**/*.woff', '**/*.woff2'],
   plugins: [
     vue(),
     vueJsx(),
-    //vueDevTools(),
   ],
   resolve: {
     alias: {
@@ -20,11 +18,14 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      '/apilib': {
+      '/api': {
         target: 'https://info.lib.buu.ac.th',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/apilib/, ''),
+        secure: false,
+        rewrite: (path) => path.replace(/^\/api/, '/apilib/Walai/CheckSearch'),
       },
     },
   },
 })
+
+
