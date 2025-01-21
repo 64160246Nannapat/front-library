@@ -61,6 +61,16 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
+import axios from 'axios'
+
+interface BookItem {
+  offer_form_id: number;
+  book_title: string;
+  ISBN: string;
+  book_price: number;
+  book_quantity: number;
+  form_status: string;
+}
 
 // วันที่
 const selectedDate = ref(new Date())
@@ -68,17 +78,20 @@ const menuDate = ref(false)
 const itemsPerPage = ref(1000000)
 const loading = ref(false)
 const totalItems = ref(0)
-const serverItems = ref([])
+const serverItems = ref<BookItem[]>([])
 
 // Headers สำหรับ v-data-table
 const headers = [
-  { title: 'ลำดับ', key: 'id', align: 'start' },
-  { title: 'ชื่อหนังสือ', key: 'title' },
-  { title: 'ISBN', key: 'isbn' },
-  { title: 'ราคาสุทธิ', key: 'price' },
-  { title: 'จำนวน', key: 'quantity' },
-  { title: 'สถานะ', key: 'status' },
+  { title: 'ลำดับ', key: 'rowIndex', align: 'start' },
+  { title: 'ชื่อหนังสือ', key: 'book_title' },
+  { title: 'ISBN', key: 'ISBN' },
+  { title: 'ราคาสุทธิ', key: 'book_price' },
+  { title: 'จำนวน', key: 'book_quantity' },
+  { title: 'สถานะ', key: 'form_status' },
 ]
+
+// ดึง Token จาก Local Storage
+const token = localStorage.getItem('token')
 
 // ฟอร์แมตวันที่
 const formattedDate = computed(() => {
@@ -126,110 +139,90 @@ const fullFormattedDate = computed(() => {
   return `${dayName} ที่ ${day} ${monthName} พ.ศ. ${year}`
 })
 
-// API ปลอมเพื่อเลียนแบบการดึงข้อมูล
-const FakeAPI = {
-  async fetch({
-    page,
-    itemsPerPage,
-    selectedDate,
-  }: {
-    page: number
-    itemsPerPage: number
-    selectedDate: Date
-  }) {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const data = [
-          {
-            id: 1,
-            title: 'ความรู้สึกของเราสำคัญที่สุด',
-            date: '01/12/2567',
-            isbn: '9786161857707',
-            price: 250,
-            quantity: 2,
-            status: 'อนุมัติ',
-          },
-          {
-            id: 2,
-            title: 'วิทยาศาสตร์ของการใช้ชีวิต = The science of living',
-            date: '02/12/2567',
-            isbn: '9786162875434',
-            price: 350,
-            quantity: 1,
-            status: 'อนุมัติ',
-          },
-          {
-            id: 3,
-            title: 'คุณคางคกไปพบนักจิตบำบัด : การผจญภัยทางจิตวิทยา = Counselling for toads : a psychological adventure',
-            date: '03/12/2567',
-            isbn: '9786160459049',
-            price: 500,
-            quantity: 3,
-            status: 'ไม่อนุมัติ',
-          },
-          {
-            id: 4,
-            title: 'ร่างกายไม่เคยโกหก = What every body is saying',
-            date: '20/12/2567',
-            isbn: '9786162875687',
-            price: 500,
-            quantity: 1,
-            status: 'ไม่อนุมัติ',
-          },
-          {
-            id: 5,
-            title: 'ภาวะลื่นไหล ทำอะไรก็ง่ายหมด = Productivity flow',
-            date: '20/12/2567',
-            isbn: '9786169373964',
-            price: 500,
-            quantity: 1,
-            status: 'ไม่อนุมัติ',
-          },
-          {
-            id: 6,
-            title: 'หัวไม่ดีก็มีวิธีสอบผ่าน',
-            date: '20/12/2567',
-            isbn: '9786165786195',
-            price: 500,
-            quantity: 1,
-            status: 'ไม่อนุมัติ',
-          },
-        ]
+// ฟังก์ชันกรองข้อมูลตามวันที่
+const filterDataByDate = (data: any[], selectedDate: Date) => {
+  const startOfDay = new Date(selectedDate);
+  startOfDay.setHours(0, 0, 0, 0);
 
-        const selectedDateString = `${String(selectedDate.getDate()).padStart(2, '0')}/${String(selectedDate.getMonth() + 1).padStart(2, '0')}/${selectedDate.getFullYear() + 543}`
+  const endOfDay = new Date(selectedDate);
+  endOfDay.setHours(23, 59, 59, 999);
 
-        // ฟิลเตอร์ข้อมูลตามวันที่
-        const filteredData = data.filter((item) => item.date === selectedDateString)
-
-        const start = (page - 1) * itemsPerPage
-        const end = start + itemsPerPage
-
-        resolve({
-          items: filteredData.slice(start, end),
-          total: filteredData.length,
-        })
-      }, 500)
+  return data
+    .filter((item) => {
+      const createdAt = new Date(item.createdAt);
+      return createdAt >= startOfDay && createdAt <= endOfDay;
     })
+    .map((item, index) => ({
+      ...item,
+      rowIndex: index + 1, // เพิ่มลำดับแถว
+    }));
+};
+
+
+// API ดึงข้อมูลจากเซิร์ฟเวอร์
+const fetchDataFromAPI = async ({
+  page,
+  itemsPerPage,
+  token,
+}: {
+  page: number
+  itemsPerPage: number
+  token: string
+}) => {
+  try {
+    const response = await axios.get('http://localhost:3000/offer-form', {
+      params: {
+        page,
+        itemsPerPage,
+      },
+      headers: {
+        Authorization: `Bearer ${token}`, // ใช้ token เพื่อระบุผู้ใช้
+      },
+    })
+
+    const data = response.data
+    return {
+      items: data.map((item: any) => ({
+        ...item,
+        createdAt: item.createdAt, // เก็บ `createdAt` ไว้กรองใน frontend
+      })),
+      total: data.length,
+    }
+  } catch (error) {
+    console.error('Error fetching data:', error)
+    return { items: [], total: 0 }
+  }
+}
+
+// Watch วันที่
+watch(
+  selectedDate,
+  async () => {
+    if (!token) {
+      console.error('User not authenticated');
+      return;
+    }
+
+    loading.value = true;
+
+    // ดึงข้อมูลทั้งหมดจาก API
+    const { items } = await fetchDataFromAPI({
+      page: 1,
+      itemsPerPage: itemsPerPage.value,
+      token,
+    });
+
+    // กรองข้อมูลและเพิ่ม `rowIndex`
+    const filteredItems = filterDataByDate(items, selectedDate.value);
+
+    // อัปเดต `serverItems` ให้มีลำดับ
+    serverItems.value = filteredItems;
+    totalItems.value = filteredItems.length;
+
+    loading.value = false;
   },
-}
-
-// โหลดข้อมูลพร้อมฟิลเตอร์ตามวันที่
-const loadItems = ({ page, itemsPerPage }: { page: number; itemsPerPage: number }) => {
-  loading.value = true
-  FakeAPI.fetch({ page, itemsPerPage, selectedDate: selectedDate.value }).then(
-    ({ items, total }) => {
-      serverItems.value = items
-      totalItems.value = total
-      loading.value = false
-      menuDate.value = false
-    },
-  )
-}
-
-// ตรวจจับการเปลี่ยนแปลงวันที่
-watch(selectedDate, () => {
-  loadItems({ page: 1, itemsPerPage: itemsPerPage.value })
-})
+  { immediate: true } // เรียกทันทีตอนเริ่มต้น
+);
 </script>
 
 <style scoped>

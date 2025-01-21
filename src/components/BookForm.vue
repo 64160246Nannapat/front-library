@@ -17,8 +17,9 @@
               v-model="book.Prefix"
               :rules="[rules.required]"
               variant="outlined"
-              class="text-feild-top text"
+              class="text-feild-top text gray-field"
               dense
+              :readonly="isReadOnly"
             ></v-text-field>
           </div>
 
@@ -31,8 +32,9 @@
               v-model="book.FirstName"
               :rules="[rules.required]"
               variant="outlined"
-              class="text-feild-top"
+              class="text-feild-top text gray-field"
               dense
+              :readonly="isReadOnly"
             ></v-text-field>
           </div>
 
@@ -45,8 +47,9 @@
               v-model="book.LastName"
               :rules="[rules.required]"
               variant="outlined"
-              class="text-feild-top"
+              class="text-feild-top text gray-field"
               dense
+              :readonly="isReadOnly"
             ></v-text-field>
           </div>
 
@@ -60,8 +63,9 @@
               :items="roles"
               :rules="[rules.required]"
               variant="outlined"
-              class="text-feild-top"
+              class="text-feild-top text gray-field"
               dense
+              :readonly="isReadOnly"
             ></v-select>
           </div>
 
@@ -75,8 +79,9 @@
               :items="faculties"
               :rules="[rules.required]"
               variant="outlined"
-              class="text-feild-top"
+              class="text-feild-top text gray-field"
               dense
+              :readonly="isReadOnly"
             ></v-select>
           </div>
 
@@ -90,8 +95,9 @@
               :items="departments"
               :rules="[rules.required]"
               variant="outlined"
-              class="text-feild-top"
+              class="text-feild-top text gray-field"
               dense
+              :readonly="isReadOnly"
             ></v-select>
           </div>
 
@@ -104,8 +110,9 @@
               v-model="book.Tel"
               :rules="[rules.required, rules.tel]"
               variant="outlined"
-              class="text-feild-top"
+              class="text-feild-top text gray-field"
               dense
+              :readonly="isReadOnly"
             ></v-text-field>
           </div>
 
@@ -118,8 +125,9 @@
               v-model="book.Email"
               :rules="[rules.required, rules.email]"
               variant="outlined"
-              class="text-feild-top"
+              class="text-feild-top text gray-field"
               dense
+              :readonly="isReadOnly"
             ></v-text-field>
           </div>
 
@@ -274,13 +282,19 @@
             >
               ยืนยันการส่งแบบฟอร์ม
             </v-card-title>
-            <v-card-text class="text-start" style="font-size: 16px">
-              คุณต้องการส่งแบบฟอร์มหรือไม่?
+            <v-card-text class="text-start" style="font-size: 14px; color: #808080">
+              <div>ชื่อ: {{ book.FirstName }} {{ book.LastName }}</div>
+              <div>ตำแหน่ง: {{ book.Role }}</div>
+              <div>คณะ: {{ book.Faculty }}</div>
+              <div>ร้าน: {{ book.Store }}</div>
+              <div>ชื่อหนังสือ: {{ book.Title }}</div>
+              <div>ราคา/จำนวน: {{ book.Price }} บาท, {{ book.Count }} เล่ม</div>
+              <div>คูปอง: {{ book.Coupon }}</div>
             </v-card-text>
+
             <v-card-actions justify="start">
               <v-btn
                 color="black"
-                text
                 @click="cancelForm"
                 style="
                   font-weight: bold;
@@ -326,6 +340,8 @@ const bookForm = ref<VForm | null>(null)
 const submitted = ref(false)
 const valid = ref(false) //ใช้กับ v-form
 const dialog = ref(false)
+const isReadOnly = ref(true)
+const disableValidation = ref(false)
 const book = ref({
   Prefix: '',
   FirstName: '',
@@ -341,8 +357,8 @@ const book = ref({
   Year: '',
   isbn: '',
   Subject: '',
-  Price: '',
-  Count: '',
+  Price: null,
+  Count: null,
   Coupon: '',
   User: '',
 })
@@ -361,67 +377,21 @@ const user = ref({
 
 const rules = {
   required: (value: string) => {
-    return !value ? 'ต้องกรอกข้อมูล' : true
+    if (disableValidation.value) return true // ปิด validation
+    return value ? true : 'ต้องกรอกข้อมูล'
   },
   email: (value: string) =>
     /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value) || 'รูปแบบอีเมลไม่ถูกต้อง',
   tel: (value: string) => /^[0-9]{9,10}$/.test(value) || 'หมายเลขโทรศัพท์ต้องมี 9 - 10 หลัก',
   isbn: (value: string) => /^(97(8|9))?\d{9}(\d|X)$/.test(value) || 'รูปแบบ ISBN ไม่ถูกต้อง',
-  number: (value: string) => /^[0-9]+(\.[0-9]+)?$/.test(value) || 'ต้องเป็นตัวเลขเท่านั้น',
+  number: (value: string | null) => {
+    if (value === null || value === undefined || value === '') {
+      return true // อนุญาตให้ช่องว่างไม่ต้อง alert
+    }
+    return /^[0-9]+(\.[0-9]+)?$/.test(value) || 'ต้องเป็นตัวเลขเท่านั้น'
+  },
   radio: (value) => !!value || 'กรุณาเลือกหนึ่งตัวเลือก',
 }
-
-// const submitForm = async () => {
-//   const form = bookForm.value // เข้าถึง bookForm จาก ref
-//   if (form && typeof form.validate === 'function') {
-//     const { valid } = await form.validate() // เรียก validate()
-
-//     if (valid) {
-//       try {
-//         const formData = {
-//           user_fullname: book.value.Prefix + ' ' + book.value.FirstName + ' ' + book.value.LastName,
-//           user_name: book.value.FirstName,
-//           role_id: Number(book.value.Role),
-//           user_email: book.value.Email,
-//           user_tel: book.value.Tel,
-//           faculty_id: Number(book.value.Faculty),
-//           department_id: book.value.Department,
-//           store_id: stores.value.indexOf(book.value.Store) + 1,
-//           book_title: book.value.Title,
-//           book_author: book.value.Author,
-//           book_subject: book.value.Subject,
-//           published_year: Number(book.value.Year),
-//           ISBN: book.value.isbn,
-//           book_price: Number(book.value.Price),
-//           book_quantity: Number(book.value.Count),
-//           user_id: book.value.User ? Number(book.value.User) : null,
-//           coupon_used: book.value.Coupon,
-//         }
-
-//         const response = await axios.post('http://localhost:3000/offer-form', formData, {
-//           headers: {
-//             'Content-Type': 'application/json',
-//             Authorization: `Bearer ${localStorage.getItem('token')}`,
-//           },
-//         })
-
-//         console.log('Response:', response.data)
-//         submitted.value = true
-//         dialog.value = true
-//       } catch (error) {
-//         console.error('Error submitting form:', error)
-//         if (error.response && error.response.data) {
-//           console.log('User ID:', book.value.User)
-//           console.error('API Error:', error.response.data.message)
-//         }
-//       }
-//     } else {
-//       console.log('Validation Failed')
-//     }
-//   } else {
-//     console.error('Form reference is invalid or validate is not a function')
-//   }
-// }
 
 const fetchUserData = async () => {
   const token = localStorage.getItem('token')
@@ -492,9 +462,9 @@ const refreshAndDecodeToken = async () => {
 }
 
 const cancelForm = () => {
-  dialog.value = false; // ปิด dialog
-  resetForm(bookForm.value); // ล้างค่าฟอร์ม
-};
+  dialog.value = false // ปิด dialog
+  resetForm(bookForm) // ล้างค่าฟอร์ม
+}
 
 const confirmForm = async (bookForm: any) => {
   try {
@@ -539,27 +509,41 @@ const confirmForm = async (bookForm: any) => {
 }
 
 const resetForm = (bookForm: any) => {
+  // เก็บค่าที่ต้องการคงเดิม
+  const { Prefix, FirstName, LastName, Role, Faculty, Department, Tel, Email } = book.value
+
+  // ปิด validation ชั่วคราว
+  disableValidation.value = true
+
+  // รีเซ็ตเฉพาะฟิลด์ที่ต้องการ
   book.value = {
-    Prefix: '',
-    FirstName: '',
-    LastName: '',
-    Role: '',
-    Faculty: '',
-    Department: '',
-    Tel: '',
-    Email: '',
+    Prefix,
+    FirstName,
+    LastName,
+    Role,
+    Faculty,
+    Department,
+    Tel,
+    Email,
     Store: '',
     Title: '',
     Author: '',
     Year: '',
     isbn: '',
     Subject: '',
-    Price: '',
-    Count: '',
+    Price: null,
+    Count: null,
   }
 
-  bookForm.reset() // รีเซ็ต v-form
-  submitted.value = false
+  // เปิด validation อีกครั้ง
+  setTimeout(() => {
+    disableValidation.value = false
+  }, 0)
+
+  // รีเซ็ต validation (ลบข้อความ alert validation)
+  bookForm.resetValidation()
+
+  submitted.value = false // รีเซ็ตสถานะการส่งฟอร์ม
 }
 
 const fetchStores = async () => {
@@ -641,62 +625,6 @@ const refreshToken = async () => {
     window.location.href = '/'
   }
 }
-
-// const fetchUserData = async () => {
-//   const token = localStorage.getItem('token')
-
-//   if (!token) {
-//     alert('ไม่พบ Token กรุณาเข้าสู่ระบบใหม่')
-//     window.location.href = '/'
-//     return
-//   }
-
-//   try {
-//     let userId = null
-//     if (isTokenExpired(token)) {
-//       // ถ้า Token หมดอายุ ให้รีเฟรชด้วย Refresh Token
-//       const newAccessToken = await refreshToken()
-//       if (newAccessToken) {
-//         const decoded: any = jwtDecode(newAccessToken)
-//         userId = decoded.sub // ดึง user_id จาก sub ใน token
-//         user.value.Prefix = decoded.prefix
-//         user.value.FirstName = decoded.firstName
-//         user.value.LastName = decoded.lastName
-//         user.value.Role = decoded.offer_position
-//         user.value.Faculty = decoded.faculty
-//         user.value.Department = decoded.department
-//         user.value.Tel = decoded.tel
-//         user.value.Email = decoded.email
-//         user.value.User = userId // เก็บ user_id ที่ดึงมา
-//       }
-//     } else {
-//       const decoded: any = jwtDecode(token)
-//       userId = decoded.sub // ดึง user_id จาก sub ใน token
-//       user.value.Prefix = decoded.prefix
-//       user.value.FirstName = decoded.firstName
-//       user.value.LastName = decoded.lastName
-//       user.value.Role = decoded.offer_position
-//       user.value.Faculty = decoded.faculty
-//       user.value.Department = decoded.department
-//       user.value.Tel = decoded.tel
-//       user.value.Email = decoded.email
-//       user.value.User = userId // เก็บ user_id ที่ดึงมา
-//     }
-
-//     // ทำการตั้งค่าอื่น ๆ ให้กับ book
-//     book.value.Prefix = user.value.Prefix
-//     book.value.FirstName = user.value.FirstName
-//     book.value.LastName = user.value.LastName
-//     book.value.Role = user.value.Role
-//     book.value.Faculty = user.value.Faculty
-//     book.value.Department = user.value.Department
-//     book.value.Tel = user.value.Tel
-//     book.value.Email = user.value.Email
-//     user.value.User = user.value.User
-//   } catch (error) {
-//     console.error('Token decoding error:', error)
-//   }
-// }
 
 onMounted(async () => {
   await fetchUserData()
@@ -829,5 +757,11 @@ h1 {
 
 .text {
   font-size: 18px;
+}
+
+.gray-field {
+  background-color: #f0f0f0; /* สีเทาอ่อน */
+  color: #666666; /* สีตัวอักษรเทา */
+  pointer-events: none; /* ปิดการโต้ตอบ */
 }
 </style>
