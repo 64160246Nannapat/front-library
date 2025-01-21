@@ -10,9 +10,9 @@
         <v-form ref="bookForm" v-model="valid">
           <!-- คำนำหน้าชื่อ -->
           <div class="form-row">
-            <label for="name" style="font-size: 17px"
-              >คำนำหน้า <span class="required-asterisk">*</span></label
-            >
+            <label for="name" style="font-size: 17px">
+              คำนำหน้า <span class="required-asterisk">*</span>
+            </label>
             <v-text-field
               v-model="book.Prefix"
               :rules="[rules.required]"
@@ -333,9 +333,9 @@ import axios from 'axios'
 import { onMounted, ref } from 'vue'
 import { jwtDecode } from 'jwt-decode'
 import type { VForm } from 'vuetify/components'
+import $ from 'jquery';
 
-// import type Coupon from './Coupon.vue'
-
+const isReadonly = ref(false)
 const bookForm = ref<VForm | null>(null)
 const submitted = ref(false)
 const valid = ref(false) //ใช้กับ v-form
@@ -429,6 +429,8 @@ const fetchUserData = async () => {
     book.value.Tel = user.value.Tel
     book.value.Email = user.value.Email
     book.value.User = user.value.User
+
+    isReadonly.value = true
   } catch (error) {
     console.error('Token decoding error:', error)
   }
@@ -555,28 +557,6 @@ const fetchStores = async () => {
     console.error('Error fetching stores:', error)
   }
 }
-
-// const fetchRoles = async () => {
-//   try {
-//     const response = await axios.get('http://localhost:3000/role')
-//     console.log('Response data:', response.data)
-
-//     const groupedRoles = {
-//       อาจารย์: response.data.filter((role: any) =>
-//         ['Teacher', 'StaffFaculty'].includes(role.role_name),
-//       ),
-//       นิสิต: response.data.filter((role: any) => role.role_name === 'Student'),
-//       บุคลากร: response.data.filter((role: any) =>
-//         ['StaffLibrary', 'Executive'].includes(role.role_name),
-//       ),
-//     }
-
-//     console.log('Grouped Roles:', groupedRoles)
-//     roles.value = Object.keys(groupedRoles) // ตั้งค่าข้อมูลสำหรับ `v-select`
-//   } catch (error) {
-//     console.error('Error fetching roles:', error)
-//   }
-// }
 
 const fetchFaculties = async () => {
   try {

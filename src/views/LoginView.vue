@@ -7,7 +7,7 @@
         <div class="subheading">Burapha University</div>
 
         <div class="form-container">
-          <v-row>
+          <v-row @keydown.enter="login">
             <!-- Username -->
             <v-col cols="12">
               <v-text-field
@@ -109,10 +109,10 @@ const login = async () => {
 
     if (access_token && refresh_token) {
       // เก็บ Token และ Refresh Token ลง localStorage
-      localStorage.setItem('token', access_token);
-      localStorage.setItem('refresh_token', refresh_token);
+      localStorage.setItem('token', access_token)
+      localStorage.setItem('refresh_token', refresh_token)
     } else {
-      console.error('ไม่พบ Token หลังจาก Login');
+      console.error('ไม่พบ Token หลังจาก Login')
     }
 
     console.log('Role:', role)
@@ -178,33 +178,34 @@ const login = async () => {
 
 <style scoped>
 .pink-background {
-  background-color: #ffe9e5; /* สีชมพู */
-  height: 100vh; /* ให้ครอบคลุมทั้งหน้าจอ */
-  display: flex; /* ใช้ Flexbox */
-  align-items: center; /* จัดให้อยู่กึ่งกลางแนวตั้ง */
-  justify-content: center; /* จัดให้อยู่กึ่งกลางแนวนอน */
-  position: relative; /* ใช้สำหรับจัดตำแหน่ง */
+  background-color: #ffe9e5;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
 }
 
 .container {
   display: flex;
   justify-content: center;
   align-items: center;
+  width: 100%;
 }
 
 .image {
-  max-width: 1200px; /* เพิ่มขนาดสูงสุดของรูปภาพ */
-  width: 100%; /* ให้รูปภาพขยายเต็มความกว้างของคอนเทนเนอร์ */
-  height: auto; /* รักษาสัดส่วนของรูป */
-  margin-left: 200px; /* เพิ่มระยะห่างจากข้อความ */
+  max-width: 1200px; /* ขนาดสูงสุดของรูปภาพ */
+  width: 60%; /* ขยายรูปให้เหมาะสมกับหน้าจอ */
+  height: auto;
+  margin-left: 200px;
 }
 
 .text {
   display: flex;
-  flex-direction: column; /* เรียงข้อความให้เป็นคอลัมน์ */
-  align-items: center; /* จัดให้อยู่กลางในแนวนอน */
-  justify-content: center; /* จัดให้อยู่กลางในแนวตั้ง */
-  text-align: center; /* จัดข้อความให้อยู่กลาง */
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
   margin-right: 120px;
 }
 
@@ -222,6 +223,17 @@ const login = async () => {
   color: #d6bd98;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
   margin-top: 20px;
+}
+
+.v-text-field {
+  width: 600px; /* กำหนดความกว้างของช่องกรอกข้อมูล */
+  height: 65px;
+}
+
+.custom-field {
+  margin-left: 180px;
+  width: 600px;
+  height: 100px;
 }
 
 .v-text-field .v-input__control {
@@ -309,18 +321,18 @@ const login = async () => {
 }
 
 .custom-btn {
-  font-size: 20px; /* ขนาดตัวอักษร */
-  font-weight: bold; /* ตัวอักษรหนา */
-  background-color: #f3beba; /* สีพื้นหลัง */
-  color: #ffffff; /* สีตัวอักษร */
-  text-transform: uppercase; /* ให้ตัวอักษรเป็นพิมพ์ใหญ่ทั้งหมด */
+  font-size: 20px;
+  font-weight: bold;
+  background-color: #f3beba;
+  color: #ffffff;
+  text-transform: uppercase;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 15px; /* ความโค้งของมุม */
-  width: 300px; /* กำหนดความกว้าง */
-  height: 60px; /* กำหนดความสูง */
-  padding: 10px 20px; /* ระยะห่างภายใน */
+  border-radius: 15px;
+  width: 300px;
+  height: 60px;
+  padding: 10px 20px;
 }
 
 .custom-btn input {

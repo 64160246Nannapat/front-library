@@ -36,11 +36,30 @@
         </v-row>
       </div>
 
-      <v-row>
-        <v-col cols="auto">
+      <v-row class="d-flex" style="width: 100%">
+        <v-col cols="auto" class="d-flex justify-start">
           <div class="formatted-date-display">
             <h2>{{ fullFormattedDate }}</h2>
           </div>
+        </v-col>
+
+        <v-spacer></v-spacer>
+        <!-- เพิ่มช่องว่างระหว่างวันที่และปุ่ม -->
+
+        <v-col cols="auto" class="d-flex justify-end">
+          <v-btn
+            style="
+              margin-right: -20px;
+              background-color: #c7c8cc;
+              width: 200px;
+              height: 40px;
+              font-size: 14px;
+              font-weight: bold;
+            "
+            @click="onClickFile"
+            ><v-icon left style="margin-right: 8px; font-weight: bold">mdi-tray-arrow-down</v-icon>
+            DOWNLOAD PDF
+          </v-btn>
         </v-col>
       </v-row>
 
@@ -52,16 +71,17 @@
         @update:options="loadItems"
         :hide-default-footer="true"
         :items-per-page="-1"
+        style="margin-top: 30px"
       />
 
       <v-divider></v-divider>
 
       <!-- รวมข้อมูล -->
       <v-row class="mt-4">
-        <v-col cols="6" class="text-start">
+        <v-col cols="6" class="text-start" style="font-weight: bold">
           รวม: <b>{{ total.price }}</b> บาท
         </v-col>
-        <v-col cols="6" class="text-end">
+        <v-col cols="6" class="text-end" style="font-weight: bold">
           จำนวน: <b>{{ total.quantity }}</b> เล่ม
         </v-col>
       </v-row>
@@ -162,7 +182,7 @@ const FakeAPI = {
             id: 3,
             title:
               'คุณคางคกไปพบนักจิตบำบัด : การผจญภัยทางจิตวิทยา = Counselling for toads : a psychological adventure ',
-            date: '03/12/2567',
+            date: '16/01/2568',
             isbn: '9786160459049',
             price: 500,
             quantity: 3,
@@ -171,7 +191,7 @@ const FakeAPI = {
           {
             id: 4,
             title: 'ร่างกายไม่เคยโกหก = What every body is saying',
-            date: '20/12/2567',
+            date: '16/01/2568',
             isbn: '9786162875687',
             price: 500,
             quantity: 1,
@@ -180,7 +200,7 @@ const FakeAPI = {
           {
             id: 5,
             title: 'ภาวะลื่นไหล ทำอะไรก็ง่ายหมด = Productivity flow',
-            date: '20/12/2567',
+            date: '16/01/2568',
             isbn: '9786169373964',
             price: 500,
             quantity: 1,
@@ -189,7 +209,7 @@ const FakeAPI = {
           {
             id: 6,
             title: 'หัวไม่ดีก็มีวิธีสอบผ่าน',
-            date: '20/12/2567',
+            date: '16/01/2568',
             isbn: '9786165786195',
             price: 500,
             quantity: 1,

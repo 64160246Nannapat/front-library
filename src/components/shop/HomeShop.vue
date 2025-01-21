@@ -112,13 +112,13 @@ const items = [
 }
 
 .name {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: bold;
   margin-right: 10px;
 }
 
 .position {
-  font-size: 16px;
+  font-size: 14px;
   color: gray;
 }
 </style>

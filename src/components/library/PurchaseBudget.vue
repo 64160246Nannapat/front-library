@@ -89,13 +89,12 @@
       <v-divider></v-divider>
 
       <!-- รวมข้อมูล -->
-      <v-row class="d-flex justify-space-between mt-3">
-        <v-col class="text-right">
-          <h4 style="margin-right: 530px">รวม</h4>
+      <v-row class="mt-4">
+        <v-col cols="6" class="text-start" style="font-weight: bold">
+          รวม: <b>{{ total.price }}</b> บาท
         </v-col>
-        <v-col class="text-left">
-          <p style="margin-left: 235px">{{ total.price }}</p>
-          <p style="margin-left: 375px; margin-top: -23px">{{ total.quantity }}</p>
+        <v-col cols="6" class="text-end" style="font-weight: bold">
+          จำนวน: <b>{{ total.quantity }}</b> เล่ม
         </v-col>
       </v-row>
     </v-container>

@@ -18,7 +18,7 @@
         <v-col cols="12" md="6" class="d-flex justify-end">
           <v-card class="summary-card">
             <v-card-title class="summary-title">งบประมาณรวม</v-card-title>
-            <v-card-subtitle class="summary-amount">200,000 บาท</v-card-subtitle>
+            <v-card-subtitle class="summary-amount">500,000 บาท</v-card-subtitle>
           </v-card>
         </v-col>
       </v-row>
@@ -83,7 +83,7 @@ const serverItems = ref([])
 
 const headers = [
   { title: 'ลำดับ', key: 'id', align: 'start' },
-  { title: 'ชื่อผู้ได้รับ', key: 'name' },
+  { title: 'รายชื่อ', key: 'name' },
   { title: 'สาขา', key: 'faculty' },
   { title: 'งบประมาณที่ให้', key: 'budget' },
   { title: 'งบประมาณที่ใช้', key: 'usebudget' },
@@ -131,6 +131,38 @@ const FakeAPI = () => {
       {
         id: 3,
         name: 'ผศ.เบญจภรณ์ จันทรกองกุล',
+        faculty: 'วิทยาการข้อมูล',
+        budget: '50,000',
+        usebudget: '20,000',
+        remain: '30,000',
+      },
+      {
+        id: 4,
+        name: 'ผศ.ภูสิต กุลเกษม',
+        faculty: 'วิทยาการคอมพิวเตอร์',
+        budget: '50,000',
+        usebudget: '20,000',
+        remain: '30,000',
+      },
+      {
+        id: 5,
+        name: 'ผศ.จรรยา อ้นปันส์',
+        faculty: 'เทคโนโลยีสารสนเทศ',
+        budget: '50,000',
+        usebudget: '20,000',
+        remain: '30,000',
+      },
+      {
+        id: 6,
+        name: 'ผศ.ดร.โกเมศ อัมพวัน',
+        faculty: 'วิทยาการข้อมูล',
+        budget: '50,000',
+        usebudget: '20,000',
+        remain: '30,000',
+      },
+      {
+        id: 7,
+        name: 'ดร.วรัณรัชญ์ วิริยะวิทย์',
         faculty: 'วิทยาการข้อมูล',
         budget: '50,000',
         usebudget: '20,000',

@@ -144,11 +144,11 @@ const items = [
   { title: 'สถานะการเสนอซื้อหนังสือ', icon: checklist, link: '/home-executive/book-status' },
   { title: 'E-Coupon', icon: coupon, link: '/home-executive/coupon' },
   { title: 'ประวัติการใช้คูปอง', icon: history, link: '/home-executive/history-coupon' },
-  { title: 'รายชื่อผู้เสนอ', icon: list, link: '/login' },
-  { title: 'สรุปงบประมาณ', icon: salary, link: '/book-form' },
-  { title: 'ร้านค้า', icon: store, link: '/book-status' },
-  { title: 'สรุปร้านค้า', icon: sumShop, link: '/login' },
-  { title: 'LOGOUT', icon: logout, action: 'logout' },
+  { title: 'รายชื่อผู้เสนอ', icon: list, link: '/home-executive/list-book-executive' },
+  { title: 'สรุปงบประมาณ', icon: salary, link: '/home-executive/sum-budget' },
+  { title: 'ร้านค้า', icon: store, link: '/home-executive/show-shop' },
+  { title: 'สรุปร้านค้า', icon: sumShop, link: '/home-executive/sum-shop' },
+  { title: 'LOGOUT', icon: logout, action: '/' },
 ]
 
 // Logout function
@@ -221,13 +221,13 @@ const handleLogout = async () => {
 }
 
 .name {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: bold;
   margin-right: 10px;
 }
 
 .position {
-  font-size: 16px;
+  font-size: 14px;
   color: gray;
 }
 </style>

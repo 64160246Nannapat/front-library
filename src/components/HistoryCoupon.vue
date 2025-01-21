@@ -61,10 +61,10 @@
 
       <!-- รวมข้อมูล -->
       <v-row class="mt-4">
-        <v-col cols="6" class="text-start">
+        <v-col cols="6" class="text-start" style="font-weight: bold">
           รวม: <b>{{ total.price }}</b> บาท
         </v-col>
-        <v-col cols="6" class="text-end">
+        <v-col cols="6" class="text-end" style="font-weight: bold">
           จำนวน: <b>{{ total.quantity }}</b> เล่ม
         </v-col>
       </v-row>
