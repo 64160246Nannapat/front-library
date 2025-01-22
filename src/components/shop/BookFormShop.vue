@@ -108,7 +108,7 @@
               "
               class="text-center"
             >
-              <v-icon left>mdi-tray-arrow-up</v-icon>
+              <v-icon left style="margin-right: 10px;">mdi-tray-arrow-up</v-icon>
               เลือกรูปภาพหน้าปกและปกใน
             </v-btn>
             <input
