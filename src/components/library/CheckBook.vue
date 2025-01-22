@@ -10,7 +10,7 @@
         <!-- Search Section -->
         <v-card class="mx-auto my-8 card">
           <v-row align="center" justify="start" style="gap: 8px">
-            <!-- แก้ไขที่ justify -->
+            <!-- เลือกประเภทการค้นหา -->
             <v-col cols="auto">
               <v-select
                 :items="['ISBN', 'TITLE', 'AUTHOR']"
@@ -21,6 +21,7 @@
               ></v-select>
             </v-col>
 
+            <!-- กรอกคำค้นหา -->
             <v-col cols="auto">
               <v-text-field
                 class="search-text"
@@ -30,6 +31,7 @@
               />
             </v-col>
 
+            <!-- ปุ่มค้นหา -->
             <v-col cols="auto">
               <v-btn
                 color="#E3E1D9"
@@ -51,45 +53,59 @@
         </v-row>
 
         <!-- Display Results -->
-        <v-row justify="center">
-          <template v-if="serverItems.length > 0">
-            <v-col v-for="(item, index) in serverItems" :key="index" cols="12" md="8">
-              <v-card
-                outlined
-                class="mx-auto"
-                style="max-width: 1500px; min-height: 300px; text-align: left"
+        <v-row justify="center" v-if="serverItems && serverItems.length > 0">
+          <v-col cols="12" md="8" v-for="(book, index) in serverItems" :key="index">
+            <v-card
+              outlined
+              class="mx-auto"
+              style="width: 1000px; height: 500px; text-align: left"
+            >
+              <div
+                style="
+                  display: flex;
+                  align-items: flex-start;
+                  gap: 10px;
+                  height: auto;
+                  margin-bottom: 15px;
+                "
               >
-                <div style="display: flex; align-items: flex-start; gap: 10px; height: auto">
-                  <v-img
-                    :src="item.BookCover ? item.BookCover : require('@/assets/default-image.jpg')"
-                    alt="Book Image"
-                    width="160px"
-                    height="180px"
-                    style="border-radius: 10px; object-fit: cover; margin-right: 10px"
-                  ></v-img>
+                <v-img
+                  :src="book.bookCover"
+                  alt="Book Image"
+                  width="160px"
+                  height="400px"
+                  style="border-radius: 10px; object-fit: cover; margin-right: 10px"
+                ></v-img>
 
-                  <div style="flex: 1; display: flex; flex-direction: column; text-align: left">
-                    <v-card-title
-                      class="text-h6"
-                      style="font-size: 18px; font-weight: bold; margin-bottom: 5px"
-                    >
-                      {{ item.title }}
-                    </v-card-title>
-                    <v-card-subtitle style="font-size: 16px; margin-bottom: 5px">
-                      ผู้แต่ง: {{ item.author }}
-                    </v-card-subtitle>
-                    <v-card-text style="font-size: 14px; line-height: 1.3">
-                      <div>ISBN: {{ item.isbn }}</div>
-                      <div>สำนักพิมพ์: {{ item.publisher }}</div>
-                      <div>จำนวน: {{ item.quantity }}</div>
-                      <div>พิมพ์ครั้งที่: {{ item.edition }}</div>
-                      <div>รายละเอียด: {{ item.description }}</div>
-                    </v-card-text>
-                  </div>
+                <div style="flex: 1; display: flex; flex-direction: column; text-align: left">
+                  <v-card-title
+                    class="text-h6"
+                    style="font-size: 18px; font-weight: bold; margin-bottom: 5px"
+                  >
+                    {{ book.title }}
+                  </v-card-title>
+                  <v-card-subtitle style="font-size: 16px; margin-bottom: 5px">
+                    ผู้แต่ง: {{ book.author }}
+                  </v-card-subtitle>
+                  <v-card-text style="font-size: 14px; line-height: 1.3">
+                    <div>สำนักพิมพ์: {{ book.publisher }}</div>
+                    <div>จำนวน: {{ book.quantity }}</div>
+                    <div>พิมพ์ครั้งที่: {{ book.edition }}</div>
+                    <div>รายละเอียด: {{ book.description }}</div>
+                    <div v-for="(isbn, idx) in book.isbn" :key="idx">
+                      <div>ISBN: {{ isbn }}</div>
+                      <br />
+                    </div>
+                  </v-card-text>
                 </div>
-              </v-card>
-            </v-col>
-          </template>
+              </div>
+            </v-card>
+          </v-col>
+        </v-row>
+
+        <!-- No Results -->
+        <v-row justify="center" v-else>
+          <p>ไม่พบข้อมูลหนังสือ</p>
         </v-row>
       </v-container>
     </v-container>
@@ -100,7 +116,19 @@
 import { ref } from 'vue'
 
 const loading = ref(false)
-const serverItems = ref([])
+
+interface BookItem {
+  title: string
+  author: string
+  isbn: string[]
+  publisher: string
+  quantity: string
+  edition: string
+  description: string
+  bookCover: string // รูปภาพปก
+}
+
+const serverItems = ref<BookItem[]>([]) // กำหนดให้ serverItems เป็นอาร์เรย์ของ BookItem
 
 const searchCategory = ref('ISBN')
 const searchInput = ref('')
@@ -136,16 +164,61 @@ const searchBooks = async () => {
 
     const data = await response.json()
 
-    // ตรวจสอบค่าผลลัพธ์จาก API ว่ามีข้อมูลหรือไม่
-    if (data?.status && data?.data?.length > 0) {
-      serverItems.value = data.data
+    console.log('Data received from API:', data)
+
+    if (data?.status && data?.data) {
+      const bookInfo: BookItem = {
+        title: '',
+        author: '',
+        isbn: [],
+        publisher: '',
+        quantity: '',
+        edition: '',
+        description: '',
+        bookCover: data.data.BookCover.replace(/(^"|"$|\\)/g, '') || '',
+      }
+
+      data.data.Info.forEach((item: { FIELD: string; DATA: string }) => {
+        switch (item.FIELD) {
+          case 'ISBN':
+            bookInfo.isbn.push(item.DATA)
+            break
+          case 'Author':
+            bookInfo.author = item.DATA
+            break
+          case 'Title':
+            // ตรวจสอบว่า title ใหม่นั้นยาวกว่าที่มีอยู่ก่อนหรือไม่
+            if (item.DATA.length > bookInfo.title.length) {
+              bookInfo.title = item.DATA
+            }
+            break
+          case 'Edition':
+            bookInfo.edition = item.DATA
+            break
+          case 'Published':
+            bookInfo.publisher = item.DATA
+            break
+          case 'Detail':
+            bookInfo.quantity = item.DATA
+            break
+          case 'Subject':
+            bookInfo.description = item.DATA
+            break
+          default:
+            break
+        }
+      })
+
+      console.log('Processed book information:', bookInfo)
+
+      serverItems.value = [bookInfo] // เก็บข้อมูลหนังสือเป็นอาร์เรย์
     } else {
-      serverItems.value = [] // หากไม่พบข้อมูลให้ล้างข้อมูล
+      serverItems.value = []
     }
   } catch (error) {
     console.error('Error fetching books:', error)
     alert('ไม่สามารถเชื่อมต่อกับ API ได้: ' + error.message)
-    serverItems.value = [] // หากเกิดข้อผิดพลาดให้ล้างข้อมูล
+    serverItems.value = []
   } finally {
     loading.value = false
   }
