@@ -37,6 +37,7 @@ import ManageBudPerFac from '@/components/faculty/ManageBudPerson.vue'
 import ManageEditBudPer from '@/components/faculty/ManageBudEditPer.vue'
 import ManageBudDe from '@/components/faculty/ManageBudDepartments.vue'
 import ManageEditBudDe from '@/components/faculty/ManageBudEditDe.vue'
+import BookFormShop from '@/components/shop/BookFormShop.vue'
 // import LoginView2 from '@/views/LoginView2.vue'
 
 const routes = [
@@ -490,6 +491,11 @@ const routes = [
     path: '/sum-budget',
     name: 'sumBud',
     component: SumBudgetFaculty,
+  },
+  {
+    path: '/book-form-shop',
+    name: 'bookFormShop',
+    component: BookFormShop,
   },
 
 ]
