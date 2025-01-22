@@ -19,7 +19,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://info.lib.buu.ac.th/',
+        target: 'https://info.lib.buu.ac.th',
         changeOrigin: true,
         secure: false,
         rewrite: (path) => path.replace(/^\/api/, '/apilib/Walai/CheckSearch'),
@@ -27,3 +27,5 @@ export default defineConfig({
     },
   },
 })
+
+

@@ -58,7 +58,7 @@
             <v-card
               outlined
               class="mx-auto"
-              style="max-width: 1500px; min-height: 300px; text-align: left"
+              style="width: 1000px; height: 500px; text-align: left"
             >
               <div
                 style="
@@ -70,10 +70,10 @@
                 "
               >
                 <v-img
-                  :src="book.BookCover"
+                  :src="book.bookCover"
                   alt="Book Image"
                   width="160px"
-                  height="180px"
+                  height="400px"
                   style="border-radius: 10px; object-fit: cover; margin-right: 10px"
                 ></v-img>
 
@@ -88,12 +88,12 @@
                     ผู้แต่ง: {{ book.author }}
                   </v-card-subtitle>
                   <v-card-text style="font-size: 14px; line-height: 1.3">
+                    <div>สำนักพิมพ์: {{ book.publisher }}</div>
+                    <div>จำนวน: {{ book.quantity }}</div>
+                    <div>พิมพ์ครั้งที่: {{ book.edition }}</div>
+                    <div>รายละเอียด: {{ book.description }}</div>
                     <div v-for="(isbn, idx) in book.isbn" :key="idx">
                       <div>ISBN: {{ isbn }}</div>
-                      <div>สำนักพิมพ์: {{ book.publisher }}</div>
-                      <div>จำนวน: {{ book.quantity }}</div>
-                      <div>พิมพ์ครั้งที่: {{ book.edition }}</div>
-                      <div>รายละเอียด: {{ book.description }}</div>
                       <br />
                     </div>
                   </v-card-text>
@@ -120,12 +120,12 @@ const loading = ref(false)
 interface BookItem {
   title: string
   author: string
-  isbn: string
+  isbn: string[]
   publisher: string
   quantity: string
   edition: string
   description: string
-  BookCover: string // รูปภาพปก
+  bookCover: string // รูปภาพปก
 }
 
 const serverItems = ref<BookItem[]>([]) // กำหนดให้ serverItems เป็นอาร์เรย์ของ BookItem
@@ -167,29 +167,51 @@ const searchBooks = async () => {
     console.log('Data received from API:', data)
 
     if (data?.status && data?.data) {
-      const bookInfo = data.data.Info.reduce((acc, item) => {
-        const existingBook = acc.find((book) => book.title === data.data.title)
+      const bookInfo: BookItem = {
+        title: '',
+        author: '',
+        isbn: [],
+        publisher: '',
+        quantity: '',
+        edition: '',
+        description: '',
+        bookCover: data.data.BookCover.replace(/(^"|"$|\\)/g, '') || '',
+      }
 
-        // ตรวจสอบว่า existingBook มีค่าหรือไม่
-        if (existingBook) {
-          // เพิ่มแค่ ISBN เท่านั้น
-          if (item.FIELD === 'ISBN') {
-            existingBook.isbn.push(item.DATA) // เก็บแค่ ISBN
-          }
-        } else {
-          acc.push({
-            title: data.data.title || '',
-            author: data.data.author || '',
-            isbn: item.FIELD === 'ISBN' ? [item.DATA] : [], // เก็บแค่ ISBN
-            bookCover: data.data.BookCover || 'ข้อมูลไม่พบ',
-          })
+      data.data.Info.forEach((item: { FIELD: string; DATA: string }) => {
+        switch (item.FIELD) {
+          case 'ISBN':
+            bookInfo.isbn.push(item.DATA)
+            break
+          case 'Author':
+            bookInfo.author = item.DATA
+            break
+          case 'Title':
+            // ตรวจสอบว่า title ใหม่นั้นยาวกว่าที่มีอยู่ก่อนหรือไม่
+            if (item.DATA.length > bookInfo.title.length) {
+              bookInfo.title = item.DATA
+            }
+            break
+          case 'Edition':
+            bookInfo.edition = item.DATA
+            break
+          case 'Published':
+            bookInfo.publisher = item.DATA
+            break
+          case 'Detail':
+            bookInfo.quantity = item.DATA
+            break
+          case 'Subject':
+            bookInfo.description = item.DATA
+            break
+          default:
+            break
         }
-        return acc
-      }, [])
+      })
 
       console.log('Processed book information:', bookInfo)
 
-      serverItems.value = bookInfo
+      serverItems.value = [bookInfo] // เก็บข้อมูลหนังสือเป็นอาร์เรย์
     } else {
       serverItems.value = []
     }
