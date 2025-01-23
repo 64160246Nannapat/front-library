@@ -129,7 +129,6 @@ import { jsPDF } from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import BuuLogo from '@/assets/Buu-logo11.png'
 
-
 const loading = ref(false)
 const selectedYear = ref<number | null>(null)
 const currentYear = new Date().getFullYear() + 543 // ปีปัจจุบันใน พ.ศ.
@@ -219,83 +218,70 @@ const onClickFile = async () => {
 
   // โหลดฟอนต์ Sarabun
   const fontBase64 = await loadFontAsBase64('/Sarabun/Sarabun-Regular.ttf')
-
-  // เพิ่มฟอนต์เข้าใน jsPDF
   doc.addFileToVFS('Sarabun-Regular.ttf', fontBase64)
   doc.addFont('Sarabun-Regular.ttf', 'Sarabun', 'normal')
-
-  // ตั้งค่าฟอนต์เริ่มต้น
   doc.setFont('Sarabun', 'normal')
   doc.setFontSize(16)
 
-  // โหลดรูป BUU logo
+  // เพิ่มโลโก้ BUU
   const logoBase64 = await imageBuu()
-
-  // เพิ่มรูปภาพบนสุดของ PDF
-  const logoWidth = 30 // ความกว้างของโลโก้
-  const logoHeight = 30 // ความสูงของโลโก้
-  const logoX = (doc.internal.pageSize.width - logoWidth) / 2 // ตำแหน่ง X ให้อยู่กลาง
-  const logoY = 20 // ตำแหน่ง Y
+  const logoWidth = 30
+  const logoHeight = 30
+  const logoX = (doc.internal.pageSize.width - logoWidth) / 2
+  const logoY = 20
   doc.addImage(logoBase64, 'PNG', logoX, logoY, logoWidth, logoHeight)
 
-  // ฟอร์แมตวันที่
+  // เพิ่มหัวข้อ PDF
   const formattedDate = formatDatePdf()
-
-  // เพิ่มข้อความใน PDF หลังจากโลโก้
-  doc.setFontSize(16)
   const text = 'สรุปงบประมาณ'
-  const text_x = (doc.internal.pageSize.width - doc.getTextWidth(text)) / 2
-  const text_y = logoY + logoHeight + 10 // วางข้อความถัดจากโลโก้
-  doc.text(text, text_x, text_y)
+  const textX = (doc.internal.pageSize.width - doc.getTextWidth(text)) / 2
+  const textY = logoY + logoHeight + 10
+  doc.text(text, textX, textY)
 
-  doc.setFontSize(14)
-  const text1 = 'ประจำปี 2568'
-  const text1_x = (doc.internal.pageSize.width - doc.getTextWidth(text1)) / 2
-  const text1_y = text_y + 10 // เพิ่มค่าตำแหน่ง Y ให้ข้อความถัดลงมา
-  doc.text(text1, text1_x, text1_y)
+  const facultyText = 'คณะ วิทยาการสารสนเทศ'
+  const facultyX = (doc.internal.pageSize.width - doc.getTextWidth(facultyText)) / 2
+  const facultyY = textY + 10
+  doc.text(facultyText, facultyX, facultyY)
 
-  doc.setFontSize(14)
-  const text2 = 'คณะ วิทยาการสารสนเทศ'
-  const text2_x = (doc.internal.pageSize.width - doc.getTextWidth(text2)) / 2
-  const text2_y = text1_y + 10 // เพิ่มค่าตำแหน่ง Y ให้ข้อความถัดลงมา
-  doc.text(text2, text2_x, text2_y)
+  const yearText = `ประจำปี ${selectedYear.value}`
+  const yearX = (doc.internal.pageSize.width - doc.getTextWidth(yearText)) / 2
+  const yearY = facultyY + 10
+  doc.text(yearText, yearX, yearY)
 
+  // เพิ่มวันที่ในมุมขวาบน
   doc.setFontSize(11)
-  const dateX = doc.internal.pageSize.width - doc.getTextWidth(formattedDate) - 10 // ห่างจากขอบขวา 10 หน่วย
-  const dateY = 10 // ห่างจากขอบบน 10 หน่วย
+  const dateX = doc.internal.pageSize.width - doc.getTextWidth(formattedDate) - 10
+  const dateY = 10
   doc.text(formattedDate, dateX, dateY)
 
-  // เตรียมข้อมูลตาราง
-  const tableData = serverItems.value.map((item, index) => [
+  // สร้างตารางข้อมูล
+  const tableData = filteredItems.value.map((item, index) => [
     (index + 1).toString(),
-    item.faculty, // ชื่อคณะเป็นภาษาไทย
-    item.budget.toLocaleString(), // จำนวนเงิน
+    item.faculty,
+    item.budget.toLocaleString(),
   ])
-
-  // ใช้ autoTable พร้อมกำหนดฟอนต์ภาษาไทย
   autoTable(doc, {
-    head: [['ลำดับ', 'คณะ', 'จำนวนเงิน (บาท)']],
+    head: [['ลำดับ', 'สาขา', 'จำนวนเงิน (บาท)']],
     body: tableData,
-    startY: text2_y + 20, // เพิ่มระยะห่างจากข้อความก่อนหน้านี้ (เพิ่มจาก text2_y)
+    startY: yearY + 20,
     styles: {
-      font: 'Sarabun', // กำหนดฟอนต์
-      fontSize: 12, // ขนาดตัวอักษร
+      font: 'Sarabun',
+      fontSize: 12,
     },
     headStyles: {
-      fillColor: [102, 102, 0], // สีพื้นหลังของหัวตาราง
-      textColor: [255, 255, 255], // สีตัวอักษรของหัวตาราง
+      fillColor: [102, 102, 0],
+      textColor: [255, 255, 255],
       font: 'Sarabun',
       fontSize: 12,
     },
   })
 
-  // เพิ่มผลรวมด้านล่าง
-  const totalBudget = serverItems.value.reduce((sum, item) => sum + item.budget, 0).toLocaleString()
+  // เพิ่มผลรวมงบประมาณ
+  const totalBudget = filteredItems.value
+    .reduce((sum, item) => sum + item.budget, 0)
+    .toLocaleString()
   const totalText = `งบประมาณรวม ${totalBudget} บาท`
-
-  // เพิ่มขนาดตัวหนังสือ
-  doc.setFontSize(14) // ตั้งขนาดตัวหนังสือเป็น 14 (หรือขนาดที่ต้องการ)
-
+  doc.setFontSize(14)
   doc.text(
     totalText,
     doc.internal.pageSize.width - doc.getTextWidth(totalText) - 10,
@@ -303,7 +289,7 @@ const onClickFile = async () => {
   )
 
   // บันทึก PDF
-  doc.save('budget-summary-faculty.pdf')
+  doc.save(`budget-summary-${selectedYear.value}.pdf`)
 }
 
 // การกรองข้อมูลตามปีที่เลือก
