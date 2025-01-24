@@ -269,7 +269,7 @@
               border-bottom-right-radius: 16px; /* ความมนที่มุมล่างขวา */
             "
           >
-            <v-card-title>ส่ง: {{ selectedItem?.name }}</v-card-title>
+            <v-card-title>ส่ง: {{ selectedItem?.offer_form_id }}</v-card-title>
             <v-card-subtitle>E-mail: {{ selectedItem?.email }}</v-card-subtitle>
             <v-card-subtitle>วันที่: {{ fullDate }}</v-card-subtitle>
             <v-card-subtitle>เวลา: {{ fullTime }}</v-card-subtitle>
@@ -365,7 +365,6 @@ interface BookItem {
   book_imgs: string
   duplicate_check: string
   form_status: string
-  form_status?: string
 }
 
 // Headers สำหรับ v-data-table

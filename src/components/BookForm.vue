@@ -473,6 +473,7 @@ const cancelForm = () => {
 
 const confirmForm = async (bookForm: any) => {
   try {
+    const userId = book.value.User ? Number(book.value.User) : null // ตรวจสอบ user_id
     const formData = {
       user_fullname: `${book.value.Prefix} ${book.value.FirstName} ${book.value.LastName}`,
       user_name: book.value.FirstName,
@@ -489,7 +490,7 @@ const confirmForm = async (bookForm: any) => {
       ISBN: book.value.isbn,
       book_price: Number(book.value.Price),
       book_quantity: Number(book.value.Count),
-      user_id: book.value.User ? Number(book.value.User) : null, // ตรวจสอบ user_id
+      user_id: userId, // ใช้ userId ที่ถูกตรวจสอบแล้ว
       coupon_used: book.value.Coupon,
     }
 
