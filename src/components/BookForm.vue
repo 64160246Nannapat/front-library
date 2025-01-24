@@ -3,266 +3,269 @@
     <!-- <HomeStudent /> -->
     <v-main>
       <v-container>
-        <div class="header">
+        <div class="header" style="margin-bottom: 50px">
           <img class="header-image" src="@/assets/library (1).png" alt="Library Image" />
           <h1>แบบฟอร์มการเสนอหนังสือ</h1>
         </div>
-        <v-form ref="bookForm" v-model="valid">
-          <!-- คำนำหน้าชื่อ -->
-          <div class="form-row">
-            <label for="name" style="font-size: 17px">
-              คำนำหน้า <span class="required-asterisk">*</span>
-            </label>
-            <v-text-field
-              v-model="book.Prefix"
-              :rules="[rules.required]"
-              variant="outlined"
-              class="text-feild-top text gray-field"
-              dense
-              :readonly="isReadOnly"
-            ></v-text-field>
-          </div>
+        <v-form ref="bookForm" v-model="valid" class="form-wrapper">
+          <!-- ใช้ Grid Layout สำหรับการจัดฟอร์ม -->
+          <div class="form-grid">
+            <!-- คำนำหน้า -->
+            <div class="form-row">
+              <label for="name" style="font-size: 17px">
+                คำนำหน้า<span class="required-asterisk">*</span>
+              </label>
+              <v-text-field
+                v-model="book.Prefix"
+                :rules="[rules.required]"
+                variant="outlined"
+                class="text-feild-top text gray-field"
+                dense
+                :readonly="isReadOnly"
+              ></v-text-field>
+            </div>
 
-          <!-- ชื่อ -->
-          <div class="form-row">
-            <label for="firstName" style="font-size: 17px"
-              >ชื่อ<span class="required-asterisk">*</span></label
+            <!-- ชื่อ -->
+            <div class="form-row">
+              <label for="firstName" style="font-size: 17px"
+                >ชื่อ<span class="required-asterisk">*</span></label
+              >
+              <v-text-field
+                v-model="book.FirstName"
+                :rules="[rules.required]"
+                variant="outlined"
+                class="text-feild-top text gray-field"
+                dense
+                :readonly="isReadOnly"
+              ></v-text-field>
+            </div>
+
+            <!-- นามสกุล -->
+            <div class="form-row">
+              <label for="lastName" style="font-size: 17px"
+                >นามสกุล<span class="required-asterisk">*</span></label
+              >
+              <v-text-field
+                v-model="book.LastName"
+                :rules="[rules.required]"
+                variant="outlined"
+                class="text-feild-top text gray-field"
+                dense
+                :readonly="isReadOnly"
+              ></v-text-field>
+            </div>
+
+            <!-- ตำแหน่ง -->
+            <div class="form-row">
+              <label for="role" style="font-size: 17px"
+                >ตำแหน่ง<span class="required-asterisk">*</span></label
+              >
+              <v-select
+                v-model="book.Role"
+                :items="roles"
+                :rules="[rules.required]"
+                variant="outlined"
+                class="text-feild-top text gray-field"
+                dense
+                :readonly="isReadOnly"
+              ></v-select>
+            </div>
+
+            <!-- คณะ -->
+            <div class="form-row">
+              <label for="faculty" style="font-size: 17px"
+                >คณะ<span class="required-asterisk">*</span></label
+              >
+              <v-select
+                v-model="book.Faculty"
+                :items="faculties"
+                :rules="[rules.required]"
+                variant="outlined"
+                class="text-feild-top text gray-field"
+                dense
+                :readonly="isReadOnly"
+              ></v-select>
+            </div>
+
+            <!-- สาขา -->
+            <div class="form-row">
+              <label for="department" style="font-size: 17px"
+                >สาขา<span class="required-asterisk">*</span></label
+              >
+              <v-select
+                v-model="book.Department"
+                :items="departments"
+                :rules="[rules.required]"
+                variant="outlined"
+                class="text-feild-top text gray-field"
+                dense
+                :readonly="isReadOnly"
+              ></v-select>
+            </div>
+
+            <!-- เบอร์ -->
+            <div class="form-row">
+              <label for="tel" style="font-size: 17px"
+                >เบอร์<span class="required-asterisk">*</span></label
+              >
+              <v-text-field
+                v-model="book.Tel"
+                :rules="[rules.required, rules.tel]"
+                variant="outlined"
+                class="text-feild-top text gray-field"
+                dense
+                :readonly="isReadOnly"
+              ></v-text-field>
+            </div>
+
+            <!-- E-mail -->
+            <div class="form-row">
+              <label for="email" style="font-size: 17px"
+                >E-mail<span class="required-asterisk">*</span></label
+              >
+              <v-text-field
+                v-model="book.Email"
+                :rules="[rules.required, rules.email]"
+                variant="outlined"
+                class="text-feild-top text gray-field"
+                dense
+                :readonly="isReadOnly"
+              ></v-text-field>
+            </div>
+
+            <!-- ชื่อร้านค้า (Dropdown) -->
+            <div class="form-row">
+              <label for="store" style="font-size: 17px"
+                >ชื่อร้านค้า<span class="required-asterisk">*</span></label
+              >
+              <v-select
+                v-model="book.Store"
+                :items="stores"
+                :rules="[rules.required]"
+                variant="outlined"
+                class="text-feild-top"
+                dense
+              ></v-select>
+            </div>
+
+            <!-- ชื่อหนังสือ -->
+            <div class="form-row">
+              <label for="title" style="font-size: 17px"
+                >ชื่อหนังสือ<span class="required-asterisk">*</span></label
+              >
+              <v-text-field
+                v-model="book.Title"
+                :rules="[rules.required]"
+                variant="outlined"
+                class="text-feild-top"
+                dense
+              ></v-text-field>
+            </div>
+
+            <!-- ผู้แต่ง -->
+            <div class="form-row">
+              <label for="author" style="font-size: 17px">ผู้ชื่อแต่ง</label>
+              <v-text-field
+                v-model="book.Author"
+                variant="outlined"
+                class="text-feild-top"
+                dense
+              ></v-text-field>
+            </div>
+
+            <!-- ปีพิมพ์ -->
+            <div class="form-row">
+              <label for="year" style="font-size: 17px">ปีพิมพ์</label>
+              <v-text-field
+                v-model="book.Year"
+                variant="outlined"
+                class="text-feild-top"
+                dense
+              ></v-text-field>
+            </div>
+
+            <!-- ISBN -->
+            <div class="form-row">
+              <label for="isbn" style="font-size: 17px"
+                >ISBN<span class="required-asterisk">*</span></label
+              >
+              <v-text-field
+                v-model="book.isbn"
+                :rules="[rules.required, rules.required]"
+                variant="outlined"
+                class="text-feild-top"
+                dense
+              ></v-text-field>
+            </div>
+
+            <!-- รายวิชา -->
+            <div class="form-row">
+              <label for="subject" style="font-size: 17px"
+                >รายวิชา<span class="required-asterisk">*</span></label
+              >
+              <v-text-field
+                v-model="book.Subject"
+                :rules="[rules.required]"
+                variant="outlined"
+                class="text-feild-top"
+                dense
+              ></v-text-field>
+            </div>
+
+            <!-- ราคาสุทธิ -->
+            <div class="form-row">
+              <label for="price" style="font-size: 17px"
+                >ราคาสุทธิ<span class="required-asterisk">*</span></label
+              >
+              <v-text-field
+                v-model="book.Price"
+                :rules="[rules.required, rules.number]"
+                variant="outlined"
+                class="text-feild-top"
+                dense
+              ></v-text-field>
+            </div>
+
+            <!-- จำนวนเล่ม -->
+            <div class="form-row">
+              <label for="count" style="font-size: 17px"
+                >จำนวนเล่ม<span class="required-asterisk">*</span></label
+              >
+              <v-text-field
+                v-model="book.Count"
+                :rules="[rules.required, rules.number]"
+                variant="outlined"
+                class="text-feild-top"
+                dense
+              ></v-text-field>
+            </div>
+
+            <!-- คูปอง -->
+            <div class="form-row">
+              <label for="coupon" style="font-size: 17px"
+                >คูปอง<span class="required-asterisk">*</span></label
+              >
+              <v-select
+                v-model="book.Coupon"
+                :items="couponUsed"
+                :rules="[rules.required]"
+                variant="outlined"
+                class="text-feild-top"
+                dense
+              ></v-select>
+            </div>
+
+            <!-- ปุ่มยืนยัน -->
+            <v-btn
+              :disabled="!valid"
+              elevation="8"
+              class="mt-4 confirm-btn confirm-btnheight"
+              style="background-color: #eed3d9"
+              @click="submitForm"
             >
-            <v-text-field
-              v-model="book.FirstName"
-              :rules="[rules.required]"
-              variant="outlined"
-              class="text-feild-top text gray-field"
-              dense
-              :readonly="isReadOnly"
-            ></v-text-field>
+              ยืนยัน
+            </v-btn>
           </div>
-
-          <!-- นามสกุล -->
-          <div class="form-row">
-            <label for="lastName" style="font-size: 17px"
-              >นามสกุล<span class="required-asterisk">*</span></label
-            >
-            <v-text-field
-              v-model="book.LastName"
-              :rules="[rules.required]"
-              variant="outlined"
-              class="text-feild-top text gray-field"
-              dense
-              :readonly="isReadOnly"
-            ></v-text-field>
-          </div>
-
-          <!-- ตำแหน่ง -->
-          <div class="form-row">
-            <label for="role" style="font-size: 17px"
-              >ตำแหน่ง<span class="required-asterisk">*</span></label
-            >
-            <v-select
-              v-model="book.Role"
-              :items="roles"
-              :rules="[rules.required]"
-              variant="outlined"
-              class="text-feild-top text gray-field"
-              dense
-              :readonly="isReadOnly"
-            ></v-select>
-          </div>
-
-          <!-- คณะ -->
-          <div class="form-row">
-            <label for="faculty" style="font-size: 17px"
-              >คณะ<span class="required-asterisk">*</span></label
-            >
-            <v-select
-              v-model="book.Faculty"
-              :items="faculties"
-              :rules="[rules.required]"
-              variant="outlined"
-              class="text-feild-top text gray-field"
-              dense
-              :readonly="isReadOnly"
-            ></v-select>
-          </div>
-
-          <!-- สาขา -->
-          <div class="form-row">
-            <label for="department" style="font-size: 17px"
-              >สาขา<span class="required-asterisk">*</span></label
-            >
-            <v-select
-              v-model="book.Department"
-              :items="departments"
-              :rules="[rules.required]"
-              variant="outlined"
-              class="text-feild-top text gray-field"
-              dense
-              :readonly="isReadOnly"
-            ></v-select>
-          </div>
-
-          <!-- เบอร์ -->
-          <div class="form-row">
-            <label for="tel" style="font-size: 17px"
-              >เบอร์<span class="required-asterisk">*</span></label
-            >
-            <v-text-field
-              v-model="book.Tel"
-              :rules="[rules.required, rules.tel]"
-              variant="outlined"
-              class="text-feild-top text gray-field"
-              dense
-              :readonly="isReadOnly"
-            ></v-text-field>
-          </div>
-
-          <!-- E-mail -->
-          <div class="form-row">
-            <label for="email" style="font-size: 17px"
-              >E-mail<span class="required-asterisk">*</span></label
-            >
-            <v-text-field
-              v-model="book.Email"
-              :rules="[rules.required, rules.email]"
-              variant="outlined"
-              class="text-feild-top text gray-field"
-              dense
-              :readonly="isReadOnly"
-            ></v-text-field>
-          </div>
-
-          <!-- ชื่อร้านค้า (Dropdown) -->
-          <div class="form-row">
-            <label for="store" style="font-size: 17px"
-              >ชื่อร้านค้า<span class="required-asterisk">*</span></label
-            >
-            <v-select
-              v-model="book.Store"
-              :items="stores"
-              :rules="[rules.required]"
-              variant="outlined"
-              class="text-feild-top"
-              dense
-            ></v-select>
-          </div>
-
-          <!-- ชื่อหนังสือ -->
-          <div class="form-row">
-            <label for="title" style="font-size: 17px"
-              >ชื่อหนังสือ<span class="required-asterisk">*</span></label
-            >
-            <v-text-field
-              v-model="book.Title"
-              :rules="[rules.required]"
-              variant="outlined"
-              class="text-feild-top"
-              dense
-            ></v-text-field>
-          </div>
-
-          <!-- ผู้แต่ง -->
-          <div class="form-row">
-            <label for="author" style="font-size: 17px">ผู้ชื่อแต่ง</label>
-            <v-text-field
-              v-model="book.Author"
-              variant="outlined"
-              class="text-feild-top"
-              dense
-            ></v-text-field>
-          </div>
-
-          <!-- ปีพิมพ์ -->
-          <div class="form-row">
-            <label for="year" style="font-size: 17px">ปีพิมพ์</label>
-            <v-text-field
-              v-model="book.Year"
-              variant="outlined"
-              class="text-feild-top"
-              dense
-            ></v-text-field>
-          </div>
-
-          <!-- ISBN -->
-          <div class="form-row">
-            <label for="isbn" style="font-size: 17px"
-              >ISBN<span class="required-asterisk">*</span></label
-            >
-            <v-text-field
-              v-model="book.isbn"
-              :rules="[rules.required, rules.required]"
-              variant="outlined"
-              class="text-feild-top"
-              dense
-            ></v-text-field>
-          </div>
-
-          <!-- รายวิชา -->
-          <div class="form-row">
-            <label for="subject" style="font-size: 17px"
-              >รายวิชา<span class="required-asterisk">*</span></label
-            >
-            <v-text-field
-              v-model="book.Subject"
-              :rules="[rules.required]"
-              variant="outlined"
-              class="text-feild-top"
-              dense
-            ></v-text-field>
-          </div>
-
-          <!-- ราคาสุทธิ -->
-          <div class="form-row">
-            <label for="price" style="font-size: 17px"
-              >ราคาสุทธิ<span class="required-asterisk">*</span></label
-            >
-            <v-text-field
-              v-model="book.Price"
-              :rules="[rules.required, rules.number]"
-              variant="outlined"
-              class="text-feild-top"
-              dense
-            ></v-text-field>
-          </div>
-
-          <!-- จำนวนเล่ม -->
-          <div class="form-row">
-            <label for="count" style="font-size: 17px"
-              >จำนวนเล่ม<span class="required-asterisk">*</span></label
-            >
-            <v-text-field
-              v-model="book.Count"
-              :rules="[rules.required, rules.number]"
-              variant="outlined"
-              class="text-feild-top"
-              dense
-            ></v-text-field>
-          </div>
-
-          <!-- คูปอง -->
-          <div class="form-row">
-            <label for="coupon" style="font-size: 17px"
-              >คูปอง<span class="required-asterisk">*</span></label
-            >
-            <v-select
-              v-model="book.Coupon"
-              :items="couponUsed"
-              :rules="[rules.required]"
-              variant="outlined"
-              class="text-feild-top"
-              dense
-            ></v-select>
-          </div>
-
-          <!-- ปุ่มยืนยัน -->
-          <v-btn
-            :disabled="!valid"
-            elevation="8"
-            class="mt-4 confirm-btn confirm-btnheight"
-            style="background-color: #eed3d9"
-            @click="submitForm"
-          >
-            ยืนยัน
-          </v-btn>
         </v-form>
         <!-- dialog ยืนยันการส่งข้อมูล-->
         <v-dialog v-model="dialog" max-width="400px">
@@ -333,7 +336,7 @@ import axios from 'axios'
 import { onMounted, ref } from 'vue'
 import { jwtDecode } from 'jwt-decode'
 import type { VForm } from 'vuetify/components'
-import $ from 'jquery';
+import $ from 'jquery'
 
 const isReadonly = ref(false)
 const bookForm = ref<VForm | null>(null)
@@ -652,13 +655,14 @@ h1 {
 .form-row {
   display: flex;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 10px;
   font-size: 20px;
   justify-content: space-between;
 }
 
 .form-row label {
   min-width: 120px; /* กำหนดความกว้างขั้นต่ำให้ข้อความ */
+  margin-bottom: 10px;
   margin-right: 10px;
   font-weight: bold;
   text-align: center;
@@ -667,12 +671,16 @@ h1 {
 }
 
 .text-feild-top {
-  margin-top: 20px;
+  margin-top: 2px;
   min-height: 50px;
+  width: 100%;
+  max-width: 500px;
 }
 
 .v-text-field,
 .v-select {
+  width: 100%; /* เพิ่มความกว้างเต็มที่ */
+  max-width: 1000px;
   flex-grow: 1; /* ให้ช่องกรอกข้อมูลขยายตามพื้นที่ที่เหลือ */
 }
 
@@ -743,5 +751,60 @@ h1 {
   background-color: #f0f0f0; /* สีเทาอ่อน */
   color: #666666; /* สีตัวอักษรเทา */
   pointer-events: none; /* ปิดการโต้ตอบ */
+}
+
+.form-wrapper {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
+  background: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr; /* แสดง 1 คอลัมน์ต่อแถว */
+}
+
+.form-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-label {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.form-input {
+  width: 100%;
+}
+
+.form-actions {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.confirm-btn {
+  background-color: #eed3d9;
+  color: #fff;
+  font-size: 16px;
+  font-weight: bold;
+  padding: 10px 20px;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.confirm-btn:hover {
+  background-color: #e5a1a8;
+}
+
+@media (max-width: 768px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

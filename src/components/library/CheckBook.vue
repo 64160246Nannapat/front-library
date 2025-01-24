@@ -55,7 +55,7 @@
 
         <!-- Display Results -->
         <v-row
-          justify="start"
+          justify="center"
           align="center"
           style="min-height: 40vh; padding-top: 8px"
           v-if="serverItems && serverItems.length > 0"
@@ -65,21 +65,19 @@
             md="8"
             v-for="(book, index) in serverItems"
             :key="index"
+            class="d-flex justify-center"
             style="margin-left: 50px"
           >
-            <v-card outlined class="mx-auto" style="width: 1000px; height: 400px; text-align: left">
-              <div
-                style="
-                  display: flex;
-                  align-items: flex-start;
-                  gap: 8px; /* ลดระยะห่างระหว่างรูปภาพและข้อความ */
-                  margin-bottom: 15px;
-                "
-              >
+            <v-card
+              outlined
+              class="mx-auto"
+              style="width: 100%; max-width: 1000px; height: 320px; text-align: left"
+            >
+              <div style="display: flex; align-items: flex-start; margin-bottom: 15px">
                 <v-img
                   :src="book.bookCover"
                   alt="Book Image"
-                  width="50px"
+                  width="30px"
                   height="250px"
                   style="border-radius: 10px; object-fit: cover; margin-right: 5px"
                 ></v-img>
@@ -174,8 +172,7 @@ const searchBooks = async () => {
     const data = await response.json()
 
     if (data?.status && data?.data) {
-      // ใช้ Map เพื่อเก็บข้อมูลหนังสือที่ไม่ซ้ำ
-      const uniqueBooksMap = new Map()
+      const uniqueBooksMap = new Map<string, BookItem>()
 
       data.data.Info.forEach((item: { FIELD: string; DATA: string }) => {
         const bookInfo: BookItem = {
@@ -189,45 +186,52 @@ const searchBooks = async () => {
           bookCover: data.data.BookCover.replace(/(^"|"$|\\)/g, '') || '',
         }
 
-        data.data.Info.forEach((item: { FIELD: string; DATA: string }) => {
-          switch (item.FIELD) {
+        data.data.Info.forEach((infoItem: { FIELD: string; DATA: string }) => {
+          switch (infoItem.FIELD) {
             case 'ISBN':
-              bookInfo.isbn.push(item.DATA)
+              bookInfo.isbn.push(infoItem.DATA)
               break
             case 'Author':
-              bookInfo.author = item.DATA
+              bookInfo.author = infoItem.DATA
               break
             case 'Title':
-              // ตรวจสอบว่า title ใหม่นั้นยาวกว่าที่มีอยู่ก่อนหรือไม่
-              if (item.DATA.length > bookInfo.title.length) {
-                bookInfo.title = item.DATA
+              if (infoItem.DATA.length > bookInfo.title.length) {
+                bookInfo.title = infoItem.DATA
               }
               break
             case 'Edition':
-              bookInfo.edition = item.DATA
+              bookInfo.edition = infoItem.DATA
               break
             case 'Published':
-              bookInfo.publisher = item.DATA
+              bookInfo.publisher = infoItem.DATA
               break
             case 'Detail':
-              bookInfo.quantity = item.DATA
+              bookInfo.quantity = infoItem.DATA
               break
             case 'Subject':
-              bookInfo.description = item.DATA
+              bookInfo.description = infoItem.DATA
               break
             default:
               break
           }
         })
 
-        // เก็บข้อมูลหนังสือใน Map โดยใช้ ISBN หรือ Title เป็น key
-        if (!uniqueBooksMap.has(bookInfo.title)) {
-          uniqueBooksMap.set(bookInfo.title, bookInfo)
-        }
+        // ตรวจสอบว่า ISBN นี้มีอยู่ใน Map หรือยัง
+        bookInfo.isbn.forEach((isbn) => {
+          // ใช้ ISBN เป็นคีย์ เพื่อหลีกเลี่ยงการแสดงผลซ้ำกัน
+          if (!uniqueBooksMap.has(isbn)) {
+            uniqueBooksMap.set(isbn, bookInfo) // เพิ่มหนังสือใหม่ที่มี ISBN นี้
+          }
+        })
       })
 
-      // แปลง Map กลับเป็นอาร์เรย์
-      serverItems.value = Array.from(uniqueBooksMap.values())
+      // แปลง Map กลับเป็นอาร์เรย์สำหรับแสดงผล
+      serverItems.value = Array.from(uniqueBooksMap.values()) // ดึงค่าจาก Map ที่ไม่มี ISBN ซ้ำ
+
+      // ถ้ามีข้อมูลจากการค้นหาแสดงทั้งหมด
+      if (serverItems.value.length === 0) {
+        alert('ไม่พบข้อมูลหนังสือที่ตรงกับการค้นหา')
+      }
     } else {
       serverItems.value = []
     }
@@ -302,5 +306,61 @@ h1 {
 .search-text {
   width: 600px;
   margin-left: 0;
+}
+
+@media (max-width: 1200px) {
+  .header-image {
+    width: 50px;
+  }
+
+  h1 {
+    font-size: 22px;
+  }
+
+  .card {
+    width: 90%;
+    height: auto;
+  }
+
+  .search-text {
+    width: 100%;
+  }
+
+  .search-title {
+    width: 100%;
+  }
+
+  .v-btn {
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  .v-col {
+    margin-left: 0 !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .header-image {
+    width: 40px;
+  }
+
+  h1 {
+    font-size: 18px;
+  }
+
+  .card {
+    width: 100%;
+    height: auto;
+  }
+
+  .search-text {
+    width: 100%;
+  }
+
+  .v-btn {
+    width: 100%;
+    height: 45px;
+  }
 }
 </style>
