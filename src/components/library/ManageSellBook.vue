@@ -36,7 +36,6 @@
         </v-row>
       </div>
 
-      <!-- Formatted Date Display -->
       <v-row>
         <v-col cols="auto">
           <div class="formatted-date-display">
@@ -94,12 +93,16 @@
 
       <!-- Data Table Section -->
       <v-data-table
+        v-model:items-per-page="itemsPerPage"
         :headers="headers"
         :items="serverItems"
+        :items-length="totalItems"
+        :loading="loading"
+        @update:options="loadItems"
+        show-items-per-page="false"
+        :hide-default-footer="true"
         style="width: 100%; table-layout: auto; border-collapse: collapse"
         class="custom-table no-scrollbar"
-        :hide-default-footer="true"
-        :items-per-page="-1"
       >
         <template #item.image="{ item }">
           <v-btn
@@ -117,22 +120,39 @@
           >
             <v-icon>mdi-magnify</v-icon>
           </v-btn>
+          <v-dialog v-model="dialog" max-width="400">
+            <template #default>
+              <p
+                v-if="typeof selectedBookImage === 'string'"
+                style="text-align: center; padding: 16px; font-size: 16px"
+              >
+                {{ selectedBookImage }}
+              </p>
+
+              <img
+                v-else
+                :src="selectedBookImage"
+                alt="Book Image"
+                style="max-width: 100%; max-height: 100%; object-fit: cover; border-radius: 8px"
+              />
+            </template>
+          </v-dialog>
         </template>
 
         <template #item.check="{ item }">
           <v-radio-group
-            v-model="item.checkStatus"
+            v-model="item.duplicate_check"
             row
             @change="confirmCheckStatus(item)"
             style="margin-top: 20px"
           >
-            <v-radio label="ไม่ซ้ำ" value="yes">
+            <v-radio label="ไม่ซ้ำ" value="ไม่ซ้ำ">
               <template v-slot:label>
                 <span style="font-size: 14px; white-space: nowrap">ไม่ซ้ำ</span>
               </template>
             </v-radio>
 
-            <v-radio label="ซ้ำ" value="no">
+            <v-radio label="ซ้ำ" value="ซ้ำ">
               <template v-slot:label>
                 <span style="font-size: 14px; white-space: nowrap">ซ้ำ</span>
               </template>
@@ -146,7 +166,7 @@
               <v-col>
                 <div style="display: flex; flex-direction: column; align-items: center; gap: 10px">
                   <v-select
-                    v-model="selcet.approvalStatus"
+                    v-model="item.form_status"
                     :items="['รอการอนุมัติ', 'กำลังดำเนินการ', 'ไม่อนุมัติการซื้อ']"
                     solo
                     dense
@@ -160,6 +180,7 @@
                   <v-btn
                     icon
                     @click="onMessageClick(item)"
+                    :disabled="!item.offer_form_id"
                     style="
                       border-radius: 8px;
                       background-color: #b4c7e4;
@@ -190,7 +211,23 @@
           </v-card-actions>
 
           <v-spacer></v-spacer>
+
+          <!-- เพิ่มเงื่อนไขตรงนี้ -->
+          <template v-if="selectedBookImage === 'ไม่มีรูปภาพ'">
+            <p
+              style="
+                text-align: center;
+                padding: 16px;
+                font-size: 20px;
+                color: black;
+                margin-top: 20px;
+              "
+            >
+              {{ selectedBookImage }}
+            </p>
+          </template>
           <v-img
+            v-else
             :src="selectedBookImage"
             max-height="600"
             contain
@@ -294,6 +331,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import defaultImage from '@/assets/front-book.png'
 import backImage from '@/assets/back-book.png'
+import axios from 'axios'
 
 // Date & Search Variables
 const selectedDate = ref(new Date())
@@ -302,31 +340,42 @@ const searchCategory = ref('ISBN')
 const searchBook = ref('ทั้งหมด')
 const searchText = ref('')
 const loading = ref(false)
-const serverItems = ref([])
 const dialog = ref(false)
-const selectedBookImage = ref('')
-
+const selectedBookImage = ref('ไม่มีรูปภาพ')
+const totalItems = ref(0)
+const serverItems = ref<BookItem[]>([])
 const fullDate = ref('')
 const fullTime = ref('')
+const itemsPerPage = ref(1000000)
+
 // Dialog Management
 const messageDialog = ref(false)
+const confirmData = ref({})
 const confirmDialog = ref(false)
 const selectedItem = ref(null)
 const message = ref('')
 
-const selcet = ref({
-  approvalStatus: 'รอการอนุมัติ', // กำหนดค่าเริ่มต้นให้เป็น 'รอการอนุมัติ'
-})
+interface BookItem {
+  offer_form_id: number
+  book_title: string
+  ISBN: string
+  book_price: number
+  book_quantity: number
+  book_imgs: string
+  duplicate_check: string
+  form_status: string
+  form_status?: string
+}
 
 // Headers สำหรับ v-data-table
 const headers = [
-  { title: 'ลำดับ', key: 'id', align: 'start' },
-  { title: 'ข้อมูลผู้คัดเลือก', key: 'name' },
-  { title: 'ชื่อหนังสือ', key: 'title' },
-  { title: 'ISBN', key: 'isbn' },
-  { title: 'ร้านค้า', key: 'shop' },
-  { title: 'ราคาสุทธิ', key: 'price' },
-  { title: 'จำนวน', key: 'quantity' },
+  { title: 'ลำดับ', key: 'rowIndex', align: 'start' },
+  { title: 'ข้อมูลผู้คัดเลือก', key: 'user_fullname' },
+  { title: 'ชื่อหนังสือ', key: 'book_title' },
+  { title: 'ISBN', key: 'ISBN' },
+  { title: 'ร้านค้า', key: 'store.store_name' },
+  { title: 'ราคาสุทธิ', key: 'book_price' },
+  { title: 'จำนวน', key: 'book_quantity' },
   { title: 'รูปภาพ', key: 'image', align: 'center' },
   { title: 'ตรวจซ้ำ', key: 'check' },
   { title: 'ดำเนินการ', key: 'view' },
@@ -378,14 +427,99 @@ const fullFormattedDate = computed(() => {
   return `${dayName} ที่ ${day} ${monthName} พ.ศ. ${year}`
 })
 
-const onMessageClick = (item) => {
+const filterDataByDate = (data: any[], selectedDate: Date) => {
+  const startOfDay = new Date(selectedDate)
+  startOfDay.setHours(0, 0, 0, 0)
+
+  const endOfDay = new Date(selectedDate)
+  endOfDay.setHours(23, 59, 59, 999)
+
+  return data
+    .filter((item) => {
+      const createdAt = new Date(item.createdAt)
+      return createdAt >= startOfDay && createdAt <= endOfDay
+    })
+    .map((item, index) => ({
+      ...item,
+      rowIndex: index + 1, // เพิ่มลำดับแถว
+    }))
+}
+
+const fetchDataFromAPI = async ({ page, itemsPerPage }: { page: number; itemsPerPage: number }) => {
+  try {
+    const response = await axios.get('http://localhost:3000/offer-form', {
+      params: {
+        page,
+        itemsPerPage,
+      },
+    })
+
+    const data = response.data
+    return {
+      items: data.map((item: any) => ({
+        ...item,
+        book_imgs: Array.isArray(item.book_imgs) ? item.book_imgs : [],
+        createdAt: item.createdAt, // เก็บ `createdAt` ไว้กรองใน frontend
+        form_status: item.form_status || 'รอการอนุมัติ', // เพิ่ม default
+        offer_form_id: item.offer_form_id, // ดึง id จาก API
+      })),
+      total: data.length,
+    }
+  } catch (error) {
+    console.error('Error fetching data:', error)
+    return { items: [], total: 0 }
+  }
+}
+
+const onMessageClick = async (item) => {
+  if (!item.offer_form_id) {
+    console.error('Missing offer_form_id in item:', item)
+    return // หยุดการทำงานถ้าไม่มี offer_form_id
+  }
+
   selectedItem.value = item
-  updateDateTime() // เรียกใช้ฟังก์ชันอัปเดตวันเวลา
-  messageDialog.value = true // เปิด dialog
+
+  // อัปเดตวันเวลา
+  updateDateTime()
+
+  try {
+    // อัปเดต form_status และ duplicate_check ผ่าน API
+    await updateApproveStatus(item)
+
+    // แสดงข้อความหรืออัปเดต UI หากสำเร็จ
+    console.log('Approve status and duplicate_check updated successfully!')
+  } catch (error) {
+    console.error('Error updating approve status and duplicate_check:', error)
+  }
+
+  // เปิด dialog
+  // messageDialog.value = true
+}
+
+const updateApproveStatus = async (item) => {
+  if (!item.offer_form_id) {
+    console.error('Missing offer_form_id in item:', item)
+    return // หยุดการทำงานถ้าไม่มี ID
+  }
+
+  const url = `http://localhost:3000/offer-form/${item.offer_form_id}`
+  const payload = {
+    form_status: item.form_status, // ค่า form_status (ถ้ามี)
+    duplicate_check: item.duplicate_check, // ค่า duplicate_check จาก v-radio-group
+  }
+
+  try {
+    const response = await axios.patch(url, payload)
+    console.log('Updated form_status and duplicate_check successfully:', response.data)
+    return response.data
+  } catch (error) {
+    console.error('Error updating form_status and duplicate_check:', error)
+    throw error
+  }
 }
 
 const updateDateTime = () => {
-  const now = new Date() // ดึงวันเวลาปัจจุบัน
+  const now = new Date()
   fullDate.value = now.toLocaleDateString('th-TH', {
     year: 'numeric',
     month: 'long',
@@ -398,185 +532,119 @@ const updateDateTime = () => {
   })
 }
 
-// API ปลอมเพื่อเลียนแบบการดึงข้อมูล
-const FakeAPI = {
-  async fetch({ page }: { page: number; itemsPerPage: number }) {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const data = [
-          {
-            id: 1,
-            name: 'นันท์ณภัทร สอนสุภาพ',
-            title: 'ความรู้สึกของเราสำคัญที่สุด',
-            date: '01/12/2567',
-            isbn: '9783161484100',
-            shop: 'แจ่มใส',
-            price: 250,
-            quantity: 2,
-            status: 'เสนอหนังสือ',
-            author: 'อีดงกวี',
-            email: 'nan@gmail.com',
-          },
-          {
-            id: 2,
-            name: 'สมศรี ดีใจ',
-            title: 'วิทยาศาสตร์ของการใช้ชีวิต = The science of living',
-            date: '02/12/2567',
-            isbn: '9780306406157',
-            shop: 'แจ่มใส',
-            price: 350,
-            quantity: 1,
-            status: 'Book Fair',
-            author: 'Dr. Stuart Farrimond',
-            email: 'somsi@gmail.com',
-          },
-          {
-            id: 3,
-            name: 'มงคล ปีใหม่',
-            title:
-              'คุณคางคกไปพบนักจิตบำบัด : การผจญภัยทางจิตวิทยา = Counselling for toads : a psychological adventure ',
-            date: '03/12/2567',
-            isbn: '9781402894656',
-            shop: 'แจ่มใส',
-            price: 500,
-            quantity: 3,
-            status: 'Book Fair',
-            author: 'Robert de Board',
-            email: 'monkol@gmail.com',
-          },
-          {
-            id: 4,
-            name: 'เปี๊ยก แฮปปี้',
-            title: 'ร่างกายไม่เคยโกหก = What every body is saying',
-            date: '20/12/2567',
-            isbn: '9787402894626',
-            shop: 'แจ่มใส',
-            price: 500,
-            quantity: 1,
-            status: 'Book Fair',
-            author: 'Joe Navarro',
-            email: 'piek@gmail.com',
-          },
-          {
-            id: 5,
-            name: 'นวรรษ สีหบุตร',
-            title: 'ภาวะลื่นไหล ทำอะไรก็ง่ายหมด = Productivity flow',
-            date: '20/12/2567',
-            isbn: '9781502894626',
-            shop: 'แจ่มใส',
-            price: 500,
-            quantity: 1,
-            status: 'เสนอหนังสือ',
-            author: 'สิทธินันท์ พลวิสุทธิ์ศักดิ์',
-            email: 'nawapat@gmail.com',
-          },
-          {
-            id: 6,
-            name: 'สีดา จันทรา',
-            title: 'หัวไม่ดีก็มีวิธีสอบผ่าน',
-            date: '14/01/2568',
-            isbn: '9786165786195',
-            shop: 'แจ่มใส',
-            price: 500,
-            quantity: 1,
-            status: 'เสนอหนังสือ',
-            author: 'จิตเกษม น้อยไร่ภูมิ',
-            email: 'sita@gmail.com',
-          },
-        ]
+// const onSearch = () => {
+//   loading.value = true
+//   fetchDataFromAPI.fetch({ page: 1, itemsPerPage: 10 }).then((items) => {
+//     let filteredItems = items
 
-        resolve(data)
-      }, 500)
-    })
-  },
-}
+//     if (selectedDate.value) {
+//       const selectedFormattedDate = formattedDate.value
+//       filteredItems = filteredItems.filter((item) => item.date === selectedFormattedDate)
+//     }
 
-const onSearch = () => {
-  loading.value = true
-  FakeAPI.fetch({ page: 1, itemsPerPage: 10 }).then((items) => {
-    let filteredItems = items
+//     if (searchBook.value !== 'ทั้งหมด') {
+//       filteredItems = filteredItems.filter((item) => item.status === searchBook.value)
+//     }
 
-    if (selectedDate.value) {
-      const selectedFormattedDate = formattedDate.value
-      filteredItems = filteredItems.filter((item) => item.date === selectedFormattedDate)
-    }
+//     if (searchText.value && searchCategory.value) {
+//       const searchValue = searchText.value.toLowerCase()
+//       filteredItems = filteredItems.filter((item) => {
+//         if (searchCategory.value === 'TITLE') return item.title.toLowerCase().includes(searchValue)
+//         if (searchCategory.value === 'ISBN') return item.isbn.toLowerCase().includes(searchValue)
+//         if (searchCategory.value === 'AUTHOR' && item.author)
+//           return item.author.toLowerCase().includes(searchValue)
+//         return true
+//       })
 
-    if (searchBook.value !== 'ทั้งหมด') {
-      filteredItems = filteredItems.filter((item) => item.status === searchBook.value)
-    }
+//       menuDate.value = false
+//     }
 
-    if (searchText.value && searchCategory.value) {
-      const searchValue = searchText.value.toLowerCase()
-      filteredItems = filteredItems.filter((item) => {
-        if (searchCategory.value === 'TITLE') return item.title.toLowerCase().includes(searchValue)
-        if (searchCategory.value === 'ISBN') return item.isbn.toLowerCase().includes(searchValue)
-        if (searchCategory.value === 'AUTHOR' && item.author)
-          return item.author.toLowerCase().includes(searchValue)
-        return true
-      })
+//     // หากไม่มีการกรองเพิ่มเติมและไม่มีวันที่ที่เลือก ให้แสดงข้อมูลทั้งหมด
+//     if (!selectedDate.value && !searchBook.value && !searchText.value) {
+//       filteredItems = items
+//     }
 
-      menuDate.value = false
-    }
+//     // อัปเดตข้อมูลตาราง
+//     serverItems.value = filteredItems
 
-    // หากไม่มีการกรองเพิ่มเติมและไม่มีวันที่ที่เลือก ให้แสดงข้อมูลทั้งหมด
-    if (!selectedDate.value && !searchBook.value && !searchText.value) {
-      filteredItems = items
-    }
+//     // หากไม่มีข้อมูลให้เตือนใน console
+//     if (filteredItems.length === 0) {
+//       console.warn('No data found with the selected criteria.')
+//     }
 
-    // อัปเดตข้อมูลตาราง
-    serverItems.value = filteredItems
-
-    // หากไม่มีข้อมูลให้เตือนใน console
-    if (filteredItems.length === 0) {
-      console.warn('No data found with the selected criteria.')
-    }
-
-    loading.value = false
-    menuDate.value = false
-  })
-}
+//     loading.value = false
+//     menuDate.value = false
+//   })
+// }
 
 const viewImage = (item) => {
-  selectedBookImage.value = item.image || defaultImage
-  dialog.value = true
-}
-const toggleImage = () => {
-  selectedBookImage.value = selectedBookImage.value === defaultImage ? backImage : defaultImage
-}
-
-// ฟังก์ชันเปิด Dialog ยืนยัน
-const confirmCheckStatus = (item) => {
-  confirmData.value = { ...item }
-  confirmDialog.value = true
-}
-
-// ยกเลิกการเปลี่ยนแปลง
-const cancelCheckStatus = () => {
-  if (confirmData.value) {
-    const originalStatus = confirmData.value.checkStatus
-    confirmData.value.checkStatus = originalStatus
+  if (item.book_imgs && item.book_imgs.length > 0) {
+    selectedBookImage.value = item.book_imgs[0] // ดึงรูปภาพแรกจาก array
+  } else {
+    selectedBookImage.value = 'ไม่มีรูปภาพ'
   }
-  confirmDialog.value = false
+  console.log('selectedBookImage:', selectedBookImage.value)
+  dialog.value = true // เปิด dialog เพื่อแสดงภาพหรือข้อความ
 }
 
-// ยืนยันการเปลี่ยนแปลง
-const confirmStatusChange = () => {
-  console.log('ยืนยันสถานะ:', confirmData.value)
-  confirmDialog.value = false
+const confirmCheckStatus = async (item) => {
+  try {
+    // เรียกฟังก์ชัน updateApproveStatus เพื่ออัปเดต duplicate_check
+    await updateApproveStatus(item)
+
+    // แสดงผลใน console
+    console.log('Duplicate_check updated successfully!', item.duplicate_check)
+  } catch (error) {
+    console.error('Error updating duplicate_check:', error)
+  }
 }
 
-const sendMessage = () => {
-  console.log('ส่งข้อความ:', message.value, 'ไปยัง:', selectedItem.value)
-  messageDialog.value = false
-}
+// const cancelCheckStatus = () => {
+//   if (confirmData.value) {
+//     const originalStatus = confirmData.value.checkStatus
+//     confirmData.value.checkStatus = originalStatus
+//   }
+//   confirmDialog.value = false
+// }
 
-onMounted(() => {
-  const today = new Date()
-  selectedDate.value = today
-  onSearch() // เรียกฟังก์ชันค้นหาทันทีเมื่อเริ่มต้น
-})
+// const confirmStatusChange = () => {
+//   console.log('ยืนยันสถานะ:', confirmData.value)
+//   confirmDialog.value = false
+// }
 
-watch([selectedDate, searchBook], onSearch, { immediate: true })
+// const sendMessage = () => {
+//   console.log('ส่งข้อความ:', message.value, 'ไปยัง:', selectedItem.value)
+//   messageDialog.value = false
+// }
+
+// onMounted(() => {
+//   const today = new Date()
+//   selectedDate.value = today
+//   onSearch() // เรียกฟังก์ชันค้นหาทันทีเมื่อเริ่มต้น
+// })
+
+watch(
+  selectedDate,
+  async () => {
+    loading.value = true
+
+    // ดึงข้อมูลทั้งหมดจาก API
+    const { items } = await fetchDataFromAPI({
+      page: 1,
+      itemsPerPage: itemsPerPage.value,
+    })
+
+    // กรองข้อมูลและเพิ่ม `rowIndex`
+    const filteredItems = filterDataByDate(items, selectedDate.value)
+
+    // อัปเดต `serverItems` ให้มีลำดับ
+    serverItems.value = filteredItems
+    totalItems.value = filteredItems.length
+
+    loading.value = false
+  },
+  { immediate: true }, // เรียกทันทีตอนเริ่มต้น
+)
 </script>
 
 <style scoped>

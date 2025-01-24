@@ -158,7 +158,6 @@ const filterDataByDate = (data: any[], selectedDate: Date) => {
     }));
 };
 
-
 // API ดึงข้อมูลจากเซิร์ฟเวอร์
 const fetchDataFromAPI = async ({
   page,
@@ -170,7 +169,7 @@ const fetchDataFromAPI = async ({
   token: string
 }) => {
   try {
-    const response = await axios.get('http://localhost:3000/offer-form', {
+    const response = await axios.get('http://localhost:3000/offer-form/user', {
       params: {
         page,
         itemsPerPage,
