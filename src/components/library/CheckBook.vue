@@ -28,6 +28,7 @@
                 v-model="searchInput"
                 variant="outlined"
                 rounded="lg"
+                @keyup.enter="searchBooks"
               />
             </v-col>
 
@@ -41,7 +42,7 @@
                 rounded="lg"
                 style="margin-top: -25px; height: 50px"
               >
-                <v-icon left>mdi-magnify</v-icon> ค้นหา
+                <v-icon left style="margin-right: 5px">mdi-magnify</v-icon> ค้นหา
               </v-btn>
             </v-col>
           </v-row>
@@ -53,34 +54,45 @@
         </v-row>
 
         <!-- Display Results -->
-        <v-row justify="center" v-if="serverItems && serverItems.length > 0">
-          <v-col cols="12" md="8" v-for="(book, index) in serverItems" :key="index">
+        <v-row
+          justify="center"
+          align="center"
+          style="min-height: 40vh; padding-top: 8px"
+          v-if="serverItems && serverItems.length > 0"
+        >
+          <v-col
+            cols="12"
+            md="8"
+            v-for="(book, index) in serverItems"
+            :key="index"
+            class="d-flex justify-center"
+            style="margin-left: 50px"
+          >
             <v-card
               outlined
               class="mx-auto"
-              style="width: 1000px; height: 500px; text-align: left"
+              style="width: 100%; max-width: 1000px; height: 320px; text-align: left"
             >
-              <div
-                style="
-                  display: flex;
-                  align-items: flex-start;
-                  gap: 10px;
-                  height: auto;
-                  margin-bottom: 15px;
-                "
-              >
+              <div style="display: flex; align-items: flex-start; margin-bottom: 15px">
                 <v-img
                   :src="book.bookCover"
                   alt="Book Image"
-                  width="160px"
-                  height="400px"
-                  style="border-radius: 10px; object-fit: cover; margin-right: 10px"
+                  width="30px"
+                  height="250px"
+                  style="border-radius: 10px; object-fit: cover; margin-right: 5px"
                 ></v-img>
 
                 <div style="flex: 1; display: flex; flex-direction: column; text-align: left">
                   <v-card-title
                     class="text-h6"
-                    style="font-size: 18px; font-weight: bold; margin-bottom: 5px"
+                    style="
+                      font-size: 18px;
+                      font-weight: bold;
+                      margin-bottom: 5px;
+                      word-wrap: break-word;
+                      white-space: normal;
+                      overflow: hidden;
+                    "
                   >
                     {{ book.title }}
                   </v-card-title>
@@ -88,11 +100,11 @@
                     ผู้แต่ง: {{ book.author }}
                   </v-card-subtitle>
                   <v-card-text style="font-size: 14px; line-height: 1.3">
-                    <div>สำนักพิมพ์: {{ book.publisher }}</div>
-                    <div>จำนวน: {{ book.quantity }}</div>
-                    <div>พิมพ์ครั้งที่: {{ book.edition }}</div>
-                    <div>รายละเอียด: {{ book.description }}</div>
-                    <div v-for="(isbn, idx) in book.isbn" :key="idx">
+                    <div style="margin-bottom: 5px">สำนักพิมพ์: {{ book.publisher }}</div>
+                    <div style="margin-bottom: 5px">จำนวน: {{ book.quantity }}</div>
+                    <div style="margin-bottom: 5px">พิมพ์ครั้งที่: {{ book.edition }}</div>
+                    <div style="margin-bottom: 5px">รายละเอียด: {{ book.description }}</div>
+                    <div style="margin-bottom: 5px" v-for="(isbn, idx) in book.isbn" :key="idx">
                       <div>ISBN: {{ isbn }}</div>
                       <br />
                     </div>
@@ -101,11 +113,6 @@
               </div>
             </v-card>
           </v-col>
-        </v-row>
-
-        <!-- No Results -->
-        <v-row justify="center" v-else>
-          <p>ไม่พบข้อมูลหนังสือ</p>
         </v-row>
       </v-container>
     </v-container>
@@ -164,54 +171,67 @@ const searchBooks = async () => {
 
     const data = await response.json()
 
-    console.log('Data received from API:', data)
-
     if (data?.status && data?.data) {
-      const bookInfo: BookItem = {
-        title: '',
-        author: '',
-        isbn: [],
-        publisher: '',
-        quantity: '',
-        edition: '',
-        description: '',
-        bookCover: data.data.BookCover.replace(/(^"|"$|\\)/g, '') || '',
-      }
+      const uniqueBooksMap = new Map<string, BookItem>()
 
       data.data.Info.forEach((item: { FIELD: string; DATA: string }) => {
-        switch (item.FIELD) {
-          case 'ISBN':
-            bookInfo.isbn.push(item.DATA)
-            break
-          case 'Author':
-            bookInfo.author = item.DATA
-            break
-          case 'Title':
-            // ตรวจสอบว่า title ใหม่นั้นยาวกว่าที่มีอยู่ก่อนหรือไม่
-            if (item.DATA.length > bookInfo.title.length) {
-              bookInfo.title = item.DATA
-            }
-            break
-          case 'Edition':
-            bookInfo.edition = item.DATA
-            break
-          case 'Published':
-            bookInfo.publisher = item.DATA
-            break
-          case 'Detail':
-            bookInfo.quantity = item.DATA
-            break
-          case 'Subject':
-            bookInfo.description = item.DATA
-            break
-          default:
-            break
+        const bookInfo: BookItem = {
+          title: '',
+          author: '',
+          isbn: [],
+          publisher: '',
+          quantity: '',
+          edition: '',
+          description: '',
+          bookCover: data.data.BookCover.replace(/(^"|"$|\\)/g, '') || '',
         }
+
+        data.data.Info.forEach((infoItem: { FIELD: string; DATA: string }) => {
+          switch (infoItem.FIELD) {
+            case 'ISBN':
+              bookInfo.isbn.push(infoItem.DATA)
+              break
+            case 'Author':
+              bookInfo.author = infoItem.DATA
+              break
+            case 'Title':
+              if (infoItem.DATA.length > bookInfo.title.length) {
+                bookInfo.title = infoItem.DATA
+              }
+              break
+            case 'Edition':
+              bookInfo.edition = infoItem.DATA
+              break
+            case 'Published':
+              bookInfo.publisher = infoItem.DATA
+              break
+            case 'Detail':
+              bookInfo.quantity = infoItem.DATA
+              break
+            case 'Subject':
+              bookInfo.description = infoItem.DATA
+              break
+            default:
+              break
+          }
+        })
+
+        // ตรวจสอบว่า ISBN นี้มีอยู่ใน Map หรือยัง
+        bookInfo.isbn.forEach((isbn) => {
+          // ใช้ ISBN เป็นคีย์ เพื่อหลีกเลี่ยงการแสดงผลซ้ำกัน
+          if (!uniqueBooksMap.has(isbn)) {
+            uniqueBooksMap.set(isbn, bookInfo) // เพิ่มหนังสือใหม่ที่มี ISBN นี้
+          }
+        })
       })
 
-      console.log('Processed book information:', bookInfo)
+      // แปลง Map กลับเป็นอาร์เรย์สำหรับแสดงผล
+      serverItems.value = Array.from(uniqueBooksMap.values()) // ดึงค่าจาก Map ที่ไม่มี ISBN ซ้ำ
 
-      serverItems.value = [bookInfo] // เก็บข้อมูลหนังสือเป็นอาร์เรย์
+      // ถ้ามีข้อมูลจากการค้นหาแสดงทั้งหมด
+      if (serverItems.value.length === 0) {
+        alert('ไม่พบข้อมูลหนังสือที่ตรงกับการค้นหา')
+      }
     } else {
       serverItems.value = []
     }
@@ -220,6 +240,7 @@ const searchBooks = async () => {
     alert('ไม่สามารถเชื่อมต่อกับ API ได้: ' + error.message)
     serverItems.value = []
   } finally {
+    searchInput.value = ''
     loading.value = false
   }
 }
@@ -285,5 +306,61 @@ h1 {
 .search-text {
   width: 600px;
   margin-left: 0;
+}
+
+@media (max-width: 1200px) {
+  .header-image {
+    width: 50px;
+  }
+
+  h1 {
+    font-size: 22px;
+  }
+
+  .card {
+    width: 90%;
+    height: auto;
+  }
+
+  .search-text {
+    width: 100%;
+  }
+
+  .search-title {
+    width: 100%;
+  }
+
+  .v-btn {
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  .v-col {
+    margin-left: 0 !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .header-image {
+    width: 40px;
+  }
+
+  h1 {
+    font-size: 18px;
+  }
+
+  .card {
+    width: 100%;
+    height: auto;
+  }
+
+  .search-text {
+    width: 100%;
+  }
+
+  .v-btn {
+    width: 100%;
+    height: 45px;
+  }
 }
 </style>

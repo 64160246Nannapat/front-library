@@ -91,6 +91,10 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
+import { useRouter } from 'vue-router'
+import { jsPDF } from 'jspdf'
+import autoTable from 'jspdf-autotable'
+import BuuLogo from '@/assets/Buu-logo11.png'
 
 // วันที่
 const selectedDate = ref(new Date())
@@ -257,6 +261,128 @@ const loadItems = ({ page, itemsPerPage }: { page: number; itemsPerPage: number 
 
 const onSearch = () => {
   loadItems({ page: 1, itemsPerPage: 5 }) // เรียกใช้ฟังก์ชันกรองเมื่อวันที่เปลี่ยน
+}
+
+const loadFontAsBase64 = async (url: string): Promise<string> => {
+  const response = await fetch(url)
+  if (!response.ok) throw new Error('Cannot load font')
+  const buffer = await response.arrayBuffer()
+  return btoa(String.fromCharCode(...new Uint8Array(buffer)))
+}
+
+const imageBuu = async () => {
+  const response = await fetch(BuuLogo)
+  const blob = await response.blob()
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onloadend = () => resolve(reader.result.split(',')[1]) // Return base64 string
+    reader.onerror = reject
+    reader.readAsDataURL(blob)
+  })
+}
+
+// ฟอร์แมตวันที่แบบกำหนดเอง
+const formatDatePdf = (): string => {
+  const now = new Date()
+  const yearBuddhist = now.getFullYear() + 543 // เปลี่ยนเป็นปี พ.ศ.
+  const month = String(now.getMonth() + 1).padStart(2, '0') // เดือน (01-12)
+  const day = String(now.getDate()).padStart(2, '0') // วัน (01-31)
+  const hours = String(now.getHours()).padStart(2, '0') // ชั่วโมง (00-23)
+  const minutes = String(now.getMinutes()).padStart(2, '0') // นาที (00-59)
+  return `${day}/${month}/${yearBuddhist} ${hours}:${minutes}`
+}
+
+const onClickFile = async () => {
+  // เรียก FakeAPI เพื่อดึงข้อมูล
+  const { items } = await FakeAPI.fetch({ page: 1, itemsPerPage: 5 })
+
+  // กรองข้อมูลเฉพาะวันที่ที่เลือก
+  const filteredItems = items.filter((item) => {
+    const [day, month, year] = item.date.split('/').map(Number)
+    const itemDate = new Date(year - 543, month - 1, day) // แปลงเป็น Date object
+    return itemDate.toDateString() === selectedDate.value.toDateString()
+  })
+
+  // ตรวจสอบว่ามีข้อมูลหรือไม่
+  if (filteredItems.length === 0) {
+    alert('ไม่มีข้อมูลหนังสือสำหรับวันที่ที่เลือก')
+    return
+  }
+
+  // สร้าง PDF
+  const doc = new jsPDF()
+
+  // โหลดฟอนต์ Sarabun
+  const fontBase64 = await loadFontAsBase64('/Sarabun/Sarabun-Regular.ttf')
+  doc.addFileToVFS('Sarabun-Regular.ttf', fontBase64)
+  doc.addFont('Sarabun-Regular.ttf', 'Sarabun', 'normal')
+  doc.setFont('Sarabun', 'normal')
+  doc.setFontSize(16)
+
+  // โหลดโลโก้ BUU
+  const logoBase64 = await imageBuu()
+  const logoWidth = 30
+  const logoHeight = 30
+  const logoX = (doc.internal.pageSize.width - logoWidth) / 2
+  const logoY = 20
+  doc.addImage(logoBase64, 'PNG', logoX, logoY, logoWidth, logoHeight)
+
+  // เพิ่มข้อความส่วนหัว
+  const text = 'สรุปงบประมาณ'
+  const textX = (doc.internal.pageSize.width - doc.getTextWidth(text)) / 2
+  const textY = logoY + logoHeight + 10
+  doc.text(text, textX, textY)
+
+  doc.setFontSize(14)
+  const subText = `ประจำวันที่ ${formattedDate.value}`
+  const subTextX = (doc.internal.pageSize.width - doc.getTextWidth(subText)) / 2
+  const subTextY = textY + 10
+  doc.text(subText, subTextX, subTextY)
+
+  // เพิ่มวันที่
+  doc.setFontSize(10)
+  const pdfDate = formatDatePdf()
+  const dateX = doc.internal.pageSize.width - doc.getTextWidth(pdfDate) - 10
+  const dateY = 10
+  doc.text(pdfDate, dateX, dateY)
+
+  // เตรียมข้อมูลตาราง
+  const tableData = filteredItems.map((item, index) => [
+    (index + 1).toString(),
+    item.title,
+    item.quantity.toString(),
+    (item.price * item.quantity).toLocaleString(),
+  ])
+
+  // สร้างตาราง
+  autoTable(doc, {
+    head: [['ลำดับ', 'ชื่อหนังสือ', 'จำนวน', 'จำนวนเงิน (บาท)']],
+    body: tableData,
+    startY: subTextY + 20,
+    styles: {
+      font: 'Sarabun',
+      fontSize: 12,
+    },
+    headStyles: {
+      fillColor: [102, 102, 0],
+      textColor: [255, 255, 255],
+      font: 'Sarabun',
+      fontSize: 12,
+    },
+  })
+
+  // เพิ่มผลรวมด้านล่าง
+  const totalPrice = filteredItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
+  const totalText = `งบประมาณรวม ${totalPrice.toLocaleString()} บาท`
+  doc.setFontSize(14)
+  doc.text(
+    totalText,
+    doc.internal.pageSize.width - doc.getTextWidth(totalText) - 10,
+    doc.lastAutoTable.finalY + 10,
+  )
+
+  // บันทึก PDF
+  doc.save('budget-summary.pdf')
 }
 
 watch([selectedDate], onSearch, { immediate: true })

@@ -174,8 +174,9 @@
                     hide-details
                     variant="outlined"
                     class="custom-select"
-                    :item-size="20"
-                  />
+                    style="font-size: 8px !important; height: 30px !important"
+                  >
+                  </v-select>
 
                   <v-btn
                     icon
@@ -808,49 +809,35 @@ h1 {
 }
 
 .custom-select {
-  font-size: 12px !important;
+  font-size: 12px !important; /* ขนาดตัวอักษรใน input */
   height: 36px !important;
   line-height: 1 !important;
 }
 
-::v-deep(.v-list-item) {
-  min-height: 24px !important; /* ลดความสูงของรายการ */
-  padding: 2px 8px !important; /* ปรับ padding */
+::v-deep(.custom-select .v-input__control) {
+  min-height: 36px !important;
+  padding: 0 8px !important;
 }
 
-::v-deep(.v-list-item__title) {
-  font-size: 10px !important; /* ลดขนาดตัวอักษรของรายการ */
-  line-height: 1.2 !important; /* ปรับ line-height */
+::v-deep(.custom-select .v-overlay .v-list-item) {
+  min-height: 30px !important; /* ลดความสูงของแต่ละรายการ */
+  padding: 4px 8px !important; /* ลด padding ของรายการ */
+}
+
+::v-deep(.custom-select .v-list-item__title) {
+  font-size: 10px !important; /* ลดขนาดฟอนต์ในรายการ */
+  line-height: 1.2 !important; /* ปรับ line-height ให้กระชับ */
   white-space: nowrap; /* ป้องกันข้อความล้น */
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-::v-deep(.v-overlay .v-list-item) {
-  font-size: 10px !important; /* ลดขนาดตัวอักษรใน overlay */
-  min-height: 24px !important; /* ลดความสูงของแต่ละรายการใน overlay */
-  padding: 2px 8px !important; /* ลด padding */
-}
-
-::v-deep(.v-select__selections) {
-  font-size: 12px !important; /* ลดขนาดตัวอักษรที่เลือกแล้ว */
-}
-
-::v-deep(.v-overlay) {
-  font-size: 10px !important; /* ลดขนาดตัวอักษรใน overlay menu */
-}
-::v-deep(.custom-select .v-input__control) {
-  min-height: 30px !important;
-  padding: 0 8px !important;
-}
-
 ::v-deep(.custom-select .v-select__selections) {
-  font-size: 12px !important;
+  font-size: 12px !important; /* ขนาดตัวอักษรที่เลือก */
+  line-height: 1.2 !important;
 }
 
-::v-deep(.custom-select .v-select__control) {
-  font-size: 12px !important;
-  height: 36px !important;
-  line-height: 1.2 !important;
+::v-deep(.v-overlay .v-list-item__title) {
+  font-size: 10px !important; /* ลดขนาดตัวอักษรในเมนู overlay */
 }
 </style>
