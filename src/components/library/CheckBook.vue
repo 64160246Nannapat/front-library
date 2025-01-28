@@ -216,19 +216,15 @@ const searchBooks = async () => {
           }
         })
 
-        // ตรวจสอบว่า ISBN นี้มีอยู่ใน Map หรือยัง
         bookInfo.isbn.forEach((isbn) => {
-          // ใช้ ISBN เป็นคีย์ เพื่อหลีกเลี่ยงการแสดงผลซ้ำกัน
           if (!uniqueBooksMap.has(isbn)) {
             uniqueBooksMap.set(isbn, bookInfo) // เพิ่มหนังสือใหม่ที่มี ISBN นี้
           }
         })
       })
 
-      // แปลง Map กลับเป็นอาร์เรย์สำหรับแสดงผล
       serverItems.value = Array.from(uniqueBooksMap.values()) // ดึงค่าจาก Map ที่ไม่มี ISBN ซ้ำ
 
-      // ถ้ามีข้อมูลจากการค้นหาแสดงทั้งหมด
       if (serverItems.value.length === 0) {
         alert('ไม่พบข้อมูลหนังสือที่ตรงกับการค้นหา')
       }
