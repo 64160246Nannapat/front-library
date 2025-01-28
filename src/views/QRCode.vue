@@ -1,59 +1,47 @@
 <template>
-  <div id="qrcode">
-    <canvas ref="qrcodeCanvas"></canvas>
-  </div>
+  <v-container>
+    <v-row justify="center" class="text-center">
+      <v-col cols="12" md="6">
+        <div v-if="qrCodeDataUrl" class="mt-4">
+          <img :src="qrCodeDataUrl" alt="QR Code" />
+        </div>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue'
+import { ref } from 'vue'
 import QRCode from 'qrcode'
 
-// สร้างตัวแปร message สำหรับเก็บ URL หรือข้อความที่ต้องการ
-const message = ref('http://localhost:5173/book-form-shop')
+// ลิงก์เริ่มต้น
+const text = ref('https://www.google.com')
+const qrCodeDataUrl = ref('')
 
-// ฟังก์ชันในการสร้าง QR Code
-const generateQRCode = () => {
-  const canvas = document.querySelector('#qrcodeCanvas') as HTMLCanvasElement
-  QRCode.toCanvas(
-    canvas,
-    message.value,
-    {
-      width: 200,
+// ฟังก์ชันสำหรับสร้าง QR Code
+const generateQRCode = async () => {
+  try {
+    // กำหนดตัวเลือกการสร้าง QR Code
+    qrCodeDataUrl.value = await QRCode.toDataURL(text.value, {
       color: {
-        dark: '#000000',
-        light: '#d4f1f9',
+        dark: '#000000', // สีของตัว QR Code
+        light: '#ffffff', // สีพื้นหลัง
       },
-    },
-    (error) => {
-      if (error) console.error(error)
-    }
-  )
+      width: 300, // ขนาดของ QR Code (ปรับขนาดตามต้องการ)
+      margin: 2, // ระยะขอบ
+    })
+  } catch (error) {
+    console.error('เกิดข้อผิดพลาดในการสร้าง QR Code:', error)
+  }
 }
 
-// เมื่อ mounted ให้เรียกใช้ฟังก์ชัน generateQRCode
-onMounted(() => {
-  generateQRCode()
-})
-
-// เมื่อค่า message เปลี่ยนแปลง ให้สร้าง QR Code ใหม่
-watch(message, generateQRCode)
+// สร้าง QR Code ทันทีเมื่อโหลดหน้าเว็บ
+generateQRCode()
 </script>
 
 <style scoped>
-/* สามารถปรับแต่งได้ตามต้องการ */
-#qrcode {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-input {
-  margin: 10px 0;
-  padding: 5px;
-}
-
-canvas {
-  margin-top: 20px;
-  border: 1px solid #000;
+img {
+  height: auto;
+  width: 200px;
 }
 </style>

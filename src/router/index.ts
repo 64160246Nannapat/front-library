@@ -38,6 +38,7 @@ import ManageEditBudPer from '@/components/faculty/ManageBudEditPer.vue'
 import ManageBudDe from '@/components/faculty/ManageBudDepartments.vue'
 import ManageEditBudDe from '@/components/faculty/ManageBudEditDe.vue'
 import BookFormShop from '@/components/shop/BookFormShop.vue'
+import Qr from '@/views/QRCode.vue'
 // import LoginView2 from '@/views/LoginView2.vue'
 
 const routes = [
@@ -496,6 +497,11 @@ const routes = [
     path: '/book-form-shop',
     name: 'bookFormShop',
     component: BookFormShop,
+  },
+  {
+    path: '/qr-code',
+    name: 'qrCode',
+    component: Qr,
   },
 
 ]
