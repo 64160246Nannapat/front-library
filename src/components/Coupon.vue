@@ -1,6 +1,5 @@
 <template>
   <v-main style="height: 500px; margin-top: -45px">
-
     <v-main>
       <v-container class="ecoupon-container">
         <!-- Header -->
@@ -32,7 +31,7 @@
             </template>
 
             <v-card-text class="text-h5 py-2">
-              <img src="@/assets/qrcode.png" alt="QR Code" class="qr-code-image" />
+              <QRCode />
             </v-card-text>
 
             <v-card-actions>
@@ -54,7 +53,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import HomeTeacher from '@/components/teacher/HomeTeacher.vue'
+import QRCode from '@/views/QRCode.vue'
 </script>
 
 <style scoped>

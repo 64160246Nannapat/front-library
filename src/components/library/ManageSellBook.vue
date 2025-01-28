@@ -842,29 +842,27 @@ h1 {
   width: 200px;
 }
 
-.no-scrollbar {
-  overflow-x: hidden;
-  overflow-y: hidden;
-  overflow: hidden !important; /* ซ่อนทั้งแนวตั้งและแนวนอน */
-  -ms-overflow-style: none; /* สำหรับ IE และ Edge */
-  scrollbar-width: none; /* สำหรับ Firefox */
-}
-
-.no-scrollbar::-webkit-scrollbar {
-  display: none; /* ซ่อน scrollbar สำหรับ Chrome, Safari */
-}
-
 .custom-select {
   font-size: 12px !important; /* ขนาดตัวอักษรใน input */
   height: 36px !important;
   line-height: 1 !important;
 }
 
+<<<<<<< HEAD
 .active-tab {
   background-color: #fcdc94 !important; /* เปลี่ยนสีพื้นหลัง */
   border: 2px solid #ff9800 !important; /* เพิ่มกรอบ */
   border-radius: 8px; /* ทำให้มุมมน */
   color: #333 !important; /* เปลี่ยนสีตัวอักษร */
+=======
+.select-book .v-list-item-title {
+  font-size: 14px;
+  padding: 4px 8px;
+}
+
+.select-book .v-input {
+  font-size: 16px; /* ขนาดตัวอักษรข้อความที่เลือก */
+>>>>>>> 1aa6d86bc85c631a37a8833bbd9e633804098521
 }
 
 ::v-deep(.custom-select .v-input__control) {
@@ -873,24 +871,24 @@ h1 {
 }
 
 ::v-deep(.custom-select .v-overlay .v-list-item) {
-  min-height: 30px !important; /* ลดความสูงของแต่ละรายการ */
-  padding: 4px 8px !important; /* ลด padding ของรายการ */
+  min-height: 30px !important; /* ลดความสูงของรายการ */
+  padding: 4px 8px !important; /* ลด padding */
 }
 
 ::v-deep(.custom-select .v-list-item__title) {
   font-size: 10px !important; /* ลดขนาดฟอนต์ในรายการ */
-  line-height: 1.2 !important; /* ปรับ line-height ให้กระชับ */
+  line-height: 1.2 !important; /* ปรับ line-height */
   white-space: nowrap; /* ป้องกันข้อความล้น */
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 ::v-deep(.custom-select .v-select__selections) {
-  font-size: 12px !important; /* ขนาดตัวอักษรที่เลือก */
+  font-size: 12px !important; /* ลดขนาดตัวอักษรที่เลือก */
   line-height: 1.2 !important;
 }
 
 ::v-deep(.v-overlay .v-list-item__title) {
-  font-size: 10px !important; /* ลดขนาดตัวอักษรในเมนู overlay */
+  font-size: 10px !important; /* ลดฟอนต์ในเมนู overlay */
 }
 </style>
