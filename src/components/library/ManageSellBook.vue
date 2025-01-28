@@ -46,7 +46,7 @@
 
       <!-- Search Filters Section -->
       <v-row align="center">
-        <v-col cols="auto">
+        <!-- <v-col cols="auto">
           <v-select
             :items="['ISBN', 'TITLE', 'AUTHOR']"
             v-model="searchCategory"
@@ -76,17 +76,32 @@
           >
             <v-icon size="20">mdi-magnify</v-icon>
           </v-btn>
-        </v-col>
+        </v-col> -->
 
-        <v-col cols="auto" class="ml-auto d-flex align-center">
+        <v-tabs v-model="selectedTab" class="mb-4">
+          <v-tab value="กำลังดำเนินการ" :class="{ 'active-tab': selectedTab === 'กำลังดำเนินการ' }">
+            กำลังดำเนินการ
+          </v-tab>
+          <v-tab
+            value="ไม่อนุมัติการซื้อ"
+            :class="{ 'active-tab': selectedTab === 'ไม่อนุมัติการซื้อ' }"
+          >
+            ไม่อนุมัติการซื้อ
+          </v-tab>
+          <v-tab value="อนุมัติการซื้อ" :class="{ 'active-tab': selectedTab === 'อนุมัติการซื้อ' }">
+            อนุมัติการซื้อ
+          </v-tab>
+        </v-tabs>
+
+        <v-col cols="12" md="6" lg="4" class="ml-auto d-flex align-center">
           <h3 style="margin-right: 20px; margin-top: -20px">ประเภท:</h3>
           <v-select
-            :items="['ทั้งหมด', 'เสนอหนังสือ', 'Book Fair']"
+            :items="['เสนอหนังสือออนไลน์', 'เสนอหนังสืองานหนังสือ']"
             v-model="searchBook"
             class="select-book"
             variant="outlined"
             rounded="lg"
-            @input="onSearch"
+            @update:modelValue="onSearch"
           ></v-select>
         </v-col>
       </v-row>
@@ -95,7 +110,7 @@
       <v-data-table
         v-model:items-per-page="itemsPerPage"
         :headers="headers"
-        :items="serverItems"
+        :items="filteredItems"
         :items-length="totalItems"
         :loading="loading"
         @update:options="loadItems"
@@ -104,39 +119,49 @@
         style="width: 100%; table-layout: auto; border-collapse: collapse"
         class="custom-table no-scrollbar"
       >
-        <template #item.image="{ item }">
-          <v-btn
-            icon
-            color="#FCDC94"
-            @click="viewImage(item)"
-            style="
-              border-radius: 8px;
-              width: 70px;
-              height: 30px;
-              display: flex;
-              justify-content: center;
-              align-items: center;
-            "
-          >
-            <v-icon>mdi-magnify</v-icon>
-          </v-btn>
-          <v-dialog v-model="dialog" max-width="400">
-            <template #default>
-              <p
-                v-if="typeof selectedBookImage === 'string'"
-                style="text-align: center; padding: 16px; font-size: 16px"
-              >
-                {{ selectedBookImage }}
-              </p>
+        <template #item.rowIndex="{ item }">
+          {{ item.rowIndex }}
+        </template>
 
-              <img
-                v-else
-                :src="selectedBookImage"
-                alt="Book Image"
-                style="max-width: 100%; max-height: 100%; object-fit: cover; border-radius: 8px"
-              />
-            </template>
-          </v-dialog>
+        <template #item.form_status="{ item }">
+          {{ item.form_status }}
+        </template>
+
+        <template #item.image="{ item }">
+          <template v-if="item.book_category === 'เสนอหนังสืองานหนังสือ'">
+            <v-btn
+              icon
+              color="#FCDC94"
+              @click="viewImage(item)"
+              style="
+                border-radius: 8px;
+                width: 70px;
+                height: 30px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+              "
+            >
+              <v-icon>mdi-magnify</v-icon>
+            </v-btn>
+            <v-dialog v-model="dialog" max-width="400">
+              <template #default>
+                <p
+                  v-if="typeof selectedBookImage === 'string'"
+                  style="text-align: center; padding: 16px; font-size: 16px"
+                >
+                  {{ selectedBookImage }}
+                </p>
+
+                <img
+                  v-else
+                  :src="selectedBookImage"
+                  alt="Book Image"
+                  style="max-width: 100%; max-height: 100%; object-fit: cover; border-radius: 8px"
+                />
+              </template>
+            </v-dialog>
+          </template>
         </template>
 
         <template #item.check="{ item }">
@@ -160,7 +185,7 @@
           </v-radio-group>
         </template>
 
-        <template #item.view="{ item }">
+        <!-- <template #item.view="{ item }">
           <div style="display: flex; flex-direction: column; gap: 10px">
             <v-row>
               <v-col>
@@ -199,7 +224,7 @@
               </v-col>
             </v-row>
           </div>
-        </template>
+        </template> -->
       </v-data-table>
 
       <!-- Image Viewer Dialog -->
@@ -269,8 +294,10 @@
               border-bottom-right-radius: 16px; /* ความมนที่มุมล่างขวา */
             "
           >
-            <v-card-title>ส่ง: {{ selectedItem?.offer_form_id }}</v-card-title>
-            <v-card-subtitle>E-mail: {{ selectedItem?.email }}</v-card-subtitle>
+            <v-card-title>ส่ง: {{ selectedItem?.user_fullname || 'ไม่ระบุ' }}</v-card-title>
+            <v-card-subtitle
+              >E-mail: {{ selectedItem?.user_email || 'ไม่มีข้อมูล' }}</v-card-subtitle
+            >
             <v-card-subtitle>วันที่: {{ fullDate }}</v-card-subtitle>
             <v-card-subtitle>เวลา: {{ fullTime }}</v-card-subtitle>
           </div>
@@ -338,8 +365,8 @@ import axios from 'axios'
 const selectedDate = ref(new Date())
 const menuDate = ref(false)
 const searchCategory = ref('ISBN')
-const searchBook = ref('ทั้งหมด')
-const searchText = ref('')
+const searchBook = ref('เสนอหนังสือออนไลน์')
+const selectedTab = ref('กำลังดำเนินการ')
 const loading = ref(false)
 const dialog = ref(false)
 const selectedBookImage = ref('ไม่มีรูปภาพ')
@@ -348,6 +375,7 @@ const serverItems = ref<BookItem[]>([])
 const fullDate = ref('')
 const fullTime = ref('')
 const itemsPerPage = ref(1000000)
+const noDataMessage = ref('')
 
 // Dialog Management
 const messageDialog = ref(false)
@@ -358,28 +386,58 @@ const message = ref('')
 
 interface BookItem {
   offer_form_id: number
+  user_email: string
+  user_fullname: string
   book_title: string
   ISBN: string
   book_price: number
   book_quantity: number
   book_imgs: string
-  duplicate_check: string
   form_status: string
 }
 
-// Headers สำหรับ v-data-table
-const headers = [
+// Header สำหรับ 'เสนอหนังสือออนไลน์'
+const NoImageHeaders = [
   { title: 'ลำดับ', key: 'rowIndex', align: 'start' },
   { title: 'ข้อมูลผู้คัดเลือก', key: 'user_fullname' },
-  { title: 'ชื่อหนังสือ', key: 'book_title' },
-  { title: 'ISBN', key: 'ISBN' },
   { title: 'ร้านค้า', key: 'store.store_name' },
+  { title: 'ชื่อหนังสือ', key: 'book_title' },
+  { title: 'ผู้แต่ง', key: 'book_author' },
+  { title: 'ปีพิมพ์', key: 'published_year' },
+  { title: 'ISBN', key: 'ISBN' },
+  { title: 'ราคาสุทธิ', key: 'book_price' },
+  { title: 'จำนวน', key: 'book_quantity' },
+  { title: 'ตรวจหนังสือ', key: 'check' },
+  { title: 'ดำเนินการ', key: 'view' },
+]
+
+// Header สำหรับ 'เสนอหนังสืองานหนังสือ'
+const ImageHeaders = [
+  { title: 'ลำดับ', key: 'rowIndex', align: 'start' },
+  { title: 'ข้อมูลผู้คัดเลือก', key: 'user_fullname' },
+  { title: 'ร้านค้า', key: 'store.store_name' },
+  { title: 'ชื่อหนังสือ', key: 'book_title' },
+  { title: 'ผู้แต่ง', key: 'book_author' },
+  { title: 'ปีพิมพ์', key: 'published_year' },
+  { title: 'ISBN', key: 'ISBN' },
   { title: 'ราคาสุทธิ', key: 'book_price' },
   { title: 'จำนวน', key: 'book_quantity' },
   { title: 'รูปภาพ', key: 'image', align: 'center' },
-  { title: 'ตรวจซ้ำ', key: 'check' },
+  { title: 'ตรวจหนังสือ', key: 'check' },
   { title: 'ดำเนินการ', key: 'view' },
 ]
+
+// คำนวณ headers ตามค่า searchBook
+const headers = computed(() => {
+  return searchBook.value === 'เสนอหนังสือออนไลน์' ? NoImageHeaders : ImageHeaders
+})
+
+const filteredItems = computed(() => {
+  return serverItems.value
+    .filter((item) => item.book_category === searchBook.value)
+    .filter((item) => item.form_status === selectedTab.value)
+    .map((item, index) => ({ ...item, rowIndex: index + 1 }))
+})
 
 // ฟอร์แมตวันที่
 const formattedDate = computed(() => {
@@ -493,7 +551,7 @@ const onMessageClick = async (item) => {
   }
 
   // เปิด dialog
-  // messageDialog.value = true
+  messageDialog.value = true
 }
 
 const updateApproveStatus = async (item) => {
@@ -532,50 +590,39 @@ const updateDateTime = () => {
   })
 }
 
-// const onSearch = () => {
-//   loading.value = true
-//   fetchDataFromAPI.fetch({ page: 1, itemsPerPage: 10 }).then((items) => {
-//     let filteredItems = items
+const onSearch = async () => {
+  loading.value = true
 
-//     if (selectedDate.value) {
-//       const selectedFormattedDate = formattedDate.value
-//       filteredItems = filteredItems.filter((item) => item.date === selectedFormattedDate)
-//     }
+  // ดึงข้อมูลจาก API
+  const { items } = await fetchDataFromAPI({
+    page: 1,
+    itemsPerPage: itemsPerPage.value,
+  })
 
-//     if (searchBook.value !== 'ทั้งหมด') {
-//       filteredItems = filteredItems.filter((item) => item.status === searchBook.value)
-//     }
+  // ตรวจสอบข้อมูลที่ได้จาก API
+  console.log('ข้อมูลจาก API:', items)
 
-//     if (searchText.value && searchCategory.value) {
-//       const searchValue = searchText.value.toLowerCase()
-//       filteredItems = filteredItems.filter((item) => {
-//         if (searchCategory.value === 'TITLE') return item.title.toLowerCase().includes(searchValue)
-//         if (searchCategory.value === 'ISBN') return item.isbn.toLowerCase().includes(searchValue)
-//         if (searchCategory.value === 'AUTHOR' && item.author)
-//           return item.author.toLowerCase().includes(searchValue)
-//         return true
-//       })
+  // กรองข้อมูลโดยวันที่
+  let filteredItems = filterDataByDate(items, selectedDate.value)
 
-//       menuDate.value = false
-//     }
+  // ตรวจสอบข้อมูลที่กรองโดยวันที่
+  console.log('ข้อมูลหลังกรองวันที่:', filteredItems)
 
-//     // หากไม่มีการกรองเพิ่มเติมและไม่มีวันที่ที่เลือก ให้แสดงข้อมูลทั้งหมด
-//     if (!selectedDate.value && !searchBook.value && !searchText.value) {
-//       filteredItems = items
-//     }
+  // กรองข้อมูลโดย category ที่เลือก (ค่าเริ่มต้นเป็น "เสนอหนังสือออนไลน์")
+  filteredItems = filteredItems.filter((item) => item.book_category === searchBook.value)
 
-//     // อัปเดตข้อมูลตาราง
-//     serverItems.value = filteredItems
+  // ตรวจสอบข้อมูลที่กรองด้วย category
+  console.log('ข้อมูลหลังกรอง category:', filteredItems)
 
-//     // หากไม่มีข้อมูลให้เตือนใน console
-//     if (filteredItems.length === 0) {
-//       console.warn('No data found with the selected criteria.')
-//     }
+  // อัปเดตข้อมูลที่แสดงในตาราง
+  serverItems.value = filteredItems
+  totalItems.value = filteredItems.length
 
-//     loading.value = false
-//     menuDate.value = false
-//   })
-// }
+  // ถ้าไม่มีข้อมูลให้แสดงข้อความ "ไม่มีข้อมูล"
+  noDataMessage.value = filteredItems.length === 0 ? 'ไม่มีข้อมูล' : ''
+
+  loading.value = false
+}
 
 const viewImage = (item) => {
   if (item.book_imgs && item.book_imgs.length > 0) {
@@ -801,6 +848,13 @@ h1 {
   line-height: 1 !important;
 }
 
+<<<<<<< HEAD
+.active-tab {
+  background-color: #fcdc94 !important; /* เปลี่ยนสีพื้นหลัง */
+  border: 2px solid #ff9800 !important; /* เพิ่มกรอบ */
+  border-radius: 8px; /* ทำให้มุมมน */
+  color: #333 !important; /* เปลี่ยนสีตัวอักษร */
+=======
 .select-book .v-list-item-title {
   font-size: 14px;
   padding: 4px 8px;
@@ -808,6 +862,7 @@ h1 {
 
 .select-book .v-input {
   font-size: 16px; /* ขนาดตัวอักษรข้อความที่เลือก */
+>>>>>>> 1aa6d86bc85c631a37a8833bbd9e633804098521
 }
 
 ::v-deep(.custom-select .v-input__control) {

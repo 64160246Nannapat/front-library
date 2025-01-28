@@ -240,21 +240,6 @@
               ></v-text-field>
             </div>
 
-            <!-- คูปอง -->
-            <div class="form-row">
-              <label for="coupon" style="font-size: 17px"
-                >คูปอง<span class="required-asterisk">*</span></label
-              >
-              <v-select
-                v-model="book.Coupon"
-                :items="couponUsed"
-                :rules="[rules.required]"
-                variant="outlined"
-                class="text-feild-top"
-                dense
-              ></v-select>
-            </div>
-
             <!-- ปุ่มยืนยัน -->
             <v-btn
               :disabled="!valid"
@@ -292,7 +277,6 @@
               <div>ร้าน: {{ book.Store }}</div>
               <div>ชื่อหนังสือ: {{ book.Title }}</div>
               <div>ราคา/จำนวน: {{ book.Price }} บาท, {{ book.Count }} เล่ม</div>
-              <div>คูปอง: {{ book.Coupon }}</div>
             </v-card-text>
 
             <v-card-actions justify="start">
@@ -362,7 +346,7 @@ const book = ref({
   Subject: '',
   Price: null,
   Count: null,
-  Coupon: '',
+  Coupon: 'ไม่มีคูปอง',
   User: '',
 })
 
@@ -455,7 +439,6 @@ const submitForm = async () => {
   }
 }
 
-// Helper function
 const refreshAndDecodeToken = async () => {
   try {
     const newAccessToken = await refreshToken()
