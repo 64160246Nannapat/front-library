@@ -281,6 +281,8 @@
               dense
               type="number"
               style="margin: 0; width: 100%"
+              @focus="clearMoneyAmount"
+              @blur="resetMoneyAmount"
             ></v-text-field>
           </v-col>
         </v-row>
@@ -524,13 +526,25 @@ const onSaveAddMoney = () => {
   }
 }
 
-
 const startEditing = (item) => {
   item.editing = true
 }
 
 const saveBudget = (item) => {
   item.editing = false
+}
+
+const clearMoneyAmount = () => {
+  if (moneyAmount.value === 0) {
+    moneyAmount.value = ''
+  }
+}
+
+// เมื่อออกจากช่องกรอก (Blur) => ถ้ายังไม่มีค่า ให้กลับเป็น 0
+const resetMoneyAmount = () => {
+  if (moneyAmount.value === '' || moneyAmount.value === null) {
+    moneyAmount.value = 0
+  }
 }
 
 const loadFontAsBase64 = async (url: string): Promise<string> => {

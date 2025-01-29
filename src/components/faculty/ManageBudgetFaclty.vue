@@ -279,6 +279,8 @@
               dense
               type="number"
               style="margin: 0; width: 100%"
+              @focus="clearMoneyAmount"
+              @blur="resetMoneyAmount"
             ></v-text-field>
           </v-col>
         </v-row>
@@ -438,6 +440,19 @@ const onSaveAddMoney = () => {
     dialogAddMoney.value = false
   } else {
     alert('กรุณากรอกจำนวนเงินที่ต้องการเพิ่ม')
+  }
+}
+
+const clearMoneyAmount = () => {
+  if (moneyAmount.value === 0) {
+    moneyAmount.value = ''
+  }
+}
+
+// เมื่อออกจากช่องกรอก (Blur) => ถ้ายังไม่มีค่า ให้กลับเป็น 0
+const resetMoneyAmount = () => {
+  if (moneyAmount.value === '' || moneyAmount.value === null) {
+    moneyAmount.value = 0
   }
 }
 
