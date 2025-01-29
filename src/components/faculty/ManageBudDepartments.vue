@@ -15,12 +15,50 @@
           </v-row>
         </v-col>
 
-        <v-col cols="12" md="6" class="d-flex justify-end">
-          <v-card class="summary-card">
-            <v-card-title class="summary-title">งบประมาณรวม</v-card-title>
-            <v-card-subtitle class="summary-amount">50,000 บาท</v-card-subtitle>
-          </v-card>
-        </v-col>
+        <v-row class="mb-6">
+          <v-col cols="12">
+            <v-card style="background-color: #ede8dc; border-radius: 16px">
+              <v-card-title class="text-overline d-flex justify-space-between">
+                <span style="font-size: 20px; font-weight: bold">งบประมาณคงเหลือ</span>
+                <span class="text-h6 text-medium-emphasis font-weight-regular">
+                  {{ formattedRemainingBudget }} บาท
+                </span>
+              </v-card-title>
+
+              <v-card-text>
+                <!-- หลอดทั้งหมด -->
+                <div class="progress-container" style="position: relative">
+                  <!-- หลอดเป้าหมาย -->
+                  <v-progress-linear
+                    :value="100"
+                    height="18"
+                    color="#e0e0e0"
+                    rounded
+                    style="width: 100%"
+                  ></v-progress-linear>
+                  <!-- หลอดดำเนินการ (ความคืบหน้า) -->
+                  <v-progress-linear
+                    :value="progressValue"
+                    height="18"
+                    :color="getProgressColor(progressValue)"
+                    rounded
+                    style="width: 100%; position: absolute; top: 0; left: 0"
+                  ></v-progress-linear>
+                </div>
+                <div class="d-flex justify-space-between py-3">
+                  <span class="text-medium-emphasis"
+                    >ใช้ไป: {{ formattedTotalUsedBudget }} บาท</span
+                  >
+                  <span class="text-medium-emphasis">
+                    งบประมาณรวม: {{ formattedTotalBudget }} บาท
+                  </span>
+                </div>
+              </v-card-text>
+
+              <v-divider></v-divider>
+            </v-card>
+          </v-col>
+        </v-row>
       </v-row>
 
       <!-- Dropdown ปี -->
@@ -47,10 +85,16 @@
               <v-icon style="font-size: 30px">mdi-plus</v-icon>
             </v-btn>
             <v-btn
-              style="background-color: #fcdc94; width: 40px; height: 40px"
-              @click="onClickEdit"
+              style="background-color: #fcdc94; width: 40px; height: 40px; margin-right: 8px"
+              @click="onClickAddMoney"
             >
-              <v-icon style="font-size: 30px">mdi-square-edit-outline</v-icon>
+              <v-icon style="font-size: 40px">mdi-cash</v-icon>
+            </v-btn>
+            <v-btn
+              style="background-color: #fcdc94; width: 20px; height: 40px; margin-right: 15px"
+              @click="onClickFile"
+            >
+              <v-icon style="font-size: 30px">mdi-file-upload-outline</v-icon>
             </v-btn>
           </v-col>
         </v-row>
@@ -66,11 +110,32 @@
         :hide-default-footer="true"
         :items-per-page="-1"
       >
-        <template v-slot:top></template>
+        <template v-slot:body="{ items }">
+          <tr v-for="item in items" :key="item.id">
+            <td>{{ item.id }}</td>
+            <td>{{ item.name }}</td>
+            <td :style="{ textAlign: 'right', width: '40%' }" @dblclick="startEditing(item)">
+              <v-text-field
+                v-if="item.editing"
+                v-model="item.budget"
+                type="number"
+                variant="outlined"
+                dense
+                single-line
+                hide-details
+                @blur="saveBudget(item)"
+                @keydown.enter="saveBudget(item)"
+              />
+              <span v-else>
+                {{ item.budget.toLocaleString() }}
+              </span>
+            </td>
+          </tr>
+        </template>
         <template v-slot:body.append>
           <tr>
             <td colspan="2" class="text-right font-weight-bold">รวม</td>
-            <td class="text-right font-weight-bold">{{ totalBudget }}</td>
+            <td class="text-right font-weight-bold">{{ formattedTotalUsedBudget }}</td>
           </tr>
         </template>
       </v-data-table>
@@ -80,7 +145,83 @@
   </v-main>
 
   <!-- Dialog สำหรับ Add -->
-  <v-dialog v-model="dialogAdd" max-width="400px" class="dialog-container">
+  <v-dialog v-model="dialogAdd" max-width="500px" class="dialog-container">
+    <v-card class="pa-4 card-dialog" style="background-color: #f5efe4; border-radius: 12px">
+      <v-card-title
+        class="d-flex align-center"
+        style="
+          background-color: #f8d8de;
+          height: 80px;
+          margin: -16px -16px 0 -16px;
+          border-bottom-left-radius: 12px;
+          border-bottom-right-radius: 12px;
+          justify-content: flex-end;
+        "
+      >
+        <div
+          style="
+            flex-grow: 1;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: left;
+            padding-left: 16px;
+          "
+        >
+          งบประมาณทั้งหมด: {{ formattedTotalBudget }} บาท
+          <br />
+          งบประมาณคงเหลือ: {{ formattedRemainingBudget }} บาท
+        </div>
+
+        <v-icon
+          @click="dialogAdd = false"
+          color="red"
+          class="cursor-pointer"
+          style="font-size: 35px"
+        >
+          mdi-close
+        </v-icon>
+      </v-card-title>
+
+      <v-card-text class="pt-4">
+        <v-row style="display: flex; align-items: center; margin-top: 12px">
+          <v-col cols="2" style="text-align: left; font-size: 18px">ชื่อ:</v-col>
+          <v-col cols="8">
+            <v-text-field
+              v-model="newFaculty"
+              variant="outlined"
+              dense
+              style="margin-bottom: -20px; width: 100%"
+            ></v-text-field>
+          </v-col>
+        </v-row>
+
+        <v-row style="display: flex; align-items: center; margin-top: 12px">
+          <v-col cols="2" style="text-align: left; font-size: 18px">จำนวน:</v-col>
+          <v-col cols="8">
+            <v-text-field
+              v-model.number="newTotal"
+              variant="outlined"
+              dense
+              type="number"
+              style="margin-bottom: -20px; width: 100%"
+            ></v-text-field>
+          </v-col>
+        </v-row>
+      </v-card-text>
+
+      <v-card-actions class="justify-end">
+        <v-btn
+          @click="onSaveNewItem"
+          class="elevated rounded-pill"
+          style="background-color: #f5c8d0; color: #000; font-weight: bold; padding: 8px 16px"
+        >
+          บันทึก
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+
+  <v-dialog v-model="dialogAddMoney" max-width="400px" class="dialog-container">
     <v-card class="pa-4 card-dialog" style="background-color: #f5efe4; border-radius: 12px">
       <v-card-title
         class="d-flex align-center"
@@ -94,7 +235,7 @@
         "
       >
         <v-icon
-          @click="dialogAdd = false"
+          @click="dialogAddMoney = false"
           color="red"
           class="cursor-pointer"
           style="font-size: 35px"
@@ -103,40 +244,32 @@
         </v-icon>
       </v-card-title>
 
-      <!-- เนื้อหาของ Dialog -->
       <v-card-text class="pt-4">
-        <div class="form-row" style="display: flex; align-items: center; gap: 8px">
-          <label for="name" style="font-size: 18px; width: 50px">ID:</label>
-          <v-text-field
-            v-model="newId"
-            variant="outlined"
-            dense
-            style="flex: 1; margin-bottom: -15px"
-          ></v-text-field>
-        </div>
-
-        <div
-          class="form-row"
-          style="display: flex; align-items: center; gap: 8px; margin-top: 12px"
-        >
-          <label for="faculty" style="font-size: 18px; width: 50px">ชื่อ:</label>
-          <v-text-field
-            v-model="newFaculty"
-            variant="outlined"
-            dense
-            style="flex: 1; margin-bottom: -15px"
-          ></v-text-field>
-        </div>
+        <v-row style="display: flex; align-items: center; margin-top: 8px; margin-bottom: -8px">
+          <v-col cols="3" style="text-align: left; font-size: 18px; padding-bottom: 0">
+            จำนวนเงิน:
+          </v-col>
+          <v-col cols="8" style="padding-bottom: 0">
+            <v-text-field
+              v-model.number="moneyAmount"
+              variant="outlined"
+              dense
+              type="number"
+              style="margin: 0; width: 100%"
+              @focus="clearMoneyAmount"
+              @blur="resetMoneyAmount"
+            ></v-text-field>
+          </v-col>
+        </v-row>
       </v-card-text>
 
-      <!-- ปุ่มบันทึก -->
       <v-card-actions class="justify-end">
         <v-btn
-          @click="onSaveNewItem"
+          @click="onSaveAddMoney"
           class="elevated rounded-pill"
           style="background-color: #f5c8d0; color: #000; font-weight: bold; padding: 8px 16px"
         >
-          บันทึก
+          เพิ่ม
         </v-btn>
       </v-card-actions>
     </v-card>
@@ -146,6 +279,9 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import { jsPDF } from 'jspdf'
+import autoTable from 'jspdf-autotable'
+import BuuLogo from '@/assets/Buu-logo11.png'
 
 const loading = ref(false)
 const selectedYear = ref<number | null>(null)
@@ -157,6 +293,11 @@ const newFaculty = ref('') // ชื่อคณะใหม่
 const newId = ref('') // ID ใหม่
 const updatedData = ref([])
 const searchText = ref('')
+const newTotal = ref(0) // จำนวนงบประมาณใหม่
+const dialogAddMoney = ref(false) // สถานะการแสดง Dialog สำหรับเพิ่มเงิน
+const moneyAmount = ref(0) // จำนวนเงินที่เพิ่ม
+const totalBudget = ref(0) // งบประมาณรวมเริ่มต้น
+const items = ref<{ faculty: string; total: number }[]>([])
 
 const serverItems = ref([
   { id: 1, name: 'อาจารย์วรวิทย์ วีระพันธุ์', budget: 50000, date: '13/01/2568' },
@@ -184,16 +325,6 @@ const headers = [
   { title: 'งบประมาณ', key: 'budget', align: 'end' },
 ]
 
-const totalBudget = computed(() => {
-  return filteredItems.value
-    .reduce((sum, item) => {
-      // แปลงค่า budget เป็นตัวเลข หากไม่ใช่ตัวเลข
-      const budget = parseFloat(item.budget) || 0
-      return sum + budget
-    }, 0)
-    .toLocaleString()
-})
-
 // การกรองข้อมูลตามปีที่เลือก
 const filteredItems = computed(() => {
   let filtered = serverItems.value
@@ -216,10 +347,6 @@ const filteredItems = computed(() => {
   return filtered
 })
 
-const onClickEdit = () => {
-  router.push({ name: 'ManageEditBudDeFaculty' })
-}
-
 const onClickAdd = () => {
   dialogAdd.value = true // แสดง Dialog เมื่อคลิก Add
 }
@@ -239,6 +366,189 @@ const onSearch = () => {
   filteredItems.value = serverItems.value.filter(
     (item) => item.name.toLowerCase().includes(searchText.value.toLowerCase()), // ค้นหาชื่อตามข้อความที่ป้อน
   )
+}
+
+const usedBudget = computed(() => {
+  return filteredItems.value.reduce((sum, item) => sum + item.budget, 0)
+})
+
+const usedBudgetByName = computed(() => {
+  return filteredItems.value.reduce(
+    (acc, item) => {
+      if (!acc[item.name]) {
+        acc[item.name] = 0
+      }
+      acc[item.name] += item.budget
+      return acc
+    },
+    {} as Record<string, number>,
+  )
+})
+
+// คำนวณยอดรวมของงบประมาณที่ใช้ไป
+const totalUsedBudget = computed(() => {
+  return Object.values(usedBudgetByName.value).reduce((sum, value) => sum + value, 0)
+})
+
+const formattedTotalUsedBudget = computed(() => totalUsedBudget.value.toLocaleString())
+
+const formattedTotalBudget = computed(() => totalBudget.value.toLocaleString())
+
+const remainingBudget = computed(() => totalBudget.value - usedBudget.value)
+
+const formattedRemainingBudget = computed(() => remainingBudget.value.toLocaleString())
+
+const progressValue = computed(() =>
+  totalBudget.value > 0 ? (usedBudget.value / totalBudget.value) * 100 : 0,
+)
+
+const getProgressColor = (progress) => {
+  if (progress < 50) return 'green'
+  if (progress < 80) return 'orange'
+  return 'red'
+}
+
+const onClickAddMoney = () => {
+  dialogAddMoney.value = true
+}
+
+const onSaveAddMoney = () => {
+  if (moneyAmount.value > 0) {
+    totalBudget.value += moneyAmount.value
+    moneyAmount.value = 0
+    dialogAddMoney.value = false
+  } else {
+    alert('กรุณากรอกจำนวนเงินที่ต้องการเพิ่ม')
+  }
+}
+
+const clearMoneyAmount = () => {
+  if (moneyAmount.value === 0) {
+    moneyAmount.value = ''
+  }
+}
+
+// เมื่อออกจากช่องกรอก (Blur) => ถ้ายังไม่มีค่า ให้กลับเป็น 0
+const resetMoneyAmount = () => {
+  if (moneyAmount.value === '' || moneyAmount.value === null) {
+    moneyAmount.value = 0
+  }
+}
+
+const startEditing = (item) => {
+  item.editing = true
+}
+
+const saveBudget = (item) => {
+  item.editing = false
+}
+
+const loadFontAsBase64 = async (url: string): Promise<string> => {
+  const response = await fetch(url)
+  if (!response.ok) throw new Error('Cannot load font')
+  const buffer = await response.arrayBuffer()
+  return btoa(String.fromCharCode(...new Uint8Array(buffer)))
+}
+
+const imageBuu = async () => {
+  const response = await fetch(BuuLogo)
+  const blob = await response.blob()
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onloadend = () => resolve(reader.result.split(',')[1]) // Return base64 string
+    reader.onerror = reject
+    reader.readAsDataURL(blob)
+  })
+}
+
+// ฟอร์แมตวันที่แบบกำหนดเอง
+const formatDatePdf = (): string => {
+  const now = new Date()
+  const yearBuddhist = now.getFullYear() + 543 // เปลี่ยนเป็นปี พ.ศ.
+  const month = String(now.getMonth() + 1).padStart(2, '0') // เดือน (01-12)
+  const day = String(now.getDate()).padStart(2, '0') // วัน (01-31)
+  const hours = String(now.getHours()).padStart(2, '0') // ชั่วโมง (00-23)
+  const minutes = String(now.getMinutes()).padStart(2, '0') // นาที (00-59)
+  return `${day}/${month}/${yearBuddhist} ${hours}:${minutes}`
+}
+
+const onClickFile = async () => {
+  const doc = new jsPDF()
+
+  // โหลดฟอนต์ Sarabun
+  const fontBase64 = await loadFontAsBase64('/Sarabun/Sarabun-Regular.ttf')
+  doc.addFileToVFS('Sarabun-Regular.ttf', fontBase64)
+  doc.addFont('Sarabun-Regular.ttf', 'Sarabun', 'normal')
+  doc.setFont('Sarabun', 'normal')
+  doc.setFontSize(16)
+
+  // เพิ่มโลโก้ BUU
+  const logoBase64 = await imageBuu()
+  const logoWidth = 30
+  const logoHeight = 30
+  const logoX = (doc.internal.pageSize.width - logoWidth) / 2
+  const logoY = 20
+  doc.addImage(logoBase64, 'PNG', logoX, logoY, logoWidth, logoHeight)
+
+  // เพิ่มหัวข้อ PDF
+  const formattedDate = formatDatePdf()
+  const text = 'สรุปงบประมาณ'
+  const textX = (doc.internal.pageSize.width - doc.getTextWidth(text)) / 2
+  const textY = logoY + logoHeight + 10
+  doc.text(text, textX, textY)
+
+  const facultyText = 'สาขา วิทยาการคอมพิวเตอร์'
+  const facultyX = (doc.internal.pageSize.width - doc.getTextWidth(facultyText)) / 2
+  const facultyY = textY + 10
+  doc.text(facultyText, facultyX, facultyY)
+
+  const yearText = `ประจำปี ${selectedYear.value}`
+  const yearX = (doc.internal.pageSize.width - doc.getTextWidth(yearText)) / 2
+  const yearY = facultyY + 10
+  doc.text(yearText, yearX, yearY)
+
+  // เพิ่มวันที่ในมุมขวาบน
+  doc.setFontSize(11)
+  const dateX = doc.internal.pageSize.width - doc.getTextWidth(formattedDate) - 10
+  const dateY = 10
+  doc.text(formattedDate, dateX, dateY)
+
+  // สร้างตารางข้อมูล
+  const tableData = filteredItems.value.map((item, index) => [
+    (index + 1).toString(),
+    item.name,
+    item.budget.toLocaleString(),
+  ])
+  autoTable(doc, {
+    head: [['ลำดับ', 'รายชื่อ', 'จำนวนเงิน (บาท)']],
+    body: tableData,
+    startY: yearY + 20,
+    styles: {
+      font: 'Sarabun',
+      fontSize: 12,
+    },
+    headStyles: {
+      fillColor: [102, 102, 0],
+      textColor: [255, 255, 255],
+      font: 'Sarabun',
+      fontSize: 12,
+    },
+  })
+
+  // เพิ่มผลรวมงบประมาณ
+  const totalBudget = filteredItems.value
+    .reduce((sum, item) => sum + item.budget, 0)
+    .toLocaleString()
+  const totalText = `งบประมาณรวม ${totalBudget} บาท`
+  doc.setFontSize(14)
+  doc.text(
+    totalText,
+    doc.internal.pageSize.width - doc.getTextWidth(totalText) - 10,
+    doc.lastAutoTable.finalY + 10,
+  )
+
+  // บันทึก PDF
+  doc.save(`budget-summary-department-${selectedYear.value}.pdf`)
 }
 
 watch(searchText, () => {
