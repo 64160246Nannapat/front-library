@@ -83,10 +83,16 @@
             </v-btn>
 
             <v-btn
-              style="background-color: #c7c8cc; width: 40px; height: 40px; margin-right: 8px"
+              style="background-color: #b0c5a4; width: 40px; height: 40px; margin-right: 8px"
               @click="onClickAddMoney"
             >
               <v-icon style="font-size: 40px">mdi-cash</v-icon>
+            </v-btn>
+            <v-btn
+              style="background-color: #c7c8cc; width: 20px; height: 40px; margin-right: 15px"
+              @click="onClickFile"
+            >
+              <v-icon style="font-size: 30px">mdi-file-upload-outline</v-icon>
             </v-btn>
           </v-col>
         </v-row>
@@ -109,17 +115,34 @@
         <template v-slot:body="{ items }">
           <tbody>
             <tr v-for="item in items" :key="item.id">
-              <!-- ID -->
-              <td class="text-center" style="width: 10%; padding: 8px">
-                {{ item.id }}
-              </td>
-              <!-- คณะ -->
-              <td class="text-left" style="width: 50%; padding: 8px">
-                {{ item.faculty }}
-              </td>
-              <!-- งบประมาณ -->
-              <td class="text-right" style="width: 40%; padding: 8px">
-                {{ item.budget.toLocaleString() }}
+              <td
+                v-for="header in headers"
+                :key="header.value"
+                :style="{
+                  textAlign: header.align,
+                  width: header.width,
+                  minWidth: header.minWidth,
+                  wordWrap: 'break-word',
+                }"
+              >
+                <span v-if="header.value === 'budget'">
+                  <v-text-field
+                    v-if="item.editing"
+                    v-model="item.budget"
+                    type="number"
+                    @blur="saveBudget(item)"
+                    @keydown.enter="saveBudget(item)"
+                    single-line
+                    variant="outlined"
+                    dense
+                  />
+                  <span v-else @dblclick="startEditing(item)">
+                    {{ item.budget.toLocaleString() }}
+                  </span>
+                </span>
+                <span v-else>
+                  {{ item[header.value] }}
+                </span>
               </td>
             </tr>
           </tbody>
@@ -127,7 +150,6 @@
 
         <template v-slot:body.append>
           <tr>
-            <!-- รวมผลลัพธ์ -->
             <td colspan="2" class="text-right font-weight-bold" style="padding: 8px">รวม</td>
             <td class="text-right font-weight-bold" style="padding: 8px">
               {{ formattedTotalUsedBudget }}
@@ -242,15 +264,17 @@
       </v-card-title>
 
       <v-card-text class="pt-4">
-        <v-row style="display: flex; align-items: center; margin-top: 12px">
-          <v-col cols="4" style="text-align: left; font-size: 18px">จำนวนเงิน:</v-col>
-          <v-col cols="8">
+        <v-row style="display: flex; align-items: center; margin-top: 8px; margin-bottom: -8px">
+          <v-col cols="3" style="text-align: left; font-size: 18px; padding-bottom: 0">
+            จำนวนเงิน:
+          </v-col>
+          <v-col cols="8" style="padding-bottom: 0">
             <v-text-field
               v-model.number="moneyAmount"
               variant="outlined"
               dense
               type="number"
-              style="margin-bottom: -20px; width: 100%"
+              style="margin: 0; width: 100%"
             ></v-text-field>
           </v-col>
         </v-row>
@@ -272,6 +296,10 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { jsPDF } from 'jspdf'
+import autoTable from 'jspdf-autotable'
+import WebFontLoader from 'webfontloader'
+import BuuLogo from '@/assets/Buu-logo11.png'
 
 const loading = ref(false)
 const selectedYear = ref<number | null>(null)
@@ -287,64 +315,59 @@ const totalBudget = ref(0) // งบประมาณรวมเริ่ม�
 const items = ref<{ faculty: string; total: number }[]>([])
 
 const serverItems = ref([
-  { id: 1, faculty: 'คณะดนตรีและการแสดง', budget: 50000, date: '13/01/2568' },
-  { id: 2, faculty: 'คณะบริหารธุรกิจ', budget: 70000, date: '13/01/2568' },
-  { id: 3, faculty: 'คณะพยาบาลศาสตร์', budget: 60000, date: '13/01/2568' },
-  { id: 4, faculty: 'คณะภูมิสารสนเทศศาสตร์', budget: 50000, date: '13/01/2568' },
+  { id: 1, faculty: 'คณะดนตรีและการแสดง', budget: 50000, date: '13/01/2568', editing: false },
+  { id: 2, faculty: 'คณะบริหารธุรกิจ', budget: 70000, date: '13/01/2568', editing: false },
+  { id: 3, faculty: 'คณะพยาบาลศาสตร์', budget: 60000, date: '13/01/2568', editing: false },
+  { id: 4, faculty: 'คณะภูมิสารสนเทศศาสตร์', budget: 50000, date: '13/01/2568', editing: false },
   {
     id: 5,
     faculty: 'คณะมนุษยศาสตร์และสังคมศาสตร์',
     budget: 70000,
     date: '13/01/2568',
+    editing: false,
   },
   {
     id: 6,
     faculty: 'คณะรัฐศาสตร์และนิติศาสตร์',
     budget: 60000,
     date: '13/01/2568',
+    editing: false,
   },
-  { id: 7, faculty: 'คณะวิทยาการสารสนเทศ', budget: 50000, date: '13/01/2568' },
-  { id: 8, faculty: 'คณะวิทยาศาสตร์', budget: 70000, date: '13/01/2568' },
-  { id: 9, faculty: 'คณะวิทยาศาสตร์การกีฬา', budget: 60000, date: '13/01/2568' },
+  { id: 7, faculty: 'คณะวิทยาการสารสนเทศ', budget: 50000, date: '13/01/2568', editing: false },
+  { id: 8, faculty: 'คณะวิทยาศาสตร์', budget: 70000, date: '13/01/2568', editing: false },
+  { id: 9, faculty: 'คณะวิทยาศาสตร์การกีฬา', budget: 60000, date: '13/01/2568', editing: false },
   {
     id: 10,
     faculty: 'คณะวิทยาศาสตร์และศิลปศาสตร์',
     budget: 70000,
     date: '13/01/2568',
+    editing: false,
   },
   {
     id: 11,
     faculty: 'คณะวิทยาศาสตร์และสังคมศาสตร์',
     budget: 60000,
     date: '13/01/2568',
-  },
-  {
-    id: 12,
-    faculty: 'คณะวิทยาศาสตร์และศิลปศาสตร์',
-    budget: 70000,
-    date: '13/01/2567',
-  },
-  {
-    id: 13,
-    faculty: 'คณะวิทยาศาสตร์และสังคมศาสตร์',
-    budget: 60000,
-    date: '13/01/2567',
+    editing: false,
   },
 ])
 
 const headers = [
-  { title: 'ID', value: 'id', align: 'left', width: '10%' },
-  { title: 'คณะ', value: 'faculty', align: 'left', width: '50%' },
-  { title: 'งบประมาณ (บาท)', value: 'budget', align: 'right', width: '40%' },
+  { title: 'ID', value: 'id', align: 'start', width: '10%', minWidth: '60px' },
+  { title: 'คณะ', value: 'faculty', align: 'left', width: '50%', minWidth: '200px' },
+  { title: 'งบประมาณ (บาท)', value: 'budget', align: 'end', width: '40%', minWidth: '150px' },
 ]
 
 const filteredItems = computed(() => {
   if (selectedYear.value) {
-    return serverItems.value.filter((item) => {
+    const filtered = serverItems.value.filter((item) => {
       const itemYear = parseInt(item.date.split('/')[2])
       return itemYear === selectedYear.value
     })
+    console.log(filtered) // ตรวจสอบค่าใน filtered
+    return filtered
   }
+  console.log(serverItems.value) // ตรวจสอบค่าใน serverItems
   return serverItems.value
 })
 
@@ -425,6 +448,113 @@ const getProgressColor = (progress) => {
   if (progress < 50) return 'green'
   if (progress < 80) return 'orange'
   return 'red'
+}
+
+const saveBudget = (item) => {
+  item.editing = false
+  console.log('บันทึกงบประมาณ:', item.budget)
+}
+
+const startEditing = (item) => {
+  item.editing = true
+}
+
+const loadFontAsBase64 = async (url: string): Promise<string> => {
+  const response = await fetch(url)
+  if (!response.ok) throw new Error('Cannot load font')
+  const buffer = await response.arrayBuffer()
+  return btoa(String.fromCharCode(...new Uint8Array(buffer)))
+}
+
+const imageBuu = async () => {
+  const response = await fetch(BuuLogo)
+  const blob = await response.blob()
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onloadend = () => resolve(reader.result.split(',')[1]) // Return base64 string
+    reader.onerror = reject
+    reader.readAsDataURL(blob)
+  })
+}
+
+// ฟอร์แมตวันที่แบบกำหนดเอง
+const formatDatePdf = (): string => {
+  const now = new Date()
+  const yearBuddhist = now.getFullYear() + 543 // เปลี่ยนเป็นปี พ.ศ.
+  const month = String(now.getMonth() + 1).padStart(2, '0') // เดือน (01-12)
+  const day = String(now.getDate()).padStart(2, '0') // วัน (01-31)
+  const hours = String(now.getHours()).padStart(2, '0') // ชั่วโมง (00-23)
+  const minutes = String(now.getMinutes()).padStart(2, '0') // นาที (00-59)
+  return `${day}/${month}/${yearBuddhist} ${hours}:${minutes}`
+}
+
+const onClickFile = async () => {
+  const doc = new jsPDF()
+
+  const fontBase64 = await loadFontAsBase64('/Sarabun/Sarabun-Regular.ttf')
+  doc.addFileToVFS('Sarabun-Regular.ttf', fontBase64)
+  doc.addFont('Sarabun-Regular.ttf', 'Sarabun', 'normal')
+  doc.setFont('Sarabun', 'normal')
+  doc.setFontSize(16)
+
+  const logoBase64 = await imageBuu()
+  const logoWidth = 30
+  const logoHeight = 30
+  const logoX = (doc.internal.pageSize.width - logoWidth) / 2
+  const logoY = 20
+  doc.addImage(logoBase64, 'PNG', logoX, logoY, logoWidth, logoHeight)
+
+  const formattedDate = formatDatePdf()
+
+  const text = 'สรุปงบประมาณ'
+  const text_x = (doc.internal.pageSize.width - doc.getTextWidth(text)) / 2
+  const text_y = logoY + logoHeight + 10
+  doc.text(text, text_x, text_y)
+
+  const text1 = `ประจำปี ${selectedYear.value}`
+  const text1_x = (doc.internal.pageSize.width - doc.getTextWidth(text1)) / 2
+  const text1_y = text_y + 10
+  doc.text(text1, text1_x, text1_y)
+
+  doc.setFontSize(11)
+  const dateX = doc.internal.pageSize.width - doc.getTextWidth(formattedDate) - 10
+  const dateY = 10
+  doc.text(formattedDate, dateX, dateY)
+
+  const tableData = filteredItems.value.map((item, index) => [
+    (index + 1).toString(),
+    item.faculty,
+    item.budget.toLocaleString(),
+  ])
+
+  autoTable(doc, {
+    head: [['ลำดับ', 'คณะ', 'จำนวนเงิน (บาท)']],
+    body: tableData,
+    startY: text_y + 20,
+    styles: {
+      font: 'Sarabun',
+      fontSize: 12,
+    },
+    headStyles: {
+      fillColor: [102, 102, 0],
+      textColor: [255, 255, 255],
+      font: 'Sarabun',
+      fontSize: 12,
+    },
+  })
+
+  const totalBudget = filteredItems.value
+    .reduce((sum, item) => sum + item.budget, 0)
+    .toLocaleString()
+  const totalText = `งบประมาณรวม ${totalBudget} บาท`
+  doc.setFontSize(14)
+  doc.text(
+    totalText,
+    doc.internal.pageSize.width - doc.getTextWidth(totalText) - 10,
+    doc.lastAutoTable.finalY + 10,
+  )
+
+  doc.save(`budget-summary-${selectedYear.value}.pdf`)
 }
 
 onMounted(() => {
@@ -508,11 +638,6 @@ onMounted(() => {
 
 .cursor-pointer {
   cursor: pointer;
-}
-
-.faculty-column {
-  text-align: left; /* ชิดซ้าย */
-  padding-left: 16px; /* เพิ่ม padding ซ้ายเพื่อให้ข้อมูลตรงกับหัวตาราง */
 }
 
 .budget-table {

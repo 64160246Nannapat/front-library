@@ -848,13 +848,13 @@ h1 {
   line-height: 1 !important;
 }
 
-<<<<<<< HEAD
+
 .active-tab {
   background-color: #fcdc94 !important; /* เปลี่ยนสีพื้นหลัง */
   border: 2px solid #ff9800 !important; /* เพิ่มกรอบ */
   border-radius: 8px; /* ทำให้มุมมน */
   color: #333 !important; /* เปลี่ยนสีตัวอักษร */
-=======
+}
 .select-book .v-list-item-title {
   font-size: 14px;
   padding: 4px 8px;
@@ -862,7 +862,6 @@ h1 {
 
 .select-book .v-input {
   font-size: 16px; /* ขนาดตัวอักษรข้อความที่เลือก */
->>>>>>> 1aa6d86bc85c631a37a8833bbd9e633804098521
 }
 
 ::v-deep(.custom-select .v-input__control) {
