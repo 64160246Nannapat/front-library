@@ -101,8 +101,7 @@
       <!-- ตารางข้อมูล -->
       <v-data-table
         :headers="headers"
-        :items="filteredItems"
-        :loading="loading"
+        :items="serverItems"
         item-value="id"
         class="budget-table"
         :hide-default-footer="true"
@@ -110,44 +109,34 @@
         dense
         fixed-header
         height="auto"
-        style="table-layout: fixed; width: 100%"
+        style="width: 100%; table-layout: auto"
       >
-        <template v-slot:body="{ items }">
-          <tbody>
-            <tr v-for="item in items" :key="item.id">
-              <td
-                v-for="header in headers"
-                :key="header.value"
-                :style="{
-                  textAlign: header.align,
-                  width: header.width,
-                  minWidth: header.minWidth,
-                  wordWrap: 'break-word',
-                }"
-              >
-                <span v-if="header.value === 'budget'">
-                  <v-text-field
-                    v-if="item.editing"
-                    v-model="item.budget"
-                    type="number"
-                    @blur="saveBudget(item)"
-                    @keydown.enter="saveBudget(item)"
-                    single-line
-                    variant="outlined"
-                    dense
-                  />
-                  <span v-else @dblclick="startEditing(item)">
-                    {{ item.budget.toLocaleString() }}
-                  </span>
-                </span>
-                <span v-else>
-                  {{ item[header.value] }}
-                </span>
-              </td>
-            </tr>
-          </tbody>
+        <template v-slot:item="{ item }">
+          <tr>
+            <td :style="{ textAlign: 'start', width: '10%' }">{{ item.id }}</td>
+            <td :style="{ textAlign: 'left', width: '50%', whiteSpace: 'nowrap' }">
+              {{ item.faculty }}
+            </td>
+            <td :style="{ textAlign: 'right', width: '40%' }" @dblclick="startEditing(item)">
+              <v-text-field
+                v-if="item.editing"
+                v-model="item.budget"
+                type="number"
+                variant="outlined"
+                dense
+                single-line
+                hide-details
+                @blur="saveBudget(item)"
+                @keydown.enter="saveBudget(item)"
+              />
+              <span v-else>
+                {{ item.budget.toLocaleString() }}
+              </span>
+            </td>
+          </tr>
         </template>
 
+        <!-- แถวผลรวม -->
         <template v-slot:body.append>
           <tr>
             <td colspan="2" class="text-right font-weight-bold" style="padding: 8px">รวม</td>
@@ -353,8 +342,8 @@ const serverItems = ref([
 ])
 
 const headers = [
-  { title: 'ID', value: 'id', align: 'start', width: '10%', minWidth: '60px' },
-  { title: 'คณะ', value: 'faculty', align: 'left', width: '50%', minWidth: '200px' },
+  { title: 'ID', value: 'id', align: 'start', width: '10%', minWidth: '80px' },
+  { title: 'คณะ', value: 'faculty', align: 'left', width: '100%', minWidth: '20px' },
   { title: 'งบประมาณ (บาท)', value: 'budget', align: 'end', width: '40%', minWidth: '150px' },
 ]
 
@@ -450,13 +439,12 @@ const getProgressColor = (progress) => {
   return 'red'
 }
 
-const saveBudget = (item) => {
-  item.editing = false
-  console.log('บันทึกงบประมาณ:', item.budget)
-}
-
 const startEditing = (item) => {
   item.editing = true
+}
+
+const saveBudget = (item) => {
+  item.editing = false
 }
 
 const loadFontAsBase64 = async (url: string): Promise<string> => {
