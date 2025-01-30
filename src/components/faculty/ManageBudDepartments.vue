@@ -27,7 +27,7 @@
 
               <v-card-text>
                 <!-- หลอดทั้งหมด -->
-                <div class="progress-container" style="position: relative">
+                <div class="progress-container" style="position: relative; height: 18px">
                   <!-- หลอดเป้าหมาย -->
                   <v-progress-linear
                     :value="100"
@@ -36,15 +36,23 @@
                     rounded
                     style="width: 100%"
                   ></v-progress-linear>
+
                   <!-- หลอดดำเนินการ (ความคืบหน้า) -->
                   <v-progress-linear
-                    :value="progressValue"
+                    v-model="animatedProgressValue"
                     height="18"
-                    :color="getProgressColor(progressValue)"
+                    :color="totalBudget > 0 ? getProgressColor(animatedProgressValue) : 'grey'"
                     rounded
-                    style="width: 100%; position: absolute; top: 0; left: 0"
+                    style="
+                      position: absolute;
+                      top: 0;
+                      left: 0;
+                      width: 100%;
+                      transition: width 0.6s ease-in-out;
+                    "
                   ></v-progress-linear>
                 </div>
+
                 <div class="d-flex justify-space-between py-3">
                   <span class="text-medium-emphasis"
                     >ใช้ไป: {{ formattedTotalUsedBudget }} บาท</span
@@ -114,7 +122,7 @@
           <tr v-for="item in items" :key="item.id">
             <td>{{ item.id }}</td>
             <td>{{ item.name }}</td>
-            <td :style="{ textAlign: 'right', width: '40%' }" @dblclick="startEditing(item)">
+            <td :style="{ textAlign: 'right', width: '15%' }" @dblclick="startEditing(item)">
               <v-text-field
                 v-if="item.editing"
                 v-model="item.budget"
@@ -374,6 +382,7 @@ const totalBudget = ref(0) // งบประมาณรวมเริ่ม�
 const items = ref<{ faculty: string; total: number }[]>([])
 const dialogDelete = ref(false) // สถานะการแสดง dialog
 const selectedItem = ref(null) // ไว้เก็บข้อมูลของรายการที่เลือก
+const animatedProgressValue = ref(0)
 
 const serverItems = ref([
   { id: 1, name: 'อาจารย์วรวิทย์ วีระพันธุ์', budget: 50000, date: '13/01/2568' },
@@ -674,6 +683,10 @@ const onClickFile = async () => {
 
 watch(searchText, () => {
   onSearch() // เรียกใช้ onSearch ทุกครั้งที่ searchText เปลี่ยน
+})
+
+watch(progressValue, (newValue) => {
+  animatedProgressValue.value = newValue
 })
 
 onMounted(() => {
