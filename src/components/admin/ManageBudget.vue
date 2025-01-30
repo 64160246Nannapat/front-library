@@ -101,7 +101,7 @@
       <!-- ตารางข้อมูล -->
       <v-data-table
         :headers="headers"
-        :items="serverItems"
+        :items="filteredItems"
         item-value="id"
         class="budget-table"
         :hide-default-footer="true"
@@ -304,43 +304,56 @@
     </v-card>
   </v-dialog>
 
-  <v-dialog v-model="dialogDelete" max-width="400px">
-    <v-card>
+  <v-dialog v-model="dialogDelete" max-width="350px" class="dialog-container">
+    <v-card
+      class="pa-4 card-dialog"
+      style="background-color: #f5efe4; border-radius: 12px; width: 350px"
+    >
       <v-card-title
         class="d-flex align-center"
         style="
           background-color: #f8d8de;
           height: 60px;
           margin: -16px -16px 0 -16px;
-          border-bottom-left-radius: 12px;
-          border-bottom-right-radius: 12px;
-          justify-content: flex-end;
+          border-radius: 12px 12px 0 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 16px;
+          font-weight: bold;
+          text-align: center;
         "
       >
-        <div
+        ยืนยันการลบ
+      </v-card-title>
+
+      <v-card-text class="text-center"> คุณแน่ใจหรือไม่ว่าจะลบรายการนี้? </v-card-text>
+
+      <v-card-actions class="d-flex justify-space-between">
+        <v-btn
+          variant="outlined"
+          @click="dialogDelete = false"
           style="
-            flex-grow: 1;
-            font-size: 16px;
-            font-weight: bold;
-            text-align: left;
-            padding-left: 16px;
+            background-color: #023e7d;
+            color: white;
+            border: 2px solid #023e7d;
+            border-radius: 8px;
           "
         >
-          ยืนยันการลบ
-        </div>
-        <v-icon
-          @click="dialogDelete = false"
-          color="red"
-          class="cursor-pointer"
-          style="font-size: 35px"
+          ยกเลิก
+        </v-btn>
+
+        <v-btn
+          variant="outlined"
+          @click="deleteItem"
+          style="
+            background-color: #b42121;
+            color: white;
+            border: 2px solid #b42121;
+            border-radius: 8px;
+          "
+          >ลบ</v-btn
         >
-          mdi-close
-        </v-icon>
-      </v-card-title>
-      <v-card-text> คุณแน่ใจหรือไม่ว่าจะลบรายการนี้? </v-card-text>
-      <v-card-actions>
-        <v-btn text @click="dialogDelete = false">ยกเลิก</v-btn>
-        <v-btn color="red" @click="deleteItem">ลบ</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -405,6 +418,8 @@ const serverItems = ref([
     date: '13/01/2568',
     editing: false,
   },
+  { id: 12, faculty: 'คณะวิทยาศาสตร์', budget: 70000, date: '13/01/2567', editing: false },
+  { id: 13, faculty: 'คณะวิทยาศาสตร์การกีฬา', budget: 60000, date: '13/01/2567', editing: false },
 ])
 
 const headers = [
@@ -417,13 +432,15 @@ const headers = [
 const filteredItems = computed(() => {
   if (selectedYear.value) {
     const filtered = serverItems.value.filter((item) => {
-      const itemYear = parseInt(item.date.split('/')[2])
+      const itemYear = parseInt(item.date.split('/')[2]) // แยกปีจากวันที่
+      if (isNaN(itemYear)) {
+        console.error(`Invalid year in item: ${item.date}`) // ตรวจสอบค่าปีที่ผิดพลาด
+        return false // หากปีไม่ถูกต้องไม่ให้แสดงรายการนี้
+      }
       return itemYear === selectedYear.value
     })
-    console.log(filtered) // ตรวจสอบค่าใน filtered
     return filtered
   }
-  console.log(serverItems.value) // ตรวจสอบค่าใน serverItems
   return serverItems.value
 })
 
@@ -442,8 +459,8 @@ const onSaveNewItem = () => {
       editing: false,
     })
 
-    // อัปเดตค่าในการ์ด
-    totalBudget.value -= newTotal.value
+    // คำนวณงบประมาณที่เหลือ
+    updateRemainingBudget()
 
     // รีเซ็ตค่า
     newFaculty.value = ''
@@ -468,10 +485,10 @@ const onClickDelete = (item) => {
 
 // ฟังก์ชันลบรายการ
 const deleteItem = () => {
-  // ลบรายการจากข้อมูล
-  const index = items.value.findIndex((i) => i.id === selectedItem.value.id)
+  // ค้นหาดัชนีของรายการที่ต้องการลบ
+  const index = serverItems.value.findIndex((i) => i.id === selectedItem.value.id)
   if (index !== -1) {
-    items.value.splice(index, 1) // ลบรายการ
+    serverItems.value.splice(index, 1) // ลบรายการ
   }
   dialogDelete.value = false // ซ่อน dialog
 }
@@ -490,9 +507,9 @@ const onClickAddMoney = () => {
 
 const onSaveAddMoney = () => {
   if (moneyAmount.value > 0) {
-    totalBudget.value += moneyAmount.value
-    moneyAmount.value = 0
-    dialogAddMoney.value = false
+    totalBudget.value += moneyAmount.value // เพิ่มเงินเข้าไปใน totalBudget
+    moneyAmount.value = 0 // รีเซ็ตค่าเงินที่กรอก
+    dialogAddMoney.value = false // ปิด dialog
   } else {
     alert('กรุณากรอกจำนวนเงินที่ต้องการเพิ่ม')
   }
@@ -500,14 +517,13 @@ const onSaveAddMoney = () => {
 
 const clearMoneyAmount = () => {
   if (moneyAmount.value === 0) {
-    moneyAmount.value = ''
+    moneyAmount.value = '' // เคลียร์ค่าถ้าเป็น 0
   }
 }
 
-// เมื่อออกจากช่องกรอก (Blur) => ถ้ายังไม่มีค่า ให้กลับเป็น 0
 const resetMoneyAmount = () => {
   if (moneyAmount.value === '' || moneyAmount.value === null) {
-    moneyAmount.value = 0
+    moneyAmount.value = 0 // รีเซ็ตค่าเป็น 0 หากกรอกไม่ได้
   }
 }
 

@@ -130,6 +130,25 @@
                 {{ item.budget.toLocaleString() }}
               </span>
             </td>
+            <td class="text-right">
+              <v-btn
+                color="transparent"
+                icon
+                @click="onClickDelete(item)"
+                style="
+                  display: flex;
+                  justify-content: center;
+                  align-items: center;
+                  box-shadow: none;
+                "
+              >
+                <img
+                  src="@/assets/bin.png"
+                  alt="Delete"
+                  style="width: 35px; height: 35px; border: none"
+                />
+              </v-btn>
+            </td>
           </tr>
         </template>
         <template v-slot:body.append>
@@ -187,7 +206,7 @@
           <v-col cols="2" style="text-align: left; font-size: 18px">ชื่อ:</v-col>
           <v-col cols="8">
             <v-text-field
-              v-model="newFaculty"
+              v-model="newName"
               variant="outlined"
               dense
               style="margin-bottom: -20px; width: 100%"
@@ -204,6 +223,8 @@
               dense
               type="number"
               style="margin-bottom: -20px; width: 100%"
+              @focus="clearNewTotal"
+              @input="updateRemainingBudget"
             ></v-text-field>
           </v-col>
         </v-row>
@@ -274,6 +295,60 @@
       </v-card-actions>
     </v-card>
   </v-dialog>
+
+  <v-dialog v-model="dialogDelete" max-width="350px" class="dialog-container">
+    <v-card
+      class="pa-4 card-dialog"
+      style="background-color: #f5efe4; border-radius: 12px; width: 350px"
+    >
+      <v-card-title
+        class="d-flex align-center"
+        style="
+          background-color: #f8d8de;
+          height: 60px;
+          margin: -16px -16px 0 -16px;
+          border-radius: 12px 12px 0 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 16px;
+          font-weight: bold;
+          text-align: center;
+        "
+      >
+        ยืนยันการลบ
+      </v-card-title>
+
+      <v-card-text class="text-center"> คุณแน่ใจหรือไม่ว่าจะลบรายการนี้? </v-card-text>
+
+      <v-card-actions class="d-flex justify-space-between">
+        <v-btn
+          variant="outlined"
+          @click="dialogDelete = false"
+          style="
+            background-color: #023e7d;
+            color: white;
+            border: 2px solid #023e7d;
+            border-radius: 8px;
+          "
+        >
+          ยกเลิก
+        </v-btn>
+
+        <v-btn
+          variant="outlined"
+          @click="deleteItem"
+          style="
+            background-color: #b42121;
+            color: white;
+            border: 2px solid #b42121;
+            border-radius: 8px;
+          "
+          >ลบ</v-btn
+        >
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script setup lang="ts">
@@ -289,8 +364,7 @@ const currentYear = new Date().getFullYear() + 543 // ปีปัจจุบ�
 const years = Array.from({ length: currentYear - 2517 }, (_, i) => 2518 + i) // ช่วงปี พ.ศ. (เริ่มที่ 2518)
 const router = useRouter()
 const dialogAdd = ref(false) // สถานะการแสดง Dialog
-const newFaculty = ref('') // ชื่อคณะใหม่
-const newId = ref('') // ID ใหม่
+const newName = ref('')
 const updatedData = ref([])
 const searchText = ref('')
 const newTotal = ref(0) // จำนวนงบประมาณใหม่
@@ -298,6 +372,8 @@ const dialogAddMoney = ref(false) // สถานะการแสดง Dialog
 const moneyAmount = ref(0) // จำนวนเงินที่เพิ่ม
 const totalBudget = ref(0) // งบประมาณรวมเริ่มต้น
 const items = ref<{ faculty: string; total: number }[]>([])
+const dialogDelete = ref(false) // สถานะการแสดง dialog
+const selectedItem = ref(null) // ไว้เก็บข้อมูลของรายการที่เลือก
 
 const serverItems = ref([
   { id: 1, name: 'อาจารย์วรวิทย์ วีระพันธุ์', budget: 50000, date: '13/01/2568' },
@@ -323,6 +399,7 @@ const headers = [
   { title: 'ID', key: 'id', align: 'start' },
   { title: 'รายชื่อ', key: 'name' },
   { title: 'งบประมาณ', key: 'budget', align: 'end' },
+  { title: '', key: 'actions', align: 'end' },
 ]
 
 // การกรองข้อมูลตามปีที่เลือก
@@ -352,13 +429,58 @@ const onClickAdd = () => {
 }
 
 const onSaveNewItem = () => {
-  // บันทึกข้อมูลใหม่
-  console.log('บันทึกข้อมูลใหม่:', newFaculty.value, newId.value)
-  dialogAdd.value = false // ปิด Dialog
+  if (newName.value && newTotal.value > 0) {
+    // เพิ่มรายการใหม่ไปยัง serverItems
+    serverItems.value.push({
+      id: serverItems.value.length + 1,
+      name: newName.value,
+      budget: newTotal.value,
+      date: new Date().toLocaleDateString('th-TH'),
+      editing: false,
+    })
+
+    // คำนวณงบประมาณที่เหลือ
+    updateRemainingBudget()
+
+    // รีเซ็ตค่าของฟอร์ม
+    newName.value = ''
+    newTotal.value = 0
+
+    // ปิด dialog
+    dialogAdd.value = false
+  } else {
+    alert('กรุณากรอกข้อมูลให้ครบถ้วน')
+  }
+}
+
+const clearNewTotal = () => {
+  if (newTotal.value === 0) {
+    newTotal.value = '' // เปลี่ยนค่าเป็นค่าว่างเมื่อคลิกที่ช่องกรอก
+  }
+}
+
+// ฟังก์ชันที่ถูกเรียกเมื่อคลิกปุ่มลบ
+const onClickDelete = (item) => {
+  selectedItem.value = item // เก็บข้อมูลรายการที่เลือก
+  dialogDelete.value = true // แสดง dialog
+}
+
+// ฟังก์ชันลบรายการ
+const deleteItem = () => {
+  // ค้นหาดัชนีของรายการที่ต้องการลบ
+  const index = serverItems.value.findIndex((i) => i.id === selectedItem.value.id)
+  if (index !== -1) {
+    serverItems.value.splice(index, 1) // ลบรายการ
+  }
+  dialogDelete.value = false // ซ่อน dialog
 }
 
 const onYearChange = (year: number | null) => {
   console.log('ปีที่เลือก:', year)
+}
+
+const updateRemainingBudget = () => {
+  formattedRemainingBudget.value = totalBudget.value - newTotal.value
 }
 
 const onSearch = () => {
@@ -414,9 +536,9 @@ const onClickAddMoney = () => {
 
 const onSaveAddMoney = () => {
   if (moneyAmount.value > 0) {
-    totalBudget.value += moneyAmount.value
-    moneyAmount.value = 0
-    dialogAddMoney.value = false
+    totalBudget.value += moneyAmount.value // เพิ่มเงินเข้าไปใน totalBudget
+    moneyAmount.value = 0 // รีเซ็ตค่าเงินที่กรอก
+    dialogAddMoney.value = false // ปิด dialog
   } else {
     alert('กรุณากรอกจำนวนเงินที่ต้องการเพิ่ม')
   }
@@ -424,14 +546,13 @@ const onSaveAddMoney = () => {
 
 const clearMoneyAmount = () => {
   if (moneyAmount.value === 0) {
-    moneyAmount.value = ''
+    moneyAmount.value = '' // เคลียร์ค่าถ้าเป็น 0
   }
 }
 
-// เมื่อออกจากช่องกรอก (Blur) => ถ้ายังไม่มีค่า ให้กลับเป็น 0
 const resetMoneyAmount = () => {
   if (moneyAmount.value === '' || moneyAmount.value === null) {
-    moneyAmount.value = 0
+    moneyAmount.value = 0 // รีเซ็ตค่าเป็น 0 หากกรอกไม่ได้
   }
 }
 
@@ -566,7 +687,6 @@ onMounted(() => {
 <style scoped>
 .budget-summary-container {
   padding: 20px;
-  background-color: #fff9f4;
 }
 
 .header {

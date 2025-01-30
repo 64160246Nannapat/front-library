@@ -11,7 +11,7 @@
             </div>
           </v-row>
           <v-row>
-            <h3 style="margin-left: 76px">คณะ วิทยาการสารสนเทศ</h3>
+            <h3 style="margin-left: 76px">สาขา วิทยาการคอมพิวเตอร์</h3>
           </v-row>
         </v-col>
 
@@ -47,7 +47,7 @@
                 </div>
                 <div class="d-flex justify-space-between py-3">
                   <span class="text-medium-emphasis"
-                    >ใช้ไป: {{ formattedTotalUsedBudgetAll }} บาท</span
+                    >ใช้ไป: {{ formattedTotalUsedBudget }} บาท</span
                   >
                   <span class="text-medium-emphasis">
                     งบประมาณรวม: {{ formattedTotalBudget }} บาท
@@ -124,7 +124,6 @@
           </v-btn>
         </v-col>
       </v-row>
-
       <!-- ตารางข้อมูล -->
       <v-data-table
         :headers="headers"
@@ -155,12 +154,31 @@
                 {{ item.budget.toLocaleString() }}
               </span>
             </td>
+            <td class="text-right">
+              <v-btn
+                color="transparent"
+                icon
+                @click="onClickDelete(item)"
+                style="
+                  display: flex;
+                  justify-content: center;
+                  align-items: center;
+                  box-shadow: none;
+                "
+              >
+                <img
+                  src="@/assets/bin.png"
+                  alt="Delete"
+                  style="width: 35px; height: 35px; border: none"
+                />
+              </v-btn>
+            </td>
           </tr>
         </template>
         <template v-slot:body.append>
           <tr>
             <td colspan="2" class="text-right font-weight-bold">รวม</td>
-            <td class="text-right font-weight-bold">{{ formattedTotalUsedBudgetFiltered }}</td>
+            <td class="text-right font-weight-bold">{{ formattedTotalUsedBudget }}</td>
           </tr>
         </template>
       </v-data-table>
@@ -209,10 +227,10 @@
 
       <v-card-text class="pt-4">
         <v-row style="display: flex; align-items: center; margin-top: 12px">
-          <v-col cols="2" style="text-align: left; font-size: 18px">สาขา:</v-col>
+          <v-col cols="2" style="text-align: left; font-size: 18px">ชื่อ:</v-col>
           <v-col cols="8">
             <v-text-field
-              v-model="newFaculty"
+              v-model="newName"
               variant="outlined"
               dense
               style="margin-bottom: -20px; width: 100%"
@@ -229,6 +247,8 @@
               dense
               type="number"
               style="margin-bottom: -20px; width: 100%"
+              @focus="clearNewTotal"
+              @input="updateRemainingBudget"
             ></v-text-field>
           </v-col>
         </v-row>
@@ -299,6 +319,60 @@
       </v-card-actions>
     </v-card>
   </v-dialog>
+
+  <v-dialog v-model="dialogDelete" max-width="350px" class="dialog-container">
+    <v-card
+      class="pa-4 card-dialog"
+      style="background-color: #f5efe4; border-radius: 12px; width: 350px"
+    >
+      <v-card-title
+        class="d-flex align-center"
+        style="
+          background-color: #f8d8de;
+          height: 60px;
+          margin: -16px -16px 0 -16px;
+          border-radius: 12px 12px 0 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 16px;
+          font-weight: bold;
+          text-align: center;
+        "
+      >
+        ยืนยันการลบ
+      </v-card-title>
+
+      <v-card-text class="text-center"> คุณแน่ใจหรือไม่ว่าจะลบรายการนี้? </v-card-text>
+
+      <v-card-actions class="d-flex justify-space-between">
+        <v-btn
+          variant="outlined"
+          @click="dialogDelete = false"
+          style="
+            background-color: #023e7d;
+            color: white;
+            border: 2px solid #023e7d;
+            border-radius: 8px;
+          "
+        >
+          ยกเลิก
+        </v-btn>
+
+        <v-btn
+          variant="outlined"
+          @click="deleteItem"
+          style="
+            background-color: #b42121;
+            color: white;
+            border: 2px solid #b42121;
+            border-radius: 8px;
+          "
+          >ลบ</v-btn
+        >
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script setup lang="ts">
@@ -314,7 +388,6 @@ const currentYear = new Date().getFullYear() + 543 // ปีปัจจุบ�
 const years = Array.from({ length: currentYear - 2517 }, (_, i) => 2518 + i) // ช่วงปี พ.ศ. (เริ่มที่ 2518)
 const router = useRouter()
 const dialogAdd = ref(false) // สถานะการแสดง Dialog
-const newFaculty = ref('') // ชื่อคณะใหม่
 const newName = ref('')
 const updatedData = ref([])
 const searchText = ref('')
@@ -323,6 +396,8 @@ const dialogAddMoney = ref(false) // สถานะการแสดง Dialog
 const moneyAmount = ref(0) // จำนวนเงินที่เพิ่ม
 const totalBudget = ref(0) // งบประมาณรวมเริ่มต้น
 const items = ref<{ faculty: string; total: number }[]>([])
+const dialogDelete = ref(false) // สถานะการแสดง dialog
+const selectedItem = ref(null) // ไว้เก็บข้อมูลของรายการที่เลือก
 
 const serverItems = ref([
   { id: 1, name: 'อาจารย์วรวิทย์ วีระพันธุ์', budget: 50000, date: '13/01/2568' },
@@ -424,6 +499,7 @@ const headers = [
   { title: 'ID', key: 'id', align: 'start' },
   { title: 'รายชื่อ', key: 'name' },
   { title: 'งบประมาณ', key: 'budget', align: 'end' },
+  { title: '', key: 'actions', align: 'end' },
 ]
 
 // การกรองข้อมูลตามปีที่เลือก
@@ -453,57 +529,97 @@ const onClickAdd = () => {
 }
 
 const onSaveNewItem = () => {
-  // บันทึกข้อมูลใหม่
-  console.log('บันทึกข้อมูลใหม่:', newFaculty.value, newId.value)
-  dialogAdd.value = false // ปิด Dialog
+  if (newName.value && newTotal.value > 0) {
+    // เพิ่มรายการใหม่ไปยัง serverItems
+    serverItems.value.push({
+      id: serverItems.value.length + 1,
+      name: newName.value,
+      budget: newTotal.value,
+      date: new Date().toLocaleDateString('th-TH'),
+      editing: false,
+    })
+
+    // คำนวณงบประมาณที่เหลือ
+    updateRemainingBudget()
+
+    // รีเซ็ตค่าของฟอร์ม
+    newName.value = ''
+    newTotal.value = 0
+
+    // ปิด dialog
+    dialogAdd.value = false
+  } else {
+    alert('กรุณากรอกข้อมูลให้ครบถ้วน')
+  }
+}
+
+const clearNewTotal = () => {
+  if (newTotal.value === 0) {
+    newTotal.value = '' // เปลี่ยนค่าเป็นค่าว่างเมื่อคลิกที่ช่องกรอก
+  }
+}
+
+// ฟังก์ชันที่ถูกเรียกเมื่อคลิกปุ่มลบ
+const onClickDelete = (item) => {
+  selectedItem.value = item // เก็บข้อมูลรายการที่เลือก
+  dialogDelete.value = true // แสดง dialog
+}
+
+// ฟังก์ชันลบรายการ
+const deleteItem = () => {
+  // ค้นหาดัชนีของรายการที่ต้องการลบ
+  const index = serverItems.value.findIndex((i) => i.id === selectedItem.value.id)
+  if (index !== -1) {
+    serverItems.value.splice(index, 1) // ลบรายการ
+  }
+  dialogDelete.value = false // ซ่อน dialog
 }
 
 const onYearChange = (year: number | null) => {
   console.log('ปีที่เลือก:', year)
 }
 
-const onSearch = () => {
-  // อัพเดต filteredItems โดยตรงจากการค้นหาชื่อ
-  filteredItems.value = serverItems.value.filter(
-    (item) => item.name.toLowerCase().includes(searchText.value.toLowerCase()), // ค้นหาชื่อตามข้อความที่ป้อน
-  )
+const updateRemainingBudget = () => {
+  formattedRemainingBudget.value = totalBudget.value - newTotal.value
 }
 
-// คำนวณยอดรวมของงบประมาณที่ใช้ไปทั้งหมด (ตามปีที่เลือก)
-const totalUsedBudgetAll = computed(() => {
-  // กรองข้อมูลตามปีที่เลือก
-  const filteredByYear = selectedYear.value
-    ? serverItems.value.filter((item) => {
-        const itemYear = parseInt(item.date.split('/')[2])
-        return itemYear === selectedYear.value
-      })
-    : serverItems.value
+const onSearch = () => {
+  // เพียงแค่ทำการล้างช่องค้นหาหลังจากการค้นหาเสร็จ
+  searchText.value = searchText.value.trim() // กรองช่องค้นหาก่อน
+}
 
-  return filteredByYear.reduce((sum, item) => sum + item.budget, 0)
-})
-
-// คำนวณยอดรวมในตาราง (คำนวณจากข้อมูลที่กรองแล้ว)
-const totalUsedBudgetFiltered = computed(() => {
+const usedBudget = computed(() => {
   return filteredItems.value.reduce((sum, item) => sum + item.budget, 0)
 })
 
-// แสดงยอดรวมในการ์ด (ยอดรวมตามปีที่เลือกหรือทั้งหมด)
-const formattedTotalUsedBudgetAll = computed(() => totalUsedBudgetAll.value.toLocaleString())
-
-// แสดงยอดรวมในตาราง (ยอดรวมจากข้อมูลที่กรองแล้ว)
-const formattedTotalUsedBudgetFiltered = computed(() =>
-  totalUsedBudgetFiltered.value.toLocaleString(),
-)
-
-// แสดงยอดคงเหลือ (คำนวณจากข้อมูลที่กรองตามปี)
-const formattedRemainingBudget = computed(() => {
-  const remainingBudget = totalBudget.value - totalUsedBudgetAll.value
-  return remainingBudget.toLocaleString()
+const usedBudgetByName = computed(() => {
+  return filteredItems.value.reduce(
+    (acc, item) => {
+      if (!acc[item.name]) {
+        acc[item.name] = 0
+      }
+      acc[item.name] += item.budget
+      return acc
+    },
+    {} as Record<string, number>,
+  )
 })
 
-// ความคืบหน้า (คำนวณจากข้อมูลที่กรองตามปี)
+// คำนวณยอดรวมของงบประมาณที่ใช้ไป
+const totalUsedBudget = computed(() => {
+  return Object.values(usedBudgetByName.value).reduce((sum, value) => sum + value, 0)
+})
+
+const formattedTotalUsedBudget = computed(() => totalUsedBudget.value.toLocaleString())
+
+const formattedTotalBudget = computed(() => totalBudget.value.toLocaleString())
+
+const remainingBudget = computed(() => totalBudget.value - usedBudget.value)
+
+const formattedRemainingBudget = computed(() => remainingBudget.value.toLocaleString())
+
 const progressValue = computed(() =>
-  totalBudget.value > 0 ? (totalUsedBudgetAll.value / totalBudget.value) * 100 : 0,
+  totalBudget.value > 0 ? (usedBudget.value / totalBudget.value) * 100 : 0,
 )
 
 const getProgressColor = (progress) => {
@@ -518,11 +634,23 @@ const onClickAddMoney = () => {
 
 const onSaveAddMoney = () => {
   if (moneyAmount.value > 0) {
-    totalBudget.value += moneyAmount.value
-    moneyAmount.value = 0
-    dialogAddMoney.value = false
+    totalBudget.value += moneyAmount.value // เพิ่มเงินเข้าไปใน totalBudget
+    moneyAmount.value = 0 // รีเซ็ตค่าเงินที่กรอก
+    dialogAddMoney.value = false // ปิด dialog
   } else {
     alert('กรุณากรอกจำนวนเงินที่ต้องการเพิ่ม')
+  }
+}
+
+const clearMoneyAmount = () => {
+  if (moneyAmount.value === 0) {
+    moneyAmount.value = '' // เคลียร์ค่าถ้าเป็น 0
+  }
+}
+
+const resetMoneyAmount = () => {
+  if (moneyAmount.value === '' || moneyAmount.value === null) {
+    moneyAmount.value = 0 // รีเซ็ตค่าเป็น 0 หากกรอกไม่ได้
   }
 }
 
@@ -532,19 +660,6 @@ const startEditing = (item) => {
 
 const saveBudget = (item) => {
   item.editing = false
-}
-
-const clearMoneyAmount = () => {
-  if (moneyAmount.value === 0) {
-    moneyAmount.value = ''
-  }
-}
-
-// เมื่อออกจากช่องกรอก (Blur) => ถ้ายังไม่มีค่า ให้กลับเป็น 0
-const resetMoneyAmount = () => {
-  if (moneyAmount.value === '' || moneyAmount.value === null) {
-    moneyAmount.value = 0
-  }
 }
 
 const loadFontAsBase64 = async (url: string): Promise<string> => {
@@ -601,7 +716,7 @@ const onClickFile = async () => {
   const textY = logoY + logoHeight + 10
   doc.text(text, textX, textY)
 
-  const facultyText = 'คณะ วิทยาการสารสนเทศ'
+  const facultyText = 'สาขา วิทยาการคอมพิวเตอร์'
   const facultyX = (doc.internal.pageSize.width - doc.getTextWidth(facultyText)) / 2
   const facultyY = textY + 10
   doc.text(facultyText, facultyX, facultyY)
@@ -652,7 +767,7 @@ const onClickFile = async () => {
   )
 
   // บันทึก PDF
-  doc.save(`budget-summary-person-${selectedYear.value}.pdf`)
+  doc.save(`budget-summary-department-${selectedYear.value}.pdf`)
 }
 
 watch(searchText, () => {
@@ -670,7 +785,6 @@ onMounted(() => {
 <style scoped>
 .budget-summary-container {
   padding: 20px;
-  background-color: #fff9f4;
 }
 
 .header {
