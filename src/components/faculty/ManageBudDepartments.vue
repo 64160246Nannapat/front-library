@@ -518,20 +518,24 @@ const usedBudgetByName = computed(() => {
 
 // คำนวณยอดรวมของงบประมาณที่ใช้ไป
 const totalUsedBudget = computed(() => {
-  return Object.values(usedBudgetByName.value).reduce((sum, value) => sum + value, 0)
+  return filteredItems.value.reduce((sum, item) => sum + (parseFloat(item.budget) || 0), 0)
 })
 
 const formattedTotalUsedBudget = computed(() => totalUsedBudget.value.toLocaleString())
 
 const formattedTotalBudget = computed(() => totalBudget.value.toLocaleString())
 
-const remainingBudget = computed(() => totalBudget.value - usedBudget.value)
+const remainingBudget = computed(() => totalBudget.value - totalUsedBudget.value)
 
 const formattedRemainingBudget = computed(() => remainingBudget.value.toLocaleString())
 
-const progressValue = computed(() =>
-  totalBudget.value > 0 ? (usedBudget.value / totalBudget.value) * 100 : 0,
-)
+const progressPercentage = computed(() => {
+  return (totalUsedBudget.value / totalBudget.value) * 100
+})
+
+// const progressValue = computed(() =>
+//   totalBudget.value > 0 ? (usedBudget.value / totalBudget.value) * 100 : 0,
+// )
 
 const getProgressColor = (progress) => {
   if (progress < 50) return 'green'
@@ -570,6 +574,26 @@ const startEditing = (item) => {
 }
 
 const saveBudget = (item) => {
+  // แปลงค่าที่ป้อนเป็นตัวเลข ถ้าไม่ใช่ตัวเลขให้ใช้ค่า 0
+  const newBudget = parseFloat(item.budget) || 0
+  const oldBudget = item.oldBudget || 0 // เก็บค่าก่อนแก้ไข
+
+  // คำนวณความเปลี่ยนแปลงของงบประมาณ
+  const difference = newBudget - oldBudget
+
+  // อัปเดตงบประมาณใหม่
+  item.budget = newBudget
+  item.oldBudget = newBudget
+
+  // อัปเดตค่า totalUsedBudget และ remainingBudget
+  totalUsedBudget.value += difference
+  remainingBudget.value = totalBudget.value - totalUsedBudget.value
+
+  // อัปเดตการ์ดแสดงผล
+  formattedTotalUsedBudget.value = totalUsedBudget.value.toLocaleString()
+  formattedRemainingBudget.value = remainingBudget.value.toLocaleString()
+
+  // ปิดโหมดแก้ไข
   item.editing = false
 }
 
@@ -685,8 +709,13 @@ watch(searchText, () => {
   onSearch() // เรียกใช้ onSearch ทุกครั้งที่ searchText เปลี่ยน
 })
 
-watch(progressValue, (newValue) => {
+watch(progressPercentage, (newValue) => {
   animatedProgressValue.value = newValue
+})
+
+watch(totalUsedBudget, (newValue) => {
+  remainingBudget.value = totalBudget.value - newValue
+  formattedRemainingBudget.value = remainingBudget.value.toLocaleString()
 })
 
 onMounted(() => {

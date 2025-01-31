@@ -125,7 +125,7 @@
             <td :style="{ textAlign: 'left', width: '50%', whiteSpace: 'nowrap' }">
               {{ item.faculty }}
             </td>
-            <td :style="{ textAlign: 'right', width: '45%' }" @dblclick="startEditing(item)">
+            <td :style="{ textAlign: 'right', width: '50%' }" @dblclick="startEditing(item)">
               <v-text-field
                 v-if="item.editing"
                 v-model="item.budget"
@@ -342,9 +342,9 @@
           variant="outlined"
           @click="dialogDelete = false"
           style="
-            background-color: #023e7d;
+            background-color: #2986cc;
             color: white;
-            border: 2px solid #023e7d;
+            border: 2px solid #2986cc;
             border-radius: 8px;
           "
         >
@@ -355,9 +355,9 @@
           variant="outlined"
           @click="deleteItem"
           style="
-            background-color: #b42121;
+            background-color: #f44336;
             color: white;
-            border: 2px solid #b42121;
+            border: 2px solid #f44336;
             border-radius: 8px;
           "
           >ลบ</v-btn
@@ -503,7 +503,14 @@ const deleteItem = () => {
 }
 
 const updateRemainingBudget = () => {
-  formattedRemainingBudget.value = totalBudget.value - newTotal.value
+  // คำนวณยอดรวมที่ใช้ไป
+  const totalUsed = filteredItems.value.reduce((sum, item) => sum + item.budget, 0)
+
+  // คำนวณงบประมาณที่เหลือ
+  remainingBudget.value = totalBudget.value - totalUsed
+
+  // อัพเดตค่าให้แสดงผลในฟอร์แมต
+  formattedRemainingBudget.value = remainingBudget.value.toLocaleString()
 }
 
 const onYearChange = (year: number | null) => {
@@ -553,22 +560,25 @@ const usedBudgetByFaculty = computed(() => {
   )
 })
 
-// คำนวณยอดรวมของงบประมาณที่ใช้ไป
 const totalUsedBudget = computed(() => {
-  return Object.values(usedBudgetByFaculty.value).reduce((sum, value) => sum + value, 0)
+  return filteredItems.value.reduce((sum, item) => sum + (parseFloat(item.budget) || 0), 0)
 })
 
 const formattedTotalUsedBudget = computed(() => totalUsedBudget.value.toLocaleString())
 
 const formattedTotalBudget = computed(() => totalBudget.value.toLocaleString())
 
-const remainingBudget = computed(() => totalBudget.value - usedBudget.value)
+const remainingBudget = computed(() => totalBudget.value - totalUsedBudget.value)
 
 const formattedRemainingBudget = computed(() => remainingBudget.value.toLocaleString())
 
-const progressValue = computed(() =>
-  totalBudget.value > 0 ? (usedBudget.value / totalBudget.value) * 100 : 0,
-)
+const progressPercentage = computed(() => {
+  return (totalUsedBudget.value / totalBudget.value) * 100
+})
+
+// const progressValue = computed(() =>
+//   totalBudget.value > 0 ? (usedBudget.value / totalBudget.value) * 100 : 0,
+// )
 
 const getProgressColor = (progress) => {
   if (progress < 50) return 'green'
@@ -581,6 +591,26 @@ const startEditing = (item) => {
 }
 
 const saveBudget = (item) => {
+  // แปลงค่าที่ป้อนเป็นตัวเลข ถ้าไม่ใช่ตัวเลขให้ใช้ค่า 0
+  const newBudget = parseFloat(item.budget) || 0
+  const oldBudget = item.oldBudget || 0 // เก็บค่าก่อนแก้ไข
+
+  // คำนวณความเปลี่ยนแปลงของงบประมาณ
+  const difference = newBudget - oldBudget
+
+  // อัปเดตงบประมาณใหม่
+  item.budget = newBudget
+  item.oldBudget = newBudget
+
+  // อัปเดตค่า totalUsedBudget และ remainingBudget
+  totalUsedBudget.value += difference
+  remainingBudget.value = totalBudget.value - totalUsedBudget.value
+
+  // อัปเดตการ์ดแสดงผล
+  formattedTotalUsedBudget.value = totalUsedBudget.value.toLocaleString()
+  formattedRemainingBudget.value = remainingBudget.value.toLocaleString()
+
+  // ปิดโหมดแก้ไข
   item.editing = false
 }
 
@@ -684,12 +714,25 @@ const onClickFile = async () => {
 
 watch(newTotal, updateRemainingBudget)
 
-watch(progressValue, (newValue) => {
+watch(progressPercentage, (newValue) => {
   animatedProgressValue.value = newValue
 })
 
+watch([filteredItems, totalBudget], () => {
+  updateRemainingBudget()
+})
+
+watch(filteredItems, () => {
+  updateRemainingBudget()
+})
+
+watch(totalUsedBudget, (newValue) => {
+  remainingBudget.value = totalBudget.value - newValue
+  formattedRemainingBudget.value = remainingBudget.value.toLocaleString()
+})
+
 onMounted(() => {
-  selectedYear.value = currentYear
+  selectedYear.value = new Date().getFullYear() + 543
 })
 </script>
 
