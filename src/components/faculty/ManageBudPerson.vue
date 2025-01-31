@@ -55,7 +55,7 @@
 
                 <div class="d-flex justify-space-between py-3">
                   <span class="text-medium-emphasis"
-                    >ใช้ไป: {{ formattedTotalUsedBudget }} บาท</span
+                    >ใช้ไป: {{ formattedTotalUsedBudgetAll }} บาท</span
                   >
                   <span class="text-medium-emphasis">
                     งบประมาณรวม: {{ formattedTotalBudget }} บาท
@@ -186,7 +186,7 @@
         <template v-slot:body.append>
           <tr>
             <td colspan="2" class="text-right font-weight-bold">รวม</td>
-            <td class="text-right font-weight-bold">{{ formattedTotalUsedBudget }}</td>
+            <td class="text-right font-weight-bold">{{ formattedTotalUsedBudgetFiltered }}</td>
           </tr>
         </template>
       </v-data-table>
@@ -597,21 +597,36 @@ const onSearch = () => {
   searchText.value = searchText.value.trim() // กรองช่องค้นหาก่อน
 }
 
-const usedBudget = computed(() => {
-  return filteredItems.value.reduce((sum, item) => sum + item.budget, 0)
+// const usedBudget = computed(() => {
+//   return filteredItems.value.reduce((sum, item) => sum + item.budget, 0)
+// })
+
+// const usedBudgetByName = computed(() => {
+//   return filteredItems.value.reduce(
+//     (acc, item) => {
+//       if (!acc[item.name]) {
+//         acc[item.name] = 0
+//       }
+//       acc[item.name] += item.budget
+//       return acc
+//     },
+//     {} as Record<string, number>,
+//   )
+// })
+
+// งบประมาณที่ใช้ไปทั้งหมดของปีที่เลือก
+const totalUsedBudgetAll = computed(() => {
+  return serverItems.value
+    .filter((item) => {
+      const itemYear = parseInt(item.date.split('/')[2])
+      return itemYear === selectedYear.value
+    })
+    .reduce((sum, item) => sum + (parseFloat(item.budget) || 0), 0)
 })
 
-const usedBudgetByName = computed(() => {
-  return filteredItems.value.reduce(
-    (acc, item) => {
-      if (!acc[item.name]) {
-        acc[item.name] = 0
-      }
-      acc[item.name] += item.budget
-      return acc
-    },
-    {} as Record<string, number>,
-  )
+// คำนวณงบประมาณที่ใช้ไปตามข้อมูลที่ค้นหา
+const totalUsedBudgetFiltered = computed(() => {
+  return filteredItems.value.reduce((sum, item) => sum + (parseFloat(item.budget) || 0), 0)
 })
 
 // คำนวณยอดรวมของงบประมาณที่ใช้ไป
@@ -619,16 +634,22 @@ const totalUsedBudget = computed(() => {
   return filteredItems.value.reduce((sum, item) => sum + (parseFloat(item.budget) || 0), 0)
 })
 
+const formattedTotalUsedBudgetAll = computed(() => totalUsedBudgetAll.value.toLocaleString())
+
+const formattedTotalUsedBudgetFiltered = computed(() =>
+  totalUsedBudgetFiltered.value.toLocaleString(),
+)
+
 const formattedTotalUsedBudget = computed(() => totalUsedBudget.value.toLocaleString())
 
 const formattedTotalBudget = computed(() => totalBudget.value.toLocaleString())
 
-const remainingBudget = computed(() => totalBudget.value - totalUsedBudget.value)
+const remainingBudget = computed(() => totalBudget.value - totalUsedBudgetAll.value)
 
 const formattedRemainingBudget = computed(() => remainingBudget.value.toLocaleString())
 
 const progressPercentage = computed(() => {
-  return (totalUsedBudget.value / totalBudget.value) * 100
+  return totalBudget.value > 0 ? (totalUsedBudgetAll.value / totalBudget.value) * 100 : 0
 })
 
 // const progressValue = computed(() =>

@@ -390,6 +390,7 @@ const items = ref()
 const dialogDelete = ref(false) // สถานะการแสดง dialog
 const selectedItem = ref(null) // ไว้เก็บข้อมูลของรายการที่เลือก
 const animatedProgressValue = ref(0)
+const yearBudgets = ref<Record<number, number>>({})
 
 const serverItems = ref([
   { id: 1, faculty: 'คณะดนตรีและการแสดง', budget: 50000, date: '13/01/2568', editing: false },
@@ -522,12 +523,22 @@ const onClickAddMoney = () => {
 }
 
 const onSaveAddMoney = () => {
-  if (moneyAmount.value > 0) {
-    totalBudget.value += moneyAmount.value // เพิ่มเงินเข้าไปใน totalBudget
+  if (moneyAmount.value > 0 && selectedYear.value) {
+    // ตรวจสอบว่ามีงบประมาณในปีนี้หรือไม่
+    if (!yearBudgets.value[selectedYear.value]) {
+      yearBudgets.value[selectedYear.value] = 0 // ถ้ายังไม่มีให้เริ่มจาก 0
+    }
+
+    // เพิ่มเงินในปีที่เลือก
+    yearBudgets.value[selectedYear.value] += moneyAmount.value
+
+    // อัปเดต totalBudget
+    totalBudget.value = Object.values(yearBudgets.value).reduce((sum, amount) => sum + amount, 0)
+
     moneyAmount.value = 0 // รีเซ็ตค่าเงินที่กรอก
     dialogAddMoney.value = false // ปิด dialog
   } else {
-    alert('กรุณากรอกจำนวนเงินที่ต้องการเพิ่ม')
+    alert('กรุณากรอกจำนวนเงินที่ต้องการเพิ่ม และเลือกปี')
   }
 }
 

@@ -151,11 +151,8 @@
                 @click="onClickDepartment(item)"
                 style="
                   border-radius: 8px;
-                  width: 60px;
+                  width: 50px;
                   height: 30px;
-                  display: flex;
-                  justify-content: center;
-                  align-items: center;
                 "
               >
                 <v-icon>mdi-magnify</v-icon>
