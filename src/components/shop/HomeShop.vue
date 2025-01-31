@@ -56,6 +56,7 @@
 import { onMounted, ref } from 'vue'
 import book from '@/assets/book-shop.png'
 import file from '@/assets/file-shop.png'
+import market from '@/assets/market.png'
 import logout from '@/assets/logout.png'
 import axios from 'axios'
 import { jwtDecode } from 'jwt-decode'
@@ -139,6 +140,7 @@ onMounted(() => {
 })
 
 const items = [
+  { title: 'Dashboad', icon: market, link: '/home-shop/dash-board' },
   { title: 'จัดการหนังสือ', icon: book, link: '/home-shop/manage-book' },
   { title: 'ประวัติการขาย', icon: file, link: '/home-shop/history-sell' },
   { title: 'LOGOUT', icon: logout, action: 'logout' },

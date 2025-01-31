@@ -42,6 +42,7 @@ import * as XLSX from 'xlsx'
 
 const fileInput = ref<HTMLInputElement | null>(null)
 const uploadedFile = ref<File | null>(null)
+const serverItems = ref([])
 
 const triggerFileInput = () => {
   fileInput.value?.click()
@@ -50,65 +51,47 @@ const triggerFileInput = () => {
 const handleFileChange = (event: Event) => {
   const target = event.target as HTMLInputElement
   if (target.files && target.files.length > 0) {
-    uploadedFile.value = target.files[0]
-    console.log('เลือกไฟล์:', uploadedFile.value.name)
-    // คุณสามารถเพิ่มฟังก์ชันเพื่ออ่านไฟล์ได้ที่นี่
+    const file = target.files[0]
+    uploadedFile.value = file
+
+    // อ่านไฟล์ Excel
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      const data = new Uint8Array(e.target?.result as ArrayBuffer)
+      const workbook = XLSX.read(data, { type: 'array' })
+
+      // อ่านเฉพาะชีตแรก
+      const sheetName = workbook.SheetNames[0]
+      const worksheet = workbook.Sheets[sheetName]
+      const jsonData = XLSX.utils.sheet_to_json(worksheet)
+
+      // แปลงข้อมูลให้อยู่ในรูปแบบที่ต้องการ
+      serverItems.value = jsonData.map((item: any, index: number) => ({
+        id: index + 1,
+        title: item['ชื่อหนังสือ'] || '',
+        author: item['ชื่อผู้แต่ง'] || '',
+        isbn: item['ISBN'] || '',
+        price: item['ราคาสุทธิ'] || 0,
+        subject: item['หมวดหมู่'] || '',
+        published: item['สำนักพิมพ์'] || '',
+        edition: item['ปีที่พิมพ์'] || '',
+      }))
+    }
+
+    reader.readAsArrayBuffer(file)
   }
 }
-
-// ข้อมูลหนังสือแบบคงที่
-const serverItems = ref([
-  {
-    id: 1,
-    title: 'ความรู้สึกของเราสำคัญที่สุด',
-    isbn: '9786161857707',
-    price: 250,
-    quantity: 2,
-  },
-  {
-    id: 2,
-    title: 'วิทยาศาสตร์ของการใช้ชีวิต = The science of living',
-    isbn: '9786162875434',
-    price: 350,
-    quantity: 1,
-  },
-  {
-    id: 3,
-    title: 'คุณคางคกไปพบนักจิตบำบัด : การผจญภัยทางจิตวิทยา = Counselling for toads : a psychological adventure',
-    isbn: '9786160459049',
-    price: 500,
-    quantity: 3,
-  },
-  {
-    id: 4,
-    title: 'ร่างกายไม่เคยโกหก = What every body is saying',
-    isbn: '9786162875687',
-    price: 500,
-    quantity: 1,
-  },
-  {
-    id: 5,
-    title: 'ภาวะลื่นไหล ทำอะไรก็ง่ายหมด = Productivity flow',
-    isbn: '9786169373964',
-    price: 500,
-    quantity: 1,
-  },
-  {
-    id: 6,
-    title: 'หัวไม่ดีก็มีวิธีสอบผ่าน',
-    isbn: '9786165786195',
-    price: 500,
-    quantity: 1,
-  },
-])
 
 // Headers สำหรับ v-data-table
 const headers = [
   { title: 'ลำดับ', key: 'id', align: 'start' },
   { title: 'ชื่อหนังสือ', key: 'title' },
+  { title: 'ชื่อผู้แต่ง', key: 'author' },
   { title: 'ISBN', key: 'isbn' },
   { title: 'ราคาสุทธิ', key: 'price' },
-  { title: 'จำนวน', key: 'quantity' },
+  { title: 'หมวดหมู่', key: 'subject' },
+  { title: 'สำนักพิมพ์', key: 'published' },
+  { title: 'ปีที่พิมพ์', key: 'edition' },
 ]
 </script>
 
@@ -231,5 +214,14 @@ td {
 
 .file-upload {
   width: 250px;
+}
+
+.v-data-table th {
+  white-space: nowrap; /* ป้องกันการขึ้นบรรทัดใหม่ */
+  text-align: center; /* จัดข้อความให้อยู่กลาง */
+}
+
+th:nth-child(2) {
+  white-space: nowrap;
 }
 </style>
