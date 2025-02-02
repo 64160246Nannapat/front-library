@@ -31,7 +31,8 @@
             </template>
 
             <v-card-text class="text-h5 py-2">
-              <QRCode />
+              <!-- เรียกใช้งาน QRCode Component -->
+              <QRCode :text="'E-Coupon คงเหลือ: 3,000 บาท'" />
             </v-card-text>
 
             <v-card-actions>

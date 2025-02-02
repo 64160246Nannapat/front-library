@@ -1135,13 +1135,20 @@ h1 {
   line-height: 1 !important;
 }
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> fe20e9c6d50a0a53ed5b11b4101f5669c9eeb54e
 .active-tab {
   background-color: #fcdc94 !important; /* เปลี่ยนสีพื้นหลัง */
   border: 2px solid #ff9800 !important; /* เพิ่มกรอบ */
   border-radius: 8px; /* ทำให้มุมมน */
   color: #333 !important; /* เปลี่ยนสีตัวอักษร */
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> fe20e9c6d50a0a53ed5b11b4101f5669c9eeb54e
 .select-book .v-list-item-title {
   font-size: 14px;
   padding: 4px 8px;
@@ -1149,6 +1156,7 @@ h1 {
 
 .select-book .v-input {
   font-size: 16px; /* ขนาดตัวอักษรข้อความที่เลือก */
+<<<<<<< HEAD
 }
 
 .duplicate-text {
@@ -1172,6 +1180,8 @@ h1 {
   max-height: 80vh;
   overflow-y: auto;
   padding: 10px;
+=======
+>>>>>>> fe20e9c6d50a0a53ed5b11b4101f5669c9eeb54e
 }
 
 ::v-deep(.custom-select .v-input__control) {

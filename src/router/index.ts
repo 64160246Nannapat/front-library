@@ -38,6 +38,8 @@ import ManageEditBudPer from '@/components/faculty/ManageBudEditPer.vue'
 import ManageBudDe from '@/components/faculty/ManageBudDepartments.vue'
 import ManageEditBudDe from '@/components/faculty/ManageBudEditDe.vue'
 import BookFormShop from '@/components/shop/BookFormShop.vue'
+import Dashboard from '@/components/shop/Dashboard.vue'
+import Qr from '@/views/QRCode.vue'
 // import LoginView2 from '@/views/LoginView2.vue'
 
 const routes = [
@@ -116,6 +118,11 @@ const routes = [
         path: 'manage-book',
         name: 'manageBookShop',
         component: ManageBook,
+      },
+      {
+        path: 'dash-board',
+        name: 'dashBoardShop',
+        component: Dashboard,
       },
     ],
     meta: { requiresAuth: true, role: 'shop' },
@@ -497,7 +504,16 @@ const routes = [
     name: 'bookFormShop',
     component: BookFormShop,
   },
-
+  {
+    path: '/qr-code',
+    name: 'qrCode',
+    component: Qr,
+  },
+  {
+    path: '/dash-board',
+    name: 'dashBoard',
+    component: Dashboard,
+  },
 ]
 
 const router = createRouter({

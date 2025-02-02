@@ -189,7 +189,7 @@ const FakeAPI = {
             price: 250,
             quantity: 1,
             status: 'มีคูปอง',
-            date: '02/12/2567',
+            date: '24/01/2568',
           },
           {
             id: 2,
@@ -200,7 +200,7 @@ const FakeAPI = {
             price: 250,
             quantity: 1,
             status: 'ไม่มีคูปอง',
-            date: '02/12/2567',
+            date: '24/01/2568',
           },
           {
             id: 3,
@@ -211,7 +211,7 @@ const FakeAPI = {
             price: 250,
             quantity: 2,
             status: 'มีคูปอง',
-            date: '24/12/2567',
+            date: '24/01/2568',
           },
           {
             id: 4,
