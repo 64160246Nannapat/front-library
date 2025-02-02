@@ -469,6 +469,7 @@ const confirmForm = async (bookForm: any) => {
       book_title: book.value.Title,
       book_author: book.value.Author,
       book_subject: book.value.Subject,
+      book_category: "เสนอหนังสือออนไลน์",
       published_year: Number(book.value.Year),
       ISBN: book.value.isbn,
       book_price: Number(book.value.Price),
