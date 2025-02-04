@@ -151,7 +151,7 @@ onMounted(() => {
 // Sidebar items
 const items = [
   { title: 'จัดการเสนอซื้อหนังสือ', icon: confirmBook, link: '/home-library/manage-sell-book' },
-  { title: 'ตรวจสอบหนังสือ', icon: checkbook, link: '/home-library/check-book' },
+  // { title: 'ตรวจสอบหนังสือ', icon: checkbook, link: '/home-library/check-book' },
   { title: 'แบบฟอร์มการเสนอหนังสือ', icon: libraryImage, link: '/home-library/book-form' },
   { title: 'สถานะการเสนอซื้อหนังสือ', icon: checklist, link: '/home-library/book-status' },
   { title: 'แบบฟอร์มการเสนอหนังสือแทน', icon: libraryImage, link: '/home-library/book-form' },

@@ -165,67 +165,148 @@
         </template>
 
         <template #item.check="{ item }">
-          <v-radio-group
-            v-model="item.duplicate_check"
-            row
-            @change="confirmCheckStatus(item)"
-            style="margin-top: 20px"
-          >
-            <v-radio label="ไม่ซ้ำ" value="ไม่ซ้ำ">
-              <template v-slot:label>
-                <span style="font-size: 14px; white-space: nowrap">ไม่ซ้ำ</span>
-              </template>
-            </v-radio>
-
-            <v-radio label="ซ้ำ" value="ซ้ำ">
-              <template v-slot:label>
-                <span style="font-size: 14px; white-space: nowrap">ซ้ำ</span>
-              </template>
-            </v-radio>
-          </v-radio-group>
+          <div class="d-flex">
+            <v-btn
+              color="primary"
+              :disabled="!item.ISBN || !item.ISBN.length"
+              @click="fetchBooks(item.ISBN)"
+            >
+              <v-icon left style="margin-right: 5px">mdi-magnify</v-icon>ตรวจสอบ
+            </v-btn>
+          </div>
         </template>
 
-        <!-- <template #item.view="{ item }">
-          <div style="display: flex; flex-direction: column; gap: 10px">
-            <v-row>
-              <v-col>
-                <div style="display: flex; flex-direction: column; align-items: center; gap: 10px">
-                  <v-select
-                    v-model="item.form_status"
-                    :items="['รอการอนุมัติ', 'กำลังดำเนินการ', 'ไม่อนุมัติการซื้อ']"
-                    solo
-                    dense
-                    outlined
-                    hide-details
-                    variant="outlined"
-                    class="custom-select"
-                    style="font-size: 8px !important; height: 30px !important"
-                  >
-                  </v-select>
-
-                  <v-btn
-                    icon
-                    @click="onMessageClick(item)"
-                    :disabled="!item.offer_form_id"
-                    style="
-                      border-radius: 8px;
-                      background-color: #b4c7e4;
-                      width: 120px;
-                      height: 30px;
-                      display: flex;
-                      justify-content: center;
-                      align-items: center;
-                      margin-bottom: 8px;
-                    "
-                  >
-                    <v-icon>mdi-email-outline</v-icon>
-                  </v-btn>
-                </div>
-              </v-col>
-            </v-row>
+        <template #item.view="{ item }">
+          <div class="d-flex">
+            <v-btn color="primary" :disabled="!item.offer_form_id" @click="onMessageClick(item)">
+              <v-icon left style="margin-right: 5px">mdi-email-outline</v-icon>ดำเนินการ
+            </v-btn>
           </div>
-        </template> -->
+        </template>
       </v-data-table>
+
+      <v-dialog v-model="dialogSuccess" width="90%" max-width="1530px">
+        <v-card>
+          <v-card-title>ข้อมูลหนังสือ</v-card-title>
+          <v-tabs v-model="activeTab">
+            <v-tab value="duplicate">ตรวจหนังสือซ้ำ</v-tab>
+            <v-tab value="compare">เปรียบเทียบราคา</v-tab>
+          </v-tabs>
+
+          <v-card-text>
+            <v-window v-model="activeTab">
+              <!-- Tab: ตรวจหนังสือซ้ำ -->
+              <v-window-item value="duplicate">
+                <div class="dialog-container">
+                  <v-simple-table class="custom-table">
+                    <thead>
+                      <tr>
+                        <th v-for="header in DialogHeaders" :key="header.value">
+                          {{ header.text }}
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr
+                        v-for="(book, index) in booksData"
+                        :key="index"
+                        :class="{
+                          'duplicate-row':
+                            selectedISBN &&
+                            book.ISBN.replace(/\s*\(ล\.\s*\d+\)$/, '') ===
+                              selectedISBN.replace(/\s*\(ล\.\s*\d+\)$/, ''),
+                        }"
+                      >
+                        <td>
+                          {{ book.ISBN }}
+                          <span
+                            v-if="
+                              book.ISBN.replace(/\s*\(ล\.\s*\d+\)$/, '') ===
+                              selectedISBN.replace(/\s*\(ล\.\s*\d+\)$/, '')
+                            "
+                            class="duplicate-text"
+                          >
+                            *ซ้ำ
+                          </span>
+                        </td>
+                        <td>{{ book.book_title }}</td>
+                        <td>{{ book.book_author }}</td>
+                        <td>{{ book.description }}</td>
+                        <td>{{ book.publisher }}</td>
+                        <td>{{ book.edition }}</td>
+                        <td>{{ book.detail }}</td>
+                        <td class="d-flex justify-center">
+                          <v-btn @click.stop="openImageDialog(book.bookCover)">
+                            <v-icon>mdi-eye</v-icon>
+                          </v-btn>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </v-simple-table>
+                </div>
+              </v-window-item>
+
+              <!-- Tab: เปรียบเทียบราคา -->
+              <v-window-item value="compare">
+                <div class="dialog-container">
+                  <v-simple-table class="custom-table">
+                    <thead>
+                      <tr>
+                        <th v-for="header in compareHeaders" :key="header.key">
+                          {{ header.title }}
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr
+                        v-for="(form, index) in filteredOfferForms"
+                        :key="index"
+                        :class="{
+                          'duplicate-row':
+                            selectedISBN &&
+                            selectedCreatedAt &&
+                            selectedPrice &&
+                            form.ISBN.replace(/\s*\(ล\.\s*\d+\)$/, '') ===
+                              selectedISBN.replace(/\s*\(ล\.\s*\d+\)$/, '') &&
+                            formatDateTime(form.createdAt) === selectedCreatedAt &&
+                            form.book_price === selectedPrice,
+                        }"
+                      >
+                        <td>{{ formatDateTime(form.createdAt) }}</td>
+                        <td>{{ form.user_fullname }}</td>
+                        <td>{{ form.store_name }}</td>
+                        <td>{{ form.ISBN }}</td>
+                        <td>{{ form.book_title }}</td>
+                        <td>{{ form.book_author }}</td>
+                        <td>{{ form.book_price }}</td>
+                        <td>{{ form.book_quantity }}</td>
+                        <td>{{ (form.book_price * form.book_quantity).toFixed(2) }} บาท</td>
+                        <td>{{ form.form_status }}</td>
+                      </tr>
+                    </tbody>
+                  </v-simple-table>
+                </div>
+              </v-window-item>
+            </v-window>
+          </v-card-text>
+
+          <v-card-actions>
+            <v-btn text @click="dialogSuccess = false">ปิด</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+
+      <v-dialog v-model="dialogImage" max-width="500px">
+        <v-card>
+          <v-card-title>ปกหนังสือ</v-card-title>
+          <v-card-text class="text-center">
+            <v-img :src="selectedImage" width="100%" max-width="500px"></v-img>
+          </v-card-text>
+          <v-card-actions>
+            <v-btn text @click="dialogImage = false">ปิด</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
 
       <!-- Image Viewer Dialog -->
       <v-dialog v-model="dialog" max-width="600">
@@ -266,16 +347,12 @@
       <!-- Confirmation Dialog -->
       <v-dialog v-model="confirmDialog" max-width="500">
         <v-card>
-          <v-card-title>ยืนยันการเลือก</v-card-title>
-          <v-card-text>
-            คุณแน่ใจหรือไม่ว่าจะเปลี่ยนสถานะเป็น "{{
-              confirmData?.checkStatus === 'yes' ? 'ไม่ซ้ำ' : 'ซ้ำ'
-            }}"?
-          </v-card-text>
+          <v-card-title>ยืนยันการดำเนินการ</v-card-title>
+          <v-card-text> คุณต้องการอนุมัติการซื้อสำหรับรายการนี้หรือไม่? </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn color="red" text @click="cancelCheckStatus">ยกเลิก</v-btn>
-            <v-btn color="green" text @click="confirmStatusChange">ยืนยัน</v-btn>
+            <v-btn color="red" text @click="rejectPurchase">ไม่อนุมัติการซื้อ</v-btn>
+            <v-btn color="green" text @click="approvePurchase">อนุมัติการซื้อ</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -364,7 +441,7 @@ import axios from 'axios'
 // Date & Search Variables
 const selectedDate = ref(new Date())
 const menuDate = ref(false)
-const searchCategory = ref('ISBN')
+const dialogSuccess = ref(false)
 const searchBook = ref('เสนอหนังสือออนไลน์')
 const selectedTab = ref('กำลังดำเนินการ')
 const loading = ref(false)
@@ -376,24 +453,36 @@ const fullDate = ref('')
 const fullTime = ref('')
 const itemsPerPage = ref(1000000)
 const noDataMessage = ref('')
-
-// Dialog Management
+const booksData = ref([])
+const selectedISBN = ref('')
+const selectedCreatedAt = ref('')
+const selectedPrice = ref(0)
+const dialogImage = ref(false)
+const selectedImage = ref('')
 const messageDialog = ref(false)
-const confirmData = ref({})
 const confirmDialog = ref(false)
 const selectedItem = ref(null)
 const message = ref('')
+const activeTab = ref('duplicate')
+const offerForms = ref([])
 
 interface BookItem {
   offer_form_id: number
   user_email: string
   user_fullname: string
   book_title: string
+  book_author: string
   ISBN: string
   book_price: number
   book_quantity: number
   book_imgs: string
   form_status: string
+  book_category: string
+  publisher: string
+  edition: string
+  description: string
+  bookCover: string
+  detail: string
 }
 
 // Header สำหรับ 'เสนอหนังสือออนไลน์'
@@ -427,9 +516,41 @@ const ImageHeaders = [
   { title: 'ดำเนินการ', key: 'view' },
 ]
 
+const DialogHeaders = [
+  { text: 'ISBN', align: 'start', key: 'ISBN', value: 'ISBN' },
+  { text: 'ชื่อหนังสือ', value: 'book_title' },
+  { text: 'ผู้เขียน', value: 'book_author' },
+  { text: 'ประเภท', value: 'description' },
+  { text: 'สำนักพิมพ์', value: 'publisher' },
+  { text: 'ฉบับ', value: 'edition' },
+  { text: 'รายละเอียด', value: 'detail' },
+  { text: 'ปกหนังสือ', value: 'bookCover' },
+]
+
+const compareHeaders = ref([
+  { title: 'วันที่เสนอ', key: 'createdAt' },
+  { title: 'ชื่อผู้เสนอ', key: 'user_fullname' },
+  { title: 'ชื่อร้านค้า', key: 'store_name' },
+  { title: 'ISBN', key: 'ISBN' },
+  { title: 'ชื่อหนังสือ', key: 'book_title' },
+  { title: 'ผู้เขียน', key: 'book_author' },
+  { title: 'ราคา', key: 'book_price' },
+  { title: 'จำนวน', key: 'book_quantity' },
+  { title: 'ราคารวม', key: 'total_price' },
+  { title: 'สถานะ', key: 'form_status' },
+])
+
 // คำนวณ headers ตามค่า searchBook
 const headers = computed(() => {
-  return searchBook.value === 'เสนอหนังสือออนไลน์' ? NoImageHeaders : ImageHeaders
+  const baseHeaders = searchBook.value === 'เสนอหนังสือออนไลน์' ? NoImageHeaders : ImageHeaders
+
+  if (selectedTab.value === 'ไม่อนุมัติการซื้อ' || selectedTab.value === 'อนุมัติการซื้อ') {
+    return baseHeaders.map((header) =>
+      header.key === 'view' ? { ...header, title: 'สถานะ', key: 'form_status' } : header,
+    )
+  }
+
+  return baseHeaders
 })
 
 const filteredItems = computed(() => {
@@ -485,6 +606,17 @@ const fullFormattedDate = computed(() => {
   return `${dayName} ที่ ${day} ${monthName} พ.ศ. ${year}`
 })
 
+const formatDateTime = (dateString) => {
+  const date = new Date(dateString)
+  return (
+    date.toLocaleDateString('th-TH', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    }) + ` เวลา ${date.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })} น.`
+  )
+}
+
 const filterDataByDate = (data: any[], selectedDate: Date) => {
   const startOfDay = new Date(selectedDate)
   startOfDay.setHours(0, 0, 0, 0)
@@ -494,14 +626,39 @@ const filterDataByDate = (data: any[], selectedDate: Date) => {
 
   return data
     .filter((item) => {
-      const createdAt = new Date(item.createdAt)
-      return createdAt >= startOfDay && createdAt <= endOfDay
+      // ตรวจสอบว่าเป็นแท็บที่เลือก 'ไม่อนุมัติการซื้อ' หรือ 'อนุมัติการซื้อ'
+      const dateToCompare =
+        (selectedTab.value === 'ไม่อนุมัติการซื้อ' || selectedTab.value === 'อนุมัติการซื้อ')
+          ? new Date(item.updatedAt) // ถ้าเป็นให้ใช้ updatedAt
+          : new Date(item.createdAt) // ถ้าไม่ใช่ให้ใช้ createdAt
+
+      return dateToCompare >= startOfDay && dateToCompare <= endOfDay
     })
     .map((item, index) => ({
       ...item,
       rowIndex: index + 1, // เพิ่มลำดับแถว
     }))
 }
+
+const filteredOfferForms = computed(() => {
+  console.log('selectedISBN:', selectedISBN.value)
+  console.log('selectedCreatedAt:', selectedCreatedAt.value)
+  console.log('selectedPrice:', selectedPrice.value)
+
+  return offerForms.value.filter((form) => {
+    console.log('Checking:', form.ISBN, formatDateTime(form.createdAt), form.book_price)
+
+    const matchesISBN = selectedISBN.value ? form.ISBN.trim() === selectedISBN.value.trim() : true
+    const matchesDate = selectedCreatedAt.value
+      ? formatDateTime(form.createdAt) === selectedCreatedAt.value
+      : true
+    const matchesPrice = selectedPrice.value
+      ? String(form.book_price) === String(selectedPrice.value)
+      : true
+
+    return matchesISBN && matchesDate && matchesPrice
+  })
+})
 
 const fetchDataFromAPI = async ({ page, itemsPerPage }: { page: number; itemsPerPage: number }) => {
   try {
@@ -516,8 +673,10 @@ const fetchDataFromAPI = async ({ page, itemsPerPage }: { page: number; itemsPer
     return {
       items: data.map((item: any) => ({
         ...item,
+        store_name: item.store.store_name,
         book_imgs: Array.isArray(item.book_imgs) ? item.book_imgs : [],
-        createdAt: item.createdAt, // เก็บ `createdAt` ไว้กรองใน frontend
+        createdAt: item.createdAt,
+        updatedAt: item.updatedAt,
         form_status: item.form_status || 'รอการอนุมัติ', // เพิ่ม default
         offer_form_id: item.offer_form_id, // ดึง id จาก API
       })),
@@ -529,6 +688,13 @@ const fetchDataFromAPI = async ({ page, itemsPerPage }: { page: number; itemsPer
   }
 }
 
+const fetchOfferForms = async (page = 1) => {
+  loading.value = true
+  const { items } = await fetchDataFromAPI({ page, itemsPerPage })
+  offerForms.value = items
+  loading.value = false
+}
+
 const onMessageClick = async (item) => {
   if (!item.offer_form_id) {
     console.error('Missing offer_form_id in item:', item)
@@ -537,42 +703,82 @@ const onMessageClick = async (item) => {
 
   selectedItem.value = item
 
-  // อัปเดตวันเวลา
+  // อัปเดตวันที่และเวลา
   updateDateTime()
 
   try {
-    // อัปเดต form_status และ duplicate_check ผ่าน API
+    // อัปเดต form_status และ duplicate_check ก่อนเปิด dialog
     await updateApproveStatus(item)
 
-    // แสดงข้อความหรืออัปเดต UI หากสำเร็จ
-    console.log('Approve status and duplicate_check updated successfully!')
+    // เปิด dialog ยืนยันการเลือก
+    confirmDialog.value = true
   } catch (error) {
     console.error('Error updating approve status and duplicate_check:', error)
   }
-
-  // เปิด dialog
-  messageDialog.value = true
 }
 
 const updateApproveStatus = async (item) => {
   if (!item.offer_form_id) {
     console.error('Missing offer_form_id in item:', item)
-    return // หยุดการทำงานถ้าไม่มี ID
+    return // หยุดการทำงานถ้าไม่มี offer_form_id
   }
 
   const url = `http://localhost:3000/offer-form/${item.offer_form_id}`
   const payload = {
-    form_status: item.form_status, // ค่า form_status (ถ้ามี)
-    duplicate_check: item.duplicate_check, // ค่า duplicate_check จาก v-radio-group
+    form_status: item.status, // ใช้ status แทน form_status
   }
 
   try {
     const response = await axios.patch(url, payload)
-    console.log('Updated form_status and duplicate_check successfully:', response.data)
+    console.log('Updated form_status successfully:', response.data)
     return response.data
   } catch (error) {
-    console.error('Error updating form_status and duplicate_check:', error)
+    console.error('Error updating form_status:', error)
     throw error
+  }
+}
+
+const approvePurchase = async () => {
+  if (!selectedItem.value) {
+    console.error('Selected item is null or undefined')
+    return
+  }
+
+  try {
+    // อัปเดตค่า status
+    selectedItem.value.status = 'อนุมัติการซื้อ'
+
+    // อัปเดตสถานะและเวลา
+    await updateApproveStatus(selectedItem.value)
+    updateDateTime() // อัปเดตวันเวลา
+
+    // ปิด dialog
+    confirmDialog.value = false
+    console.log('การอนุมัติการซื้อสำเร็จ')
+  } catch (error) {
+    console.error('เกิดข้อผิดพลาดในการอนุมัติการซื้อ:', error)
+  }
+}
+
+const rejectPurchase = async () => {
+  if (!selectedItem.value) {
+    console.error('Selected item is null or undefined')
+    return
+  }
+
+  try {
+    // อัปเดตค่า status
+    selectedItem.value.status = 'ไม่อนุมัติการซื้อ'
+
+    // อัปเดตสถานะและเวลา
+    await updateApproveStatus(selectedItem.value)
+    updateDateTime() // อัปเดตวันเวลา
+
+    // ปิด dialog
+    confirmDialog.value = false
+    console.log('การอนุมัติการซื้อถูกปฏิเสธ')
+  } catch (error) {
+    console.error('เกิดข้อผิดพลาดในการปฏิเสธการซื้อ:', error)
   }
 }
 
@@ -634,17 +840,117 @@ const viewImage = (item) => {
   dialog.value = true // เปิด dialog เพื่อแสดงภาพหรือข้อความ
 }
 
-const confirmCheckStatus = async (item) => {
-  try {
-    // เรียกฟังก์ชัน updateApproveStatus เพื่ออัปเดต duplicate_check
-    await updateApproveStatus(item)
+const fetchBooks = async (isbn: string) => {
+  loading.value = true
+  const apiUrl = `/api/ISBNISSN/${isbn}`
 
-    // แสดงผลใน console
-    console.log('Duplicate_check updated successfully!', item.duplicate_check)
+  try {
+    const response = await fetch(apiUrl, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error(`Error: ${response.status} - ${response.statusText}`)
+    }
+
+    const data = await response.json()
+    console.log('API Response:', data)
+
+    if (data?.status && data?.data) {
+      const uniqueBooksMap = new Map<string, BookItem>()
+
+      const isbnList: string[] = data.data.Info.filter(
+        (item: { FIELD: string; DATA: string }) => item.FIELD === 'ISBN',
+      ).map((item: { FIELD: string; DATA: string }) => item.DATA)
+
+      isbnList.forEach((isbn) => {
+        const bookInfo: BookItem = {
+          book_title: '',
+          book_author: '',
+          ISBN: isbn,
+          publisher: '',
+          edition: '',
+          description: '',
+          detail: '',
+          bookCover: data.data.BookCover.replace(/(^"|"$|\\)/g, '') || '',
+        }
+
+        data.data.Info.forEach((infoItem: { FIELD: string; DATA: string }) => {
+          switch (infoItem.FIELD) {
+            case 'Author':
+              bookInfo.book_author = infoItem.DATA
+              break
+            case 'Title':
+              if (infoItem.DATA.length > bookInfo.book_title.length) {
+                bookInfo.book_title = infoItem.DATA
+              }
+              break
+            case 'Edition':
+              bookInfo.edition = infoItem.DATA
+              break
+            case 'Published':
+              bookInfo.publisher = infoItem.DATA
+              break
+            case 'Detail':
+              bookInfo.detail = infoItem.DATA
+              break
+            case 'Subject':
+              bookInfo.description = infoItem.DATA
+              break
+            default:
+              break
+          }
+        })
+
+        console.log('Generated bookInfo:', bookInfo)
+
+        if (!uniqueBooksMap.has(bookInfo.ISBN)) {
+          uniqueBooksMap.set(bookInfo.ISBN, bookInfo)
+        }
+      })
+
+      // อัปเดตข้อมูล booksData
+      booksData.value = Array.from(uniqueBooksMap.values()) // อัปเดตข้อมูล booksData
+      selectedISBN.value = isbn.trim() // อัปเดต selectedISBN ก่อนเปิด dialog
+      // selectedCreatedAt.value = data.data.CreatedAt || ""  // กำหนดค่า selectedCreatedAt จากข้อมูล
+      // selectedPrice.value = data.data.Price || "" // กำหนดค่า selectedPrice จากข้อมูล
+      dialogSuccess.value = true // เปิด dialog
+
+      console.log('Final serverItems:', serverItems.value)
+
+      if (serverItems.value.length === 0) {
+        alert('ไม่พบข้อมูลหนังสือที่ตรงกับการค้นหา')
+      }
+    } else {
+      alert('ไม่พบข้อมูลหนังสือที่ตรงกับการค้นหา')
+    }
   } catch (error) {
-    console.error('Error updating duplicate_check:', error)
+    console.error('Error fetching books:', error)
+    alert(`ไม่สามารถเชื่อมต่อกับ API ได้: ${error.message}`)
+  } finally {
+    loading.value = false
   }
 }
+
+const openImageDialog = (imageUrl) => {
+  selectedImage.value = imageUrl
+  dialogImage.value = true
+}
+
+// const confirmCheckStatus = async (item) => {
+//   try {
+//     // เรียกฟังก์ชัน updateApproveStatus เพื่ออัปเดต duplicate_check
+//     await updateApproveStatus(item)
+
+//     // แสดงผลใน console
+//     console.log('Duplicate_check updated successfully!', item.duplicate_check)
+//   } catch (error) {
+//     console.error('Error updating duplicate_check:', error)
+//   }
+// }
 
 // const cancelCheckStatus = () => {
 //   if (confirmData.value) {
@@ -692,6 +998,14 @@ watch(
   },
   { immediate: true }, // เรียกทันทีตอนเริ่มต้น
 )
+
+watch(dialogSuccess, (newValue) => {
+  if (newValue) {
+    activeTab.value = 'duplicate' // รีเซ็ตค่าเมื่อ dialog เปิด
+  }
+})
+
+onMounted(() => fetchOfferForms())
 </script>
 
 <style scoped>
@@ -754,6 +1068,10 @@ h1 {
 
 .v-date input {
   outline: none;
+}
+
+.duplicate-row {
+  background-color: #ffe5e5 !important;
 }
 
 .custom-textdate {
@@ -848,13 +1166,13 @@ h1 {
   line-height: 1 !important;
 }
 
-
 .active-tab {
   background-color: #fcdc94 !important; /* เปลี่ยนสีพื้นหลัง */
   border: 2px solid #ff9800 !important; /* เพิ่มกรอบ */
   border-radius: 8px; /* ทำให้มุมมน */
   color: #333 !important; /* เปลี่ยนสีตัวอักษร */
 }
+
 .select-book .v-list-item-title {
   font-size: 14px;
   padding: 4px 8px;
@@ -862,6 +1180,29 @@ h1 {
 
 .select-book .v-input {
   font-size: 16px; /* ขนาดตัวอักษรข้อความที่เลือก */
+}
+
+.duplicate-text {
+  color: red;
+  font-weight: bold;
+  font-size: large;
+}
+
+.custom-table {
+  width: 100%;
+  table-layout: fixed;
+  font-size: 14px; /* ปรับขนาดตัวอักษร */
+}
+
+.v-img img {
+  max-width: 80px; /* ปรับขนาดความกว้าง */
+  max-height: 100px; /* ปรับขนาดความสูง */
+}
+
+.dialog-container {
+  max-height: 80vh;
+  overflow-y: auto;
+  padding: 10px;
 }
 
 ::v-deep(.custom-select .v-input__control) {
