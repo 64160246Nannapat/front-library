@@ -221,6 +221,6 @@ const handleLogout = async () => {
 
 .position {
   font-size: 14px;
-  color: rgb(128, 86, 86);
+  color: rgb(68, 55, 55);
 }
 </style>

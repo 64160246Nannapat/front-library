@@ -362,10 +362,10 @@ th {
 }
 
 .active-tab {
-  background-color: #AF8F6F !important; /* เปลี่ยนสีพื้นหลัง */
-  border: 2px solid #74512D !important; /* เพิ่มกรอบ */
+  background-color: #D1BB9E !important; /* เปลี่ยนสีพื้นหลัง */
+  border: 2px solid #A79277 !important; /* เพิ่มกรอบ */
   border-radius: 8px; /* ทำให้มุมมน */
-  color: #F8F4E1 !important; /* เปลี่ยนสีตัวอักษร */
+  color: #503C3C !important; /* เปลี่ยนสีตัวอักษร */
   margin: 0 8px;
 }
 

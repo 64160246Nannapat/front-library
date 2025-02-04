@@ -78,25 +78,25 @@
           </v-btn>
         </v-col> -->
 
-        <v-tabs v-model="selectedTab" class="mb-4">
+        <v-tabs v-model="selectedTab" class="mb-4" hide-slider>
           <v-tab
             value="กำลังดำเนินการ"
             class="rounded-lg px-4 py-2"
-            :class="{ 'active-tab': selectedTab === 'กำลังดำเนินการ' }"
+            :class="selectedTab === 'กำลังดำเนินการ' ? 'active-tab' : 'inactive-tab'"
           >
             กำลังดำเนินการ
           </v-tab>
           <v-tab
             value="อนุมัติการซื้อ"
             class="rounded-lg px-4 py-2"
-            :class="{ 'active-tab': selectedTab === 'อนุมัติการซื้อ' }"
+            :class="selectedTab === 'อนุมัติการซื้อ' ? 'active-tab' : 'inactive-tab'"
           >
             อนุมัติการซื้อ
           </v-tab>
           <v-tab
             value="ไม่อนุมัติการซื้อ"
             class="rounded-lg px-4 py-2"
-            :class="{ 'active-tab': selectedTab === 'ไม่อนุมัติการซื้อ' }"
+            :class="selectedTab === 'ไม่อนุมัติการซื้อ' ? 'active-tab' : 'inactive-tab'"
           >
             ไม่อนุมัติการซื้อ
           </v-tab>
@@ -176,7 +176,7 @@
         <template #item.check="{ item }">
           <div class="d-flex">
             <v-btn
-              color="primary"
+              :style="{ backgroundColor: '#CAA6A6', color: '#944E63' }"
               :disabled="!item.ISBN || !item.ISBN.length"
               @click="fetchBooks(item.ISBN)"
             >
@@ -187,7 +187,11 @@
 
         <template #item.view="{ item }">
           <div class="d-flex">
-            <v-btn color="primary" :disabled="!item.offer_form_id" @click="onMessageClick(item)">
+            <v-btn
+              :style="{ backgroundColor: '#889EAF', color: '#506D84' }"
+              :disabled="!item.offer_form_id"
+              @click="onMessageClick(item)"
+            >
               <v-icon left style="margin-right: 5px">mdi-email-outline</v-icon>ดำเนินการ
             </v-btn>
           </div>
@@ -307,7 +311,6 @@
 
       <v-dialog v-model="dialogImage" max-width="500px">
         <v-card>
-          <v-card-title>ปกหนังสือ</v-card-title>
           <v-card-text class="text-center">
             <v-img :src="selectedImage" width="100%" max-width="500px"></v-img>
           </v-card-text>
@@ -360,17 +363,23 @@
             class="text-start"
             style="
               font-weight: bold;
-              background-color: #eed3d9;
+              background-color: #c39898;
               padding: 16px;
-              border-top-left-radius: 0px; /* ไม่มีความมนที่มุมบนซ้าย */
-              border-top-right-radius: 0px; /* ไม่มีความมนที่มุมบนขวา */
-              border-bottom-left-radius: 16px; /* ความมนที่มุมล่างซ้าย */
+              border-top-left-radius: 0px;
+              border-top-right-radius: 0px;
+              border-bottom-left-radius: 16px;
               border-bottom-right-radius: 16px;
               font-size: 20px;
             "
-            >ยืนยันการดำเนินการ</v-card-title
           >
-          <v-card-text> คุณต้องการอนุมัติการซื้อสำหรับรายการนี้หรือไม่? </v-card-text>
+            ยืนยันการดำเนินการ
+          </v-card-title>
+          <v-card-text>
+            <p><strong>ชื่อหนังสือ:</strong> {{ selectedItem?.book_title }}</p>
+            <p><strong>ISBN:</strong> {{ selectedItem?.ISBN }}</p>
+            <p><strong>ราคา:</strong> {{ selectedItem?.book_price }}</p>
+            <p><strong>จำนวน:</strong> {{ selectedItem?.book_quantity }}</p>
+          </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn
@@ -379,26 +388,26 @@
               @click="rejectPurchase"
               style="
                 font-weight: bold;
-                border: 2px;
                 border-radius: 8px;
                 background-color: #fa8072;
                 margin-bottom: 8px;
               "
-              >ไม่อนุมัติการซื้อ</v-btn
             >
+              ไม่อนุมัติการซื้อ
+            </v-btn>
             <v-btn
               color="black"
               text
               @click="approvePurchase"
               style="
                 font-weight: bold;
-                border: 2px;
                 border-radius: 8px;
                 background-color: #58d68d;
                 margin-bottom: 8px;
               "
-              >อนุมัติการซื้อ</v-btn
             >
+              อนุมัติการซื้อ
+            </v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -1213,10 +1222,19 @@ h1 {
 }
 
 .active-tab {
-  background-color: #ffa9a9 !important; /* เปลี่ยนสีพื้นหลัง */
-  border: 2px solid #151f27 !important; /* เพิ่มกรอบ */
+  background-color: #d1bb9e !important; /* เปลี่ยนสีพื้นหลัง */
+  border: 2px solid #a79277 !important; /* เพิ่มกรอบ */
   border-radius: 8px; /* ทำให้มุมมน */
-  color: #333 !important; /* เปลี่ยนสีตัวอักษร */
+  color: #503c3c !important; /* เปลี่ยนสีตัวอักษร */
+  margin: 0 8px;
+}
+
+.inactive-tab {
+  background-color: #c2c2c2 !important; /* สีพื้นหลังของแท็บที่ยังไม่ถูกเลือก */
+  border: 2px solid #d3d3d3 !important; /* กรอบสีเทา */
+  border-radius: 8px; /* มุมมน */
+  color: #888 !important; /* สีตัวอักษรที่ดูจางลง */
+  margin: 0 8px;
 }
 
 .select-book .v-list-item-title {
