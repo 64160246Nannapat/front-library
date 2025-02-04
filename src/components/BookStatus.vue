@@ -44,6 +44,32 @@
         </v-col>
       </v-row>
 
+      <v-row>
+        <v-tabs v-model="selectedTab" class="mb-4" hide-slider>
+          <v-tab
+            value="กำลังดำเนินการ"
+            class="rounded-lg px-4 py-2"
+            :class="selectedTab === 'กำลังดำเนินการ' ? 'active-tab' : 'inactive-tab'"
+          >
+            กำลังดำเนินการ
+          </v-tab>
+          <v-tab
+            value="อนุมัติการซื้อ"
+            class="rounded-lg px-4 py-2"
+            :class="selectedTab === 'อนุมัติการซื้อ' ? 'active-tab' : 'inactive-tab'"
+          >
+            อนุมัติการซื้อ
+          </v-tab>
+          <v-tab
+            value="ไม่อนุมัติการซื้อ"
+            class="rounded-lg px-4 py-2"
+            :class="selectedTab === 'ไม่อนุมัติการซื้อ' ? 'active-tab' : 'inactive-tab'"
+          >
+            ไม่อนุมัติการซื้อ
+          </v-tab>
+        </v-tabs>
+      </v-row>
+
       <!-- ตารางข้อมูล -->
       <v-data-table-server
         v-model:items-per-page="itemsPerPage"
@@ -64,12 +90,12 @@ import { ref, computed, watch } from 'vue'
 import axios from 'axios'
 
 interface BookItem {
-  offer_form_id: number;
-  book_title: string;
-  ISBN: string;
-  book_price: number;
-  book_quantity: number;
-  form_status: string;
+  offer_form_id: number
+  book_title: string
+  ISBN: string
+  book_price: number
+  book_quantity: number
+  form_status: string
 }
 
 // วันที่
@@ -79,6 +105,7 @@ const itemsPerPage = ref(1000000)
 const loading = ref(false)
 const totalItems = ref(0)
 const serverItems = ref<BookItem[]>([])
+const selectedTab = ref('กำลังดำเนินการ')
 
 // Headers สำหรับ v-data-table
 const headers = [
@@ -140,23 +167,24 @@ const fullFormattedDate = computed(() => {
 })
 
 // ฟังก์ชันกรองข้อมูลตามวันที่
-const filterDataByDate = (data: any[], selectedDate: Date) => {
-  const startOfDay = new Date(selectedDate);
-  startOfDay.setHours(0, 0, 0, 0);
+const filterDataByDateAndStatus = (data: any[], selectedDate: Date, selectedTab: string) => {
+  const startOfDay = new Date(selectedDate)
+  startOfDay.setHours(0, 0, 0, 0)
 
-  const endOfDay = new Date(selectedDate);
-  endOfDay.setHours(23, 59, 59, 999);
+  const endOfDay = new Date(selectedDate)
+  endOfDay.setHours(23, 59, 59, 999)
 
   return data
     .filter((item) => {
-      const createdAt = new Date(item.createdAt);
-      return createdAt >= startOfDay && createdAt <= endOfDay;
+      const createdAt = new Date(item.createdAt)
+      return createdAt >= startOfDay && createdAt <= endOfDay
     })
+    .filter((item) => item.form_status === selectedTab) // กรองตามสถานะ
     .map((item, index) => ({
       ...item,
       rowIndex: index + 1, // เพิ่มลำดับแถว
-    }));
-};
+    }))
+}
 
 // API ดึงข้อมูลจากเซิร์ฟเวอร์
 const fetchDataFromAPI = async ({
@@ -195,33 +223,33 @@ const fetchDataFromAPI = async ({
 
 // Watch วันที่
 watch(
-  selectedDate,
+  [selectedDate, selectedTab],
   async () => {
     if (!token) {
-      console.error('User not authenticated');
-      return;
+      console.error('User not authenticated')
+      return
     }
 
-    loading.value = true;
+    loading.value = true
 
     // ดึงข้อมูลทั้งหมดจาก API
     const { items } = await fetchDataFromAPI({
       page: 1,
       itemsPerPage: itemsPerPage.value,
       token,
-    });
+    })
 
     // กรองข้อมูลและเพิ่ม `rowIndex`
-    const filteredItems = filterDataByDate(items, selectedDate.value);
+    const filteredItems = filterDataByDateAndStatus(items, selectedDate.value, selectedTab.value)
 
     // อัปเดต `serverItems` ให้มีลำดับ
-    serverItems.value = filteredItems;
-    totalItems.value = filteredItems.length;
+    serverItems.value = filteredItems
+    totalItems.value = filteredItems.length
 
-    loading.value = false;
+    loading.value = false
   },
-  { immediate: true } // เรียกทันทีตอนเริ่มต้น
-);
+  { immediate: true },
+)
 </script>
 
 <style scoped>
@@ -331,5 +359,21 @@ th {
   font-size: 20px;
   font-weight: bold;
   color: #4e484a;
+}
+
+.active-tab {
+  background-color: #AF8F6F !important; /* เปลี่ยนสีพื้นหลัง */
+  border: 2px solid #74512D !important; /* เพิ่มกรอบ */
+  border-radius: 8px; /* ทำให้มุมมน */
+  color: #F8F4E1 !important; /* เปลี่ยนสีตัวอักษร */
+  margin: 0 8px;
+}
+
+.inactive-tab {
+  background-color: #c2c2c2 !important; /* สีพื้นหลังของแท็บที่ยังไม่ถูกเลือก */
+  border: 2px solid #d3d3d3 !important; /* กรอบสีเทา */
+  border-radius: 8px; /* มุมมน */
+  color: #888 !important; /* สีตัวอักษรที่ดูจางลง */
+  margin: 0 8px;
 }
 </style>

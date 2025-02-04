@@ -53,7 +53,7 @@
       <v-row>
         <v-col cols="12" md="12">
           <v-card outlined class="pa-4">
-            <v-card-title>รายชื่อที่ทำการเสนอล่าสุด (คูปอง)</v-card-title>
+            <v-card-title>รายชื่อที่ทำการเสนอล่าสุด (ทำการอนุมัติแล้ว)</v-card-title>
             <v-row class="justify-end">
               <v-col cols="auto">
                 <div class="text-right">

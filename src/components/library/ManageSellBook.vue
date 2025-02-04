@@ -79,17 +79,26 @@
         </v-col> -->
 
         <v-tabs v-model="selectedTab" class="mb-4">
-          <v-tab value="กำลังดำเนินการ" :class="{ 'active-tab': selectedTab === 'กำลังดำเนินการ' }">
+          <v-tab
+            value="กำลังดำเนินการ"
+            class="rounded-lg px-4 py-2"
+            :class="{ 'active-tab': selectedTab === 'กำลังดำเนินการ' }"
+          >
             กำลังดำเนินการ
           </v-tab>
           <v-tab
+            value="อนุมัติการซื้อ"
+            class="rounded-lg px-4 py-2"
+            :class="{ 'active-tab': selectedTab === 'อนุมัติการซื้อ' }"
+          >
+            อนุมัติการซื้อ
+          </v-tab>
+          <v-tab
             value="ไม่อนุมัติการซื้อ"
+            class="rounded-lg px-4 py-2"
             :class="{ 'active-tab': selectedTab === 'ไม่อนุมัติการซื้อ' }"
           >
             ไม่อนุมัติการซื้อ
-          </v-tab>
-          <v-tab value="อนุมัติการซื้อ" :class="{ 'active-tab': selectedTab === 'อนุมัติการซื้อ' }">
-            อนุมัติการซื้อ
           </v-tab>
         </v-tabs>
 
@@ -346,13 +355,50 @@
 
       <!-- Confirmation Dialog -->
       <v-dialog v-model="confirmDialog" max-width="500">
-        <v-card>
-          <v-card-title>ยืนยันการดำเนินการ</v-card-title>
+        <v-card style="background-color: #ede8dc">
+          <v-card-title
+            class="text-start"
+            style="
+              font-weight: bold;
+              background-color: #eed3d9;
+              padding: 16px;
+              border-top-left-radius: 0px; /* ไม่มีความมนที่มุมบนซ้าย */
+              border-top-right-radius: 0px; /* ไม่มีความมนที่มุมบนขวา */
+              border-bottom-left-radius: 16px; /* ความมนที่มุมล่างซ้าย */
+              border-bottom-right-radius: 16px;
+              font-size: 20px;
+            "
+            >ยืนยันการดำเนินการ</v-card-title
+          >
           <v-card-text> คุณต้องการอนุมัติการซื้อสำหรับรายการนี้หรือไม่? </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn color="red" text @click="rejectPurchase">ไม่อนุมัติการซื้อ</v-btn>
-            <v-btn color="green" text @click="approvePurchase">อนุมัติการซื้อ</v-btn>
+            <v-btn
+              color="black"
+              text
+              @click="rejectPurchase"
+              style="
+                font-weight: bold;
+                border: 2px;
+                border-radius: 8px;
+                background-color: #fa8072;
+                margin-bottom: 8px;
+              "
+              >ไม่อนุมัติการซื้อ</v-btn
+            >
+            <v-btn
+              color="black"
+              text
+              @click="approvePurchase"
+              style="
+                font-weight: bold;
+                border: 2px;
+                border-radius: 8px;
+                background-color: #58d68d;
+                margin-bottom: 8px;
+              "
+              >อนุมัติการซื้อ</v-btn
+            >
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -628,7 +674,7 @@ const filterDataByDate = (data: any[], selectedDate: Date) => {
     .filter((item) => {
       // ตรวจสอบว่าเป็นแท็บที่เลือก 'ไม่อนุมัติการซื้อ' หรือ 'อนุมัติการซื้อ'
       const dateToCompare =
-        (selectedTab.value === 'ไม่อนุมัติการซื้อ' || selectedTab.value === 'อนุมัติการซื้อ')
+        selectedTab.value === 'ไม่อนุมัติการซื้อ' || selectedTab.value === 'อนุมัติการซื้อ'
           ? new Date(item.updatedAt) // ถ้าเป็นให้ใช้ updatedAt
           : new Date(item.createdAt) // ถ้าไม่ใช่ให้ใช้ createdAt
 
@@ -1167,8 +1213,8 @@ h1 {
 }
 
 .active-tab {
-  background-color: #fcdc94 !important; /* เปลี่ยนสีพื้นหลัง */
-  border: 2px solid #ff9800 !important; /* เพิ่มกรอบ */
+  background-color: #ffa9a9 !important; /* เปลี่ยนสีพื้นหลัง */
+  border: 2px solid #151f27 !important; /* เพิ่มกรอบ */
   border-radius: 8px; /* ทำให้มุมมน */
   color: #333 !important; /* เปลี่ยนสีตัวอักษร */
 }
