@@ -175,46 +175,14 @@
             </v-btn>
           </div>
         </template>
-        <!-- <template #item.view="{ item }">
-          <div style="display: flex; flex-direction: column; gap: 10px">
-            <v-row>
-              <v-col>
-                <div style="display: flex; flex-direction: column; align-items: center; gap: 10px">
-                  <v-select
-                    v-model="item.form_status"
-                    :items="['รอการอนุมัติ', 'กำลังดำเนินการ', 'ไม่อนุมัติการซื้อ']"
-                    solo
-                    dense
-                    outlined
-                    hide-details
-                    variant="outlined"
-                    class="custom-select"
-                    style="font-size: 8px !important; height: 30px !important"
-                  >
-                  </v-select>
 
-                  <v-btn
-                    icon
-                    @click="onMessageClick(item)"
-                    :disabled="!item.offer_form_id"
-                    style="
-                      border-radius: 8px;
-                      background-color: #b4c7e4;
-                      width: 120px;
-                      height: 30px;
-                      display: flex;
-                      justify-content: center;
-                      align-items: center;
-                      margin-bottom: 8px;
-                    "
-                  >
-                    <v-icon>mdi-email-outline</v-icon>
-                  </v-btn>
-                </div>
-              </v-col>
-            </v-row>
+        <template #item.view="{ item }">
+          <div class="d-flex">
+            <v-btn color="primary" :disabled="!item.offer_form_id" @click="onMessageClick(item)">
+              <v-icon left style="margin-right: 5px">mdi-email-outline</v-icon>ดำเนินการ
+            </v-btn>
           </div>
-        </template> -->
+        </template>
       </v-data-table>
 
       <v-dialog v-model="dialogSuccess" width="90%" max-width="1530px">
@@ -242,11 +210,11 @@
                       <tr
                         v-for="(book, index) in booksData"
                         :key="index"
-                        @click="selectedISBN.value = book.ISBN"
                         :class="{
                           'duplicate-row':
+                            selectedISBN &&
                             book.ISBN.replace(/\s*\(ล\.\s*\d+\)$/, '') ===
-                            selectedISBN.replace(/\s*\(ล\.\s*\d+\)$/, ''),
+                              selectedISBN.replace(/\s*\(ล\.\s*\d+\)$/, ''),
                         }"
                       >
                         <td>
@@ -268,7 +236,7 @@
                         <td>{{ book.edition }}</td>
                         <td>{{ book.detail }}</td>
                         <td class="d-flex justify-center">
-                          <v-btn @click="openImageDialog(book.bookCover)">
+                          <v-btn @click.stop="openImageDialog(book.bookCover)">
                             <v-icon>mdi-eye</v-icon>
                           </v-btn>
                         </td>
@@ -293,11 +261,15 @@
                       <tr
                         v-for="(form, index) in filteredOfferForms"
                         :key="index"
-                        @click="selectedISBN = form"
                         :class="{
                           'duplicate-row':
+                            selectedISBN &&
+                            selectedCreatedAt &&
+                            selectedPrice &&
                             form.ISBN.replace(/\s*\(ล\.\s*\d+\)$/, '') ===
-                            selectedISBN.replace(/\s*\(ล\.\s*\d+\)$/, ''),
+                              selectedISBN.replace(/\s*\(ล\.\s*\d+\)$/, '') &&
+                            formatDateTime(form.createdAt) === selectedCreatedAt &&
+                            form.book_price === selectedPrice,
                         }"
                       >
                         <td>{{ formatDateTime(form.createdAt) }}</td>
@@ -375,16 +347,12 @@
       <!-- Confirmation Dialog -->
       <v-dialog v-model="confirmDialog" max-width="500">
         <v-card>
-          <v-card-title>ยืนยันการเลือก</v-card-title>
-          <v-card-text>
-            คุณแน่ใจหรือไม่ว่าจะเปลี่ยนสถานะเป็น "{{
-              confirmData?.checkStatus === 'yes' ? 'ไม่ซ้ำ' : 'ซ้ำ'
-            }}"?
-          </v-card-text>
+          <v-card-title>ยืนยันการดำเนินการ</v-card-title>
+          <v-card-text> คุณต้องการอนุมัติการซื้อสำหรับรายการนี้หรือไม่? </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn color="red" text @click="cancelCheckStatus">ยกเลิก</v-btn>
-            <v-btn color="green" text @click="confirmStatusChange">ยืนยัน</v-btn>
+            <v-btn color="red" text @click="rejectPurchase">ไม่อนุมัติการซื้อ</v-btn>
+            <v-btn color="green" text @click="approvePurchase">อนุมัติการซื้อ</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -486,11 +454,12 @@ const fullTime = ref('')
 const itemsPerPage = ref(1000000)
 const noDataMessage = ref('')
 const booksData = ref([])
-const selectedISBN = ref()
+const selectedISBN = ref('')
+const selectedCreatedAt = ref('')
+const selectedPrice = ref(0)
 const dialogImage = ref(false)
 const selectedImage = ref('')
 const messageDialog = ref(false)
-const confirmData = ref({})
 const confirmDialog = ref(false)
 const selectedItem = ref(null)
 const message = ref('')
@@ -657,8 +626,13 @@ const filterDataByDate = (data: any[], selectedDate: Date) => {
 
   return data
     .filter((item) => {
-      const createdAt = new Date(item.createdAt)
-      return createdAt >= startOfDay && createdAt <= endOfDay
+      // ตรวจสอบว่าเป็นแท็บที่เลือก 'ไม่อนุมัติการซื้อ' หรือ 'อนุมัติการซื้อ'
+      const dateToCompare =
+        (selectedTab.value === 'ไม่อนุมัติการซื้อ' || selectedTab.value === 'อนุมัติการซื้อ')
+          ? new Date(item.updatedAt) // ถ้าเป็นให้ใช้ updatedAt
+          : new Date(item.createdAt) // ถ้าไม่ใช่ให้ใช้ createdAt
+
+      return dateToCompare >= startOfDay && dateToCompare <= endOfDay
     })
     .map((item, index) => ({
       ...item,
@@ -667,9 +641,23 @@ const filterDataByDate = (data: any[], selectedDate: Date) => {
 }
 
 const filteredOfferForms = computed(() => {
-  return selectedISBN.value
-    ? offerForms.value.filter((form) => form.ISBN === selectedISBN.value)
-    : [] // ถ้าไม่มี selectedISBN จะแสดงผลลัพธ์เป็น array ว่าง
+  console.log('selectedISBN:', selectedISBN.value)
+  console.log('selectedCreatedAt:', selectedCreatedAt.value)
+  console.log('selectedPrice:', selectedPrice.value)
+
+  return offerForms.value.filter((form) => {
+    console.log('Checking:', form.ISBN, formatDateTime(form.createdAt), form.book_price)
+
+    const matchesISBN = selectedISBN.value ? form.ISBN.trim() === selectedISBN.value.trim() : true
+    const matchesDate = selectedCreatedAt.value
+      ? formatDateTime(form.createdAt) === selectedCreatedAt.value
+      : true
+    const matchesPrice = selectedPrice.value
+      ? String(form.book_price) === String(selectedPrice.value)
+      : true
+
+    return matchesISBN && matchesDate && matchesPrice
+  })
 })
 
 const fetchDataFromAPI = async ({ page, itemsPerPage }: { page: number; itemsPerPage: number }) => {
@@ -687,7 +675,8 @@ const fetchDataFromAPI = async ({ page, itemsPerPage }: { page: number; itemsPer
         ...item,
         store_name: item.store.store_name,
         book_imgs: Array.isArray(item.book_imgs) ? item.book_imgs : [],
-        createdAt: item.createdAt, // เก็บ `createdAt` ไว้กรองใน frontend
+        createdAt: item.createdAt,
+        updatedAt: item.updatedAt,
         form_status: item.form_status || 'รอการอนุมัติ', // เพิ่ม default
         offer_form_id: item.offer_form_id, // ดึง id จาก API
       })),
@@ -706,66 +695,106 @@ const fetchOfferForms = async (page = 1) => {
   loading.value = false
 }
 
-// const onMessageClick = async (item) => {
-//   if (!item.offer_form_id) {
-//     console.error('Missing offer_form_id in item:', item)
-//     return // หยุดการทำงานถ้าไม่มี offer_form_id
-//   }
+const onMessageClick = async (item) => {
+  if (!item.offer_form_id) {
+    console.error('Missing offer_form_id in item:', item)
+    return // หยุดการทำงานถ้าไม่มี offer_form_id
+  }
 
-//   selectedItem.value = item
+  selectedItem.value = item
 
-//   // อัปเดตวันเวลา
-//   updateDateTime()
+  // อัปเดตวันที่และเวลา
+  updateDateTime()
 
-//   try {
-//     // อัปเดต form_status และ duplicate_check ผ่าน API
-//     await updateApproveStatus(item)
+  try {
+    // อัปเดต form_status และ duplicate_check ก่อนเปิด dialog
+    await updateApproveStatus(item)
 
-//     // แสดงข้อความหรืออัปเดต UI หากสำเร็จ
-//     console.log('Approve status and duplicate_check updated successfully!')
-//   } catch (error) {
-//     console.error('Error updating approve status and duplicate_check:', error)
-//   }
+    // เปิด dialog ยืนยันการเลือก
+    confirmDialog.value = true
+  } catch (error) {
+    console.error('Error updating approve status and duplicate_check:', error)
+  }
+}
 
-//   // เปิด dialog
-//   messageDialog.value = true
-// }
+const updateApproveStatus = async (item) => {
+  if (!item.offer_form_id) {
+    console.error('Missing offer_form_id in item:', item)
+    return // หยุดการทำงานถ้าไม่มี offer_form_id
+  }
 
-// const updateApproveStatus = async (item) => {
-//   if (!item.offer_form_id) {
-//     console.error('Missing offer_form_id in item:', item)
-//     return // หยุดการทำงานถ้าไม่มี ID
-//   }
+  const url = `http://localhost:3000/offer-form/${item.offer_form_id}`
+  const payload = {
+    form_status: item.status, // ใช้ status แทน form_status
+  }
 
-//   const url = `http://localhost:3000/offer-form/${item.offer_form_id}`
-//   const payload = {
-//     form_status: item.form_status, // ค่า form_status (ถ้ามี)
-//     duplicate_check: item.duplicate_check, // ค่า duplicate_check จาก v-radio-group
-//   }
+  try {
+    const response = await axios.patch(url, payload)
+    console.log('Updated form_status successfully:', response.data)
+    return response.data
+  } catch (error) {
+    console.error('Error updating form_status:', error)
+    throw error
+  }
+}
 
-//   try {
-//     const response = await axios.patch(url, payload)
-//     console.log('Updated form_status and duplicate_check successfully:', response.data)
-//     return response.data
-//   } catch (error) {
-//     console.error('Error updating form_status and duplicate_check:', error)
-//     throw error
-//   }
-// }
+const approvePurchase = async () => {
+  if (!selectedItem.value) {
+    console.error('Selected item is null or undefined')
+    return
+  }
 
-// const updateDateTime = () => {
-//   const now = new Date()
-//   fullDate.value = now.toLocaleDateString('th-TH', {
-//     year: 'numeric',
-//     month: 'long',
-//     day: 'numeric',
-//   })
-//   fullTime.value = now.toLocaleTimeString('th-TH', {
-//     hour: '2-digit',
-//     minute: '2-digit',
-//     second: '2-digit',
-//   })
-// }
+  try {
+    // อัปเดตค่า status
+    selectedItem.value.status = 'อนุมัติการซื้อ'
+
+    // อัปเดตสถานะและเวลา
+    await updateApproveStatus(selectedItem.value)
+    updateDateTime() // อัปเดตวันเวลา
+
+    // ปิด dialog
+    confirmDialog.value = false
+    console.log('การอนุมัติการซื้อสำเร็จ')
+  } catch (error) {
+    console.error('เกิดข้อผิดพลาดในการอนุมัติการซื้อ:', error)
+  }
+}
+
+const rejectPurchase = async () => {
+  if (!selectedItem.value) {
+    console.error('Selected item is null or undefined')
+    return
+  }
+
+  try {
+    // อัปเดตค่า status
+    selectedItem.value.status = 'ไม่อนุมัติการซื้อ'
+
+    // อัปเดตสถานะและเวลา
+    await updateApproveStatus(selectedItem.value)
+    updateDateTime() // อัปเดตวันเวลา
+
+    // ปิด dialog
+    confirmDialog.value = false
+    console.log('การอนุมัติการซื้อถูกปฏิเสธ')
+  } catch (error) {
+    console.error('เกิดข้อผิดพลาดในการปฏิเสธการซื้อ:', error)
+  }
+}
+
+const updateDateTime = () => {
+  const now = new Date()
+  fullDate.value = now.toLocaleDateString('th-TH', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  })
+  fullTime.value = now.toLocaleTimeString('th-TH', {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  })
+}
 
 const onSearch = async () => {
   loading.value = true
@@ -886,6 +915,8 @@ const fetchBooks = async (isbn: string) => {
       // อัปเดตข้อมูล booksData
       booksData.value = Array.from(uniqueBooksMap.values()) // อัปเดตข้อมูล booksData
       selectedISBN.value = isbn.trim() // อัปเดต selectedISBN ก่อนเปิด dialog
+      // selectedCreatedAt.value = data.data.CreatedAt || ""  // กำหนดค่า selectedCreatedAt จากข้อมูล
+      // selectedPrice.value = data.data.Price || "" // กำหนดค่า selectedPrice จากข้อมูล
       dialogSuccess.value = true // เปิด dialog
 
       console.log('Final serverItems:', serverItems.value)
@@ -1135,20 +1166,13 @@ h1 {
   line-height: 1 !important;
 }
 
-<<<<<<< HEAD
-=======
-
->>>>>>> fe20e9c6d50a0a53ed5b11b4101f5669c9eeb54e
 .active-tab {
   background-color: #fcdc94 !important; /* เปลี่ยนสีพื้นหลัง */
   border: 2px solid #ff9800 !important; /* เพิ่มกรอบ */
   border-radius: 8px; /* ทำให้มุมมน */
   color: #333 !important; /* เปลี่ยนสีตัวอักษร */
 }
-<<<<<<< HEAD
 
-=======
->>>>>>> fe20e9c6d50a0a53ed5b11b4101f5669c9eeb54e
 .select-book .v-list-item-title {
   font-size: 14px;
   padding: 4px 8px;
@@ -1156,7 +1180,6 @@ h1 {
 
 .select-book .v-input {
   font-size: 16px; /* ขนาดตัวอักษรข้อความที่เลือก */
-<<<<<<< HEAD
 }
 
 .duplicate-text {
@@ -1180,8 +1203,6 @@ h1 {
   max-height: 80vh;
   overflow-y: auto;
   padding: 10px;
-=======
->>>>>>> fe20e9c6d50a0a53ed5b11b4101f5669c9eeb54e
 }
 
 ::v-deep(.custom-select .v-input__control) {
