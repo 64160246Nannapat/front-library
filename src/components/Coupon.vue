@@ -13,7 +13,6 @@
           <v-col>
             <v-card class="mx-auto card-money justify-end">
               <v-card-title class="card-money-title">E-coupon คงเหลือ</v-card-title>
-
               <v-card-subtitle class="card-money-subtitle">3,000 บาท</v-card-subtitle>
             </v-card>
           </v-col>
@@ -32,7 +31,7 @@
 
             <v-card-text class="text-h5 py-2">
               <!-- เรียกใช้งาน QRCode Component -->
-              <QRCode :text="'E-Coupon คงเหลือ: 3,000 บาท'" />
+              <QRCode :text="'E-Coupon คงเหลือ: 3,000 บาท'" @click="goToBookForm" />
             </v-card-text>
 
             <v-card-actions>
@@ -41,7 +40,7 @@
                 <v-list-item-subtitle class="text-card-sub text-magin"
                   >คณะวิทยาการสารสนเทศ</v-list-item-subtitle
                 >
-                <v-list-item-title class="text-card"> 3,000 </v-list-item-title>
+                <v-list-item-title class="text-card">3,000</v-list-item-title>
                 <v-list-item-subtitle class="text-card-sub">บาท</v-list-item-subtitle>
               </v-list-item>
             </v-card-actions>
@@ -55,6 +54,14 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import QRCode from '@/views/QRCode.vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
+// ฟังก์ชันสำหรับไปที่หน้าที่ต้องการ
+const goToBookForm = () => {
+  router.push('/book-form-shop')
+}
 </script>
 
 <style scoped>
