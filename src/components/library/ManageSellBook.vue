@@ -1,6 +1,6 @@
 <template>
-  <v-main style="height: 500px; margin-top: 55px">
-    <v-container>
+  <v-main style="height: 500px; margin-top: 20px">
+    <v-container fluid>
       <div class="header">
         <img class="header-image" src="@/assets/bookLibrary.png" alt="Library Image" />
         <h1>จัดการเสนอซื้อหนังสือ</h1>
@@ -127,7 +127,18 @@
         :hide-default-footer="true"
         style="width: 100%; table-layout: auto; border-collapse: collapse"
         class="custom-table no-scrollbar"
+        :row-class="getRowClass"
       >
+        <template v-slot:item.actions="{ item }">
+          <v-btn v-if="item.status !== 'checked'" @click="markAsChecked(item)" color="primary">
+            ตรวจสอบ
+          </v-btn>
+
+          <v-btn v-if="item.status === 'checked'" @click="markAsCompleted(item)" color="success">
+            ดำเนินการ
+          </v-btn>
+        </template>
+
         <template #item.rowIndex="{ item }">
           {{ item.rowIndex }}
         </template>
@@ -200,7 +211,12 @@
 
       <v-dialog v-model="dialogSuccess" width="90%" max-width="1530px">
         <v-card>
-          <v-card-title>ข้อมูลหนังสือ</v-card-title>
+          <v-card-title class="d-flex justify-space-between align-center">
+            <span>ข้อมูลหนังสือ</span>
+            <span class="checked-date-time" style="font-size: 12px">
+              ตรวจสอบไปเมื่อ: {{ checkedDateTimeMap[selectedISBN] || 'ยังไม่มีข้อมูล' }}
+            </span>
+          </v-card-title>
           <v-tabs v-model="activeTab">
             <v-tab value="duplicate">ตรวจหนังสือซ้ำ</v-tab>
             <v-tab value="compare">เปรียบเทียบราคา</v-tab>
@@ -520,6 +536,7 @@ const selectedItem = ref(null)
 const message = ref('')
 const activeTab = ref('duplicate')
 const offerForms = ref([])
+const checkedDateTime = ref('')
 
 interface BookItem {
   offer_form_id: number
@@ -895,6 +912,10 @@ const viewImage = (item) => {
   dialog.value = true // เปิด dialog เพื่อแสดงภาพหรือข้อความ
 }
 
+const checkedDateTimeMap = ref<Record<string, string>>(
+  JSON.parse(localStorage.getItem('checkedDateTimeMap') || '{}'),
+)
+
 const fetchBooks = async (isbn: string) => {
   loading.value = true
   const apiUrl = `/api/ISBNISSN/${isbn}`
@@ -967,12 +988,26 @@ const fetchBooks = async (isbn: string) => {
         }
       })
 
-      // อัปเดตข้อมูล booksData
-      booksData.value = Array.from(uniqueBooksMap.values()) // อัปเดตข้อมูล booksData
-      selectedISBN.value = isbn.trim() // อัปเดต selectedISBN ก่อนเปิด dialog
-      // selectedCreatedAt.value = data.data.CreatedAt || ""  // กำหนดค่า selectedCreatedAt จากข้อมูล
-      // selectedPrice.value = data.data.Price || "" // กำหนดค่า selectedPrice จากข้อมูล
+      //  อัปเดตข้อมูล booksData
+      booksData.value = Array.from(uniqueBooksMap.values())
+      selectedISBN.value = isbn.trim() // อัปเดต selectedISBN
       dialogSuccess.value = true // เปิด dialog
+
+      // ตรวจสอบว่ามีวันที่และเวลาที่บันทึกไว้ใน checkedDateTimeMap หรือไม่
+      if (!checkedDateTimeMap.value[isbn]) {
+        // หากยังไม่มีใน checkedDateTimeMap, ให้สร้างใหม่
+        const now = new Date()
+        const formattedDateTime =
+          now.toLocaleDateString('th-TH', { day: '2-digit', month: '2-digit', year: 'numeric' }) +
+          ` เวลา ` +
+          now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })
+
+        checkedDateTimeMap.value[isbn] = formattedDateTime
+        localStorage.setItem('checkedDateTimeMap', JSON.stringify(checkedDateTimeMap.value))
+      }
+
+      // อัปเดตค่า checkedDateTime ที่ใช้แสดง
+      checkedDateTime.value = checkedDateTimeMap.value[isbn]
 
       console.log('Final serverItems:', serverItems.value)
 
@@ -1060,7 +1095,15 @@ watch(dialogSuccess, (newValue) => {
   }
 })
 
-onMounted(() => fetchOfferForms())
+onMounted(() => {
+  // โหลดข้อมูลจาก localStorage (ถ้ามี)
+  const storedCheckedDateTimeMap = localStorage.getItem('checkedDateTimeMap')
+  if (storedCheckedDateTimeMap) {
+    checkedDateTimeMap.value = JSON.parse(storedCheckedDateTimeMap)
+  }
+
+  fetchOfferForms() // ฟังก์ชันอื่นๆ ที่ต้องการเรียกตอน Mounted
+})
 </script>
 
 <style scoped>
@@ -1294,5 +1337,9 @@ h1 {
 
 ::v-deep(.v-overlay .v-list-item__title) {
   font-size: 10px !important; /* ลดฟอนต์ในเมนู overlay */
+}
+
+.row-highlight {
+  background-color: #a9a947 !important; /* เปลี่ยนเป็นสีที่ต้องการ */
 }
 </style>

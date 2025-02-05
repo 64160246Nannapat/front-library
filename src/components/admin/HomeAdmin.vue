@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <!-- App Bar -->
-    <v-app-bar color="#C39898" prominent height="96">
+    <v-app-bar color="#f8c9d3" prominent height="96">
       <v-app-bar-nav-icon @click.stop="drawer = !drawer">
         <v-icon size="36">mdi-menu</v-icon>
       </v-app-bar-nav-icon>
@@ -200,24 +200,25 @@ const handleLogout = async () => {
 }
 
 .full-height-container {
-  height: 100%; /* ทำให้คอนเทนเนอร์ครอบคลุมพื้นที่ของ v-main */
+  height: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: center; /* จัดตำแหน่งฟอร์มให้อยู่ตรงกลาง */
+  justify-content: center;
   padding: 20px;
 }
 
 .v-app-bar {
   z-index: 10;
+  background-color: #f8c9d3;
   height: 96px;
 }
 
 .custom-sidebar {
   position: fixed;
   top: 96px;
-  height: calc(100vh - 96px); /* ปรับความสูงให้อยู่ในกรอบหน้าจอ */
+  height: calc(100vh - 96px);
   overflow-y: auto;
-  background-color: #ead9d9;
+  background-color: #f5e4e5;
   max-width: 300px !important;
   transition: width 0.3s ease;
 }
@@ -242,11 +243,10 @@ const handleLogout = async () => {
   font-size: 16px;
   font-weight: bold;
   margin-right: 10px;
-  color: #333333;
 }
 
 .position {
   font-size: 14px;
-  color: rgb(68, 55, 55);
+  color: gray;
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <v-main style="height: 500px; margin-top: 60px">
+  <v-main style="height: 500px; margin-top: 20px">
     <v-container>
       <div class="header">
         <img class="header-image" src="@/assets/addshop.png" alt="Add Shop" />

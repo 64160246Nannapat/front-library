@@ -1,5 +1,5 @@
 <template>
-  <v-main style="height: 500px; margin-top: 55px">
+  <v-main style="height: 500px; margin-top: 20px">
     <v-container>
       <!-- Header -->
       <div class="header">

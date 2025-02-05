@@ -1,5 +1,5 @@
 <template>
-  <v-main style="height: 500px; margin-top: -45px">
+  <v-main style="height: 500px; margin-top: -65px">
     <v-main>
       <v-container class="ecoupon-container">
         <!-- Header -->

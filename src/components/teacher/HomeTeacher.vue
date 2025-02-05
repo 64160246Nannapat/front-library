@@ -178,10 +178,10 @@ const handleLogout = async () => {
 }
 
 .full-height-container {
-  height: 100%; /* ทำให้คอนเทนเนอร์ครอบคลุมพื้นที่ของ v-main */
+  height: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: center; /* จัดตำแหน่งฟอร์มให้อยู่ตรงกลาง */
+  justify-content: center;
   padding: 20px;
 }
 
@@ -194,7 +194,7 @@ const handleLogout = async () => {
 .custom-sidebar {
   position: fixed;
   top: 96px;
-  height: calc(100vh - 96px); /* ปรับความสูงให้อยู่ในกรอบหน้าจอ */
+  height: calc(100vh - 96px);
   overflow-y: auto;
   background-color: #f5e4e5;
   max-width: 300px !important;

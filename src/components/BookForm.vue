@@ -1,5 +1,5 @@
 <template>
-  <v-main style="height: 500px; margin-top: -60px">
+  <v-main style="height: 500px; margin-top: -90px">
     <!-- <HomeStudent /> -->
     <v-main>
       <v-container>

@@ -1,5 +1,5 @@
 <template>
-  <v-main style="height: 500px; margin-top: 55px">
+  <v-main style="height: 500px; margin-top: 20px">
     <v-container>
       <div class="header">
         <img class="header-image" src="@/assets/check-list (1).png" alt="Library Image" />
@@ -80,7 +80,13 @@
         @update:options="loadItems"
         show-items-per-page="false"
         :hide-default-footer="true"
-      />
+      >
+        <template v-slot:item.form_status="{ item }">
+          <span :class="getStatusClass(item.form_status)">
+            {{ item.form_status }}
+          </span>
+        </template>
+      </v-data-table-server>
     </v-container>
   </v-main>
 </template>
@@ -106,6 +112,19 @@ const loading = ref(false)
 const totalItems = ref(0)
 const serverItems = ref<BookItem[]>([])
 const selectedTab = ref('กำลังดำเนินการ')
+
+const getStatusClass = (status: string) => {
+  switch (status) {
+    case 'กำลังดำเนินการ':
+      return 'text-warning' // สีเหลือง
+    case 'อนุมัติการซื้อ':
+      return 'text-success' // สีเขียว
+    case 'ไม่อนุมัติการซื้อ':
+      return 'text-error' // สีแดง
+    default:
+      return ''
+  }
+}
 
 // Headers สำหรับ v-data-table
 const headers = [
@@ -362,10 +381,10 @@ th {
 }
 
 .active-tab {
-  background-color: #D1BB9E !important; /* เปลี่ยนสีพื้นหลัง */
-  border: 2px solid #A79277 !important; /* เพิ่มกรอบ */
+  background-color: #d1bb9e !important; /* เปลี่ยนสีพื้นหลัง */
+  border: 2px solid #a79277 !important; /* เพิ่มกรอบ */
   border-radius: 8px; /* ทำให้มุมมน */
-  color: #503C3C !important; /* เปลี่ยนสีตัวอักษร */
+  color: #503c3c !important; /* เปลี่ยนสีตัวอักษร */
   margin: 0 8px;
 }
 
@@ -375,5 +394,17 @@ th {
   border-radius: 8px; /* มุมมน */
   color: #888 !important; /* สีตัวอักษรที่ดูจางลง */
   margin: 0 8px;
+}
+
+.text-warning {
+  color: #edbb28 !important; /* สีเหลือง */
+}
+
+.text-success {
+  color: #188131 !important; /* สีเขียว */
+}
+
+.text-error {
+  color: #b11f2e !important; /* สีแดง */
 }
 </style>
