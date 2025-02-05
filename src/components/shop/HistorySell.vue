@@ -167,7 +167,7 @@ const FakeAPI = {
           {
             id: 1,
             title: 'ความรู้สึกของเราสำคัญที่สุด',
-            date: '01/12/2567',
+            date: '06/02/2568',
             isbn: '9786161857707',
             price: 250,
             quantity: 2,
@@ -176,7 +176,7 @@ const FakeAPI = {
           {
             id: 2,
             title: 'วิทยาศาสตร์ของการใช้ชีวิต = The science of living',
-            date: '02/12/2567',
+            date: '06/02/2568',
             isbn: '9786162875434',
             price: 350,
             quantity: 1,
@@ -186,7 +186,7 @@ const FakeAPI = {
             id: 3,
             title:
               'คุณคางคกไปพบนักจิตบำบัด : การผจญภัยทางจิตวิทยา = Counselling for toads : a psychological adventure ',
-            date: '16/01/2568',
+            date: '06/02/2568',
             isbn: '9786160459049',
             price: 500,
             quantity: 3,
@@ -195,7 +195,7 @@ const FakeAPI = {
           {
             id: 4,
             title: 'ร่างกายไม่เคยโกหก = What every body is saying',
-            date: '16/01/2568',
+            date: '06/02/2568',
             isbn: '9786162875687',
             price: 500,
             quantity: 1,
@@ -204,7 +204,7 @@ const FakeAPI = {
           {
             id: 5,
             title: 'ภาวะลื่นไหล ทำอะไรก็ง่ายหมด = Productivity flow',
-            date: '16/01/2568',
+            date: '06/02/2568',
             isbn: '9786169373964',
             price: 500,
             quantity: 1,
@@ -213,7 +213,7 @@ const FakeAPI = {
           {
             id: 6,
             title: 'หัวไม่ดีก็มีวิธีสอบผ่าน',
-            date: '16/01/2568',
+            date: '06/02/2568',
             isbn: '9786165786195',
             price: 500,
             quantity: 1,

@@ -134,7 +134,7 @@ const FakeAPI = {
             name: 'นางสาว นวพรรษ สีหาบุตร',
             email: 'nawapat@go.buu.ac.th',
             phone: '0909999999',
-            date: '20/12/2567',
+            date: '06/02/2568',
           },
           {
             id: 2,
@@ -142,7 +142,7 @@ const FakeAPI = {
             name: 'นางสาว นันท์ณภัทร สอนสุภาพ',
             email: 'nawapat@go.buu.ac.th',
             phone: '0909999999',
-            date: '20/12/2567',
+            date: '06/02/2568',
           },
           {
             id: 3,
@@ -150,7 +150,7 @@ const FakeAPI = {
             name: 'นาย ใจดี มีมาก',
             email: 'nawapat@go.buu.ac.th',
             phone: '0909999999',
-            date: '25/12/2567',
+            date: '06/02/2568',
           },
           {
             id: 4,
@@ -158,7 +158,7 @@ const FakeAPI = {
             name: 'นาย สมศรี ใจดี',
             email: 'nawapat@go.buu.ac.th',
             phone: '0909999999',
-            date: '25/12/2567',
+            date: '06/02/2568',
           },
           {
             id: 5,
@@ -166,7 +166,7 @@ const FakeAPI = {
             name: 'นางสาว สมหมาย มีมาก',
             email: 'nawapat@go.buu.ac.th',
             phone: '0909999999',
-            date: '25/12/2567',
+            date: '06/02/2568',
           },
         ]
         resolve(data)

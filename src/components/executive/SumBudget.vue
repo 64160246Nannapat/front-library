@@ -51,9 +51,11 @@
             :items="['ทั้งหมด', 'วิทยาการสารสนเทศ', 'บริหาร', 'วิทยาศาสตร์', 'วิศวกรรมศาสตร์']"
             v-model="searchFaculty"
             class="select-book"
+            multiple
+            chips
             variant="outlined"
             rounded="lg"
-            @input="onSearch"
+            @update:modelValue="onSearch"
           ></v-select>
         </v-col>
       </v-row>
@@ -165,17 +167,8 @@ const fullFormattedDate = computed(() => {
   return `${dayName} ที่ ${day} ${monthName} พ.ศ. ${year}`
 })
 
-// API ปลอมเพื่อเลียนแบบการดึงข้อมูล
 const FakeAPI = {
-  async fetch({
-    faculty,
-    name,
-  }: {
-    page: number
-    itemsPerPage: number
-    faculty?: string
-    name?: string
-  }) {
+  async fetch({ faculty }) {
     return new Promise((resolve) => {
       setTimeout(() => {
         let data = [
@@ -185,7 +178,7 @@ const FakeAPI = {
             budget: '200,000',
             usebudget: '158,700',
             remain: '41,300',
-            date: '09/01/2568',
+            date: '06/02/2568',
           },
           {
             id: 2,
@@ -193,7 +186,7 @@ const FakeAPI = {
             budget: '200,000',
             usebudget: '158,700',
             remain: '41,300',
-            date: '20/12/2567',
+            date: '06/02/2568',
           },
           {
             id: 3,
@@ -201,7 +194,7 @@ const FakeAPI = {
             budget: '200,000',
             usebudget: '158,700',
             remain: '41,300',
-            date: '20/12/2567',
+            date: '06/02/2568',
           },
           {
             id: 4,
@@ -209,7 +202,7 @@ const FakeAPI = {
             budget: '200,000',
             usebudget: '158,700',
             remain: '41,300',
-            date: '20/12/2567',
+            date: '06/02/2568',
           },
           {
             id: 5,
@@ -217,7 +210,7 @@ const FakeAPI = {
             budget: '200,000',
             usebudget: '158,700',
             remain: '41,300',
-            date: '09/01/2568',
+            date: '06/02/2568',
           },
           {
             id: 6,
@@ -225,19 +218,15 @@ const FakeAPI = {
             budget: '200,000',
             usebudget: '158,700',
             remain: '41,300',
-            date: '09/01/2568',
+            date: '06/02/2568',
           },
         ]
 
-        // กรองข้อมูลใน API
-        if (faculty && faculty !== 'ทั้งหมด') {
-          data = data.filter((item) => item.faculty === faculty)
+        // กรองข้อมูลถ้าเลือกคณะ (ไม่ใช่ "ทั้งหมด")
+        if (!faculty.includes('ทั้งหมด')) {
+          data = data.filter((item) => faculty.some((f) => item.faculty === f))
         }
 
-        if (name) {
-          const lowerName = name.toLowerCase()
-          data = data.filter((item) => item.name.toLowerCase().includes(lowerName))
-        }
         resolve(data)
       }, 500)
     })
@@ -280,6 +269,12 @@ const onSearch = () => {
   })
 }
 
+const fetchData = async () => {
+  loading.value = true
+  serverItems.value = await FakeAPI.fetch({ faculty: searchFaculty.value })
+  loading.value = false
+}
+
 const onClickBook = (item) => {
   if (item && item.id) {
     router.push({ name: 'showBudgetExecutive', params: { itemId: item.id } })
@@ -289,9 +284,8 @@ const onClickBook = (item) => {
 }
 
 // ติดตามการเปลี่ยนแปลงของ searchFaculty และเรียก onSearch
-watch([selectedDate, searchFaculty], () => {
-  onSearch()
-})
+watch(searchFaculty, fetchData, { deep: true })
+fetchData()
 
 // เรียก onSearch ครั้งแรกเมื่อ component ถูกโหลด
 onMounted(() => {

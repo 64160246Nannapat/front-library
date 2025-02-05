@@ -23,21 +23,20 @@
       temporary
       app
       fixed
-      :style="drawer ? 'width: 300px;' : 'width: 80px;'"
+      :width="drawer ? 300 : 80"
       class="custom-sidebar"
     >
       <v-list>
         <v-list-item v-for="item in items" :key="item.title">
           <v-list-item-icon>
-            <!-- Horizontal Layout for Icon and Title -->
             <v-row align="center" no-gutters>
               <v-col class="d-flex justify-center" cols="auto">
                 <v-img :src="item.icon" height="30px" width="30px" />
               </v-col>
-              <v-col class="ml-2">
-                <router-link v-if="!item.action" :to="item.link" class="custom-link">{{
-                  item.title
-                }}</router-link>
+              <v-col v-show="drawer" class="ml-2">
+                <router-link v-if="!item.action" :to="item.link" class="custom-link">
+                  {{ item.title }}
+                </router-link>
                 <span v-else class="custom-link" @click="handleLogout">{{ item.title }}</span>
               </v-col>
             </v-row>
@@ -45,6 +44,7 @@
         </v-list-item>
       </v-list>
     </v-navigation-drawer>
+
     <!-- Main Content -->
     <v-main class="full-height-container">
       <router-view />

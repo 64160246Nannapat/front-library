@@ -3,7 +3,7 @@
     <!-- <HomeStudent /> -->
     <v-main>
       <v-container>
-        <div class="header" style="margin-bottom: 50px">
+        <div class="header" style="margin-bottom: 20px">
           <img class="header-image" src="@/assets/library (1).png" alt="Library Image" />
           <h1>แบบฟอร์มการเสนอหนังสือ</h1>
         </div>

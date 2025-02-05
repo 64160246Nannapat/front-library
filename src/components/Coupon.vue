@@ -77,7 +77,6 @@ const goToBookForm = () => {
   margin-right: 15px;
 }
 .ecoupon-container {
-  background-color: #fff9f4;
   height: 100vh;
   padding: 20px;
 }

@@ -189,7 +189,7 @@ const FakeAPI = {
             price: 250,
             quantity: 1,
             status: 'มีคูปอง',
-            date: '24/01/2568',
+            date: '06/02/2568',
           },
           {
             id: 2,
@@ -200,7 +200,7 @@ const FakeAPI = {
             price: 250,
             quantity: 1,
             status: 'ไม่มีคูปอง',
-            date: '24/01/2568',
+            date: '06/02/2568',
           },
           {
             id: 3,
@@ -211,7 +211,7 @@ const FakeAPI = {
             price: 250,
             quantity: 2,
             status: 'มีคูปอง',
-            date: '24/01/2568',
+            date: '06/02/2568',
           },
           {
             id: 4,
@@ -222,7 +222,7 @@ const FakeAPI = {
             price: 250,
             quantity: 2,
             status: 'มีคูปอง',
-            date: '24/12/2567',
+            date: '06/02/2568',
           },
           {
             id: 5,
@@ -233,7 +233,7 @@ const FakeAPI = {
             price: 250,
             quantity: 2,
             status: 'มีคูปอง',
-            date: '09/01/2568',
+            date: '06/02/2568',
           },
           {
             id: 6,
@@ -244,7 +244,7 @@ const FakeAPI = {
             price: 250,
             quantity: 2,
             status: 'มีคูปอง',
-            date: '09/01/2568',
+            date: '06/02/2568',
           },
         ]
         resolve(data)

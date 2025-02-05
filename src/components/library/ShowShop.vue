@@ -150,7 +150,7 @@ const FakeAPI = {
             shop: 'KP Book',
             quantity: 1,
             price: 250,
-            date: '20/12/2567',
+            date: '06/02/2568',
           },
           {
             id: 2,
@@ -159,7 +159,7 @@ const FakeAPI = {
             shop: 'KP Book',
             quantity: 1,
             price: 250,
-            date: '20/12/2567',
+            date: '06/02/2568',
           },
           {
             id: 3,
@@ -168,7 +168,7 @@ const FakeAPI = {
             shop: 'แจ่มใส',
             quantity: 1,
             price: 250,
-            date: '25/12/2567',
+            date: '06/02/2568',
           },
           {
             id: 4,
@@ -177,7 +177,7 @@ const FakeAPI = {
             shop: 'นายอินทร์',
             quantity: 1,
             price: 250,
-            date: '25/12/2567',
+            date: '06/02/2568',
           },
           {
             id: 5,
@@ -186,7 +186,7 @@ const FakeAPI = {
             shop: 'Book & Print',
             quantity: 1,
             price: 250,
-            date: '25/12/2567',
+            date: '06/02/2568',
           },
         ]
         resolve(data)

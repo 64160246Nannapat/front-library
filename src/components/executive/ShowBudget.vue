@@ -401,7 +401,6 @@ onMounted(() => {
 <style scoped>
 .budget-summary-container {
   padding: 20px;
-  background-color: #fff9f4;
 }
 
 .header {

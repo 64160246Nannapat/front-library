@@ -125,7 +125,8 @@
             <td :style="{ textAlign: 'left', width: '50%', whiteSpace: 'nowrap' }">
               {{ item.faculty }}
             </td>
-            <td :style="{ textAlign: 'right', width: '50%' }" @dblclick="startEditing(item)">
+            <td :style="{ textAlign: 'right', width: '50%' }">
+              <!-- ถ้า item.editing เป็น true จะมีช่องกรอก -->
               <v-text-field
                 v-if="item.editing"
                 v-model="item.budget"
@@ -137,9 +138,25 @@
                 @blur="saveBudget(item)"
                 @keydown.enter="saveBudget(item)"
               />
+              <!-- ถ้า item.editing เป็น false จะไม่แสดงช่องกรอก แต่แสดงค่าเดิม -->
               <span v-else>
                 {{ item.budget.toLocaleString() }}
               </span>
+            </td>
+            <td class="text-right">
+              <v-btn
+                color="transparent"
+                icon
+                @click="onEdit(item)"
+                style="
+                  display: flex;
+                  justify-content: center;
+                  align-items: center;
+                  box-shadow: none;
+                "
+              >
+                <v-icon>mdi-pencil-outline</v-icon>
+              </v-btn>
             </td>
             <td class="text-right">
               <v-btn
@@ -392,50 +409,55 @@ const selectedItem = ref(null) // ไว้เก็บข้อมูลขอ�
 const animatedProgressValue = ref(0)
 const yearBudgets = ref<Record<number, number>>({})
 
+const onEdit = (item) => {
+  item.editing = true;  // เปิดช่องกรอกงบประมาณ
+}
+
 const serverItems = ref([
-  { id: 1, faculty: 'คณะดนตรีและการแสดง', budget: 50000, date: '13/01/2568', editing: false },
-  { id: 2, faculty: 'คณะบริหารธุรกิจ', budget: 70000, date: '13/01/2568', editing: false },
-  { id: 3, faculty: 'คณะพยาบาลศาสตร์', budget: 60000, date: '13/01/2568', editing: false },
-  { id: 4, faculty: 'คณะภูมิสารสนเทศศาสตร์', budget: 50000, date: '13/01/2568', editing: false },
+  { id: 1, faculty: 'คณะดนตรีและการแสดง', budget: 50000, date: '06/02/2568', editing: false },
+  { id: 2, faculty: 'คณะบริหารธุรกิจ', budget: 70000, date: '06/02/2568', editing: false },
+  { id: 3, faculty: 'คณะพยาบาลศาสตร์', budget: 60000, date: '06/02/2568', editing: false },
+  { id: 4, faculty: 'คณะภูมิสารสนเทศศาสตร์', budget: 50000, date: '06/02/2568', editing: false },
   {
     id: 5,
     faculty: 'คณะมนุษยศาสตร์และสังคมศาสตร์',
     budget: 70000,
-    date: '13/01/2568',
+    date: '06/02/2568',
     editing: false,
   },
   {
     id: 6,
     faculty: 'คณะรัฐศาสตร์และนิติศาสตร์',
     budget: 60000,
-    date: '13/01/2568',
+    date: '06/02/2568',
     editing: false,
   },
-  { id: 7, faculty: 'คณะวิทยาการสารสนเทศ', budget: 50000, date: '13/01/2568', editing: false },
-  { id: 8, faculty: 'คณะวิทยาศาสตร์', budget: 70000, date: '13/01/2568', editing: false },
-  { id: 9, faculty: 'คณะวิทยาศาสตร์การกีฬา', budget: 60000, date: '13/01/2568', editing: false },
+  { id: 7, faculty: 'คณะวิทยาการสารสนเทศ', budget: 50000, date: '06/02/2568', editing: false },
+  { id: 8, faculty: 'คณะวิทยาศาสตร์', budget: 70000, date: '06/02/2568', editing: false },
+  { id: 9, faculty: 'คณะวิทยาศาสตร์การกีฬา', budget: 60000, date: '06/02/2568', editing: false },
   {
     id: 10,
     faculty: 'คณะวิทยาศาสตร์และศิลปศาสตร์',
     budget: 70000,
-    date: '13/01/2568',
+    date: '06/02/2568',
     editing: false,
   },
   {
     id: 11,
     faculty: 'คณะวิทยาศาสตร์และสังคมศาสตร์',
     budget: 60000,
-    date: '13/01/2568',
+    date: '06/02/2568',
     editing: false,
   },
-  { id: 12, faculty: 'คณะวิทยาศาสตร์', budget: 70000, date: '13/01/2567', editing: false },
-  { id: 13, faculty: 'คณะวิทยาศาสตร์การกีฬา', budget: 60000, date: '13/01/2567', editing: false },
+  { id: 12, faculty: 'คณะวิทยาศาสตร์', budget: 70000, date: '06/02/2567', editing: false },
+  { id: 13, faculty: 'คณะวิทยาศาสตร์การกีฬา', budget: 60000, date: '06/02/2567', editing: false },
 ])
 
 const headers = [
   { title: 'ID', value: 'id', align: 'start', width: '10%', minWidth: '80px' },
   { title: 'คณะ', value: 'faculty', align: 'left', width: '100%', minWidth: '20px' },
   { title: 'งบประมาณ (บาท)', value: 'budget', align: 'end', width: '40%', minWidth: '150px' },
+  { title: '', key: 'actions', align: 'end' },
   { title: '', key: 'actions', align: 'end' },
 ]
 
