@@ -92,12 +92,12 @@
             >
               <v-icon style="font-size: 30px">mdi-plus</v-icon>
             </v-btn>
-            <v-btn
+            <!-- <v-btn
               style="background-color: #fcdc94; width: 40px; height: 40px; margin-right: 8px"
               @click="onClickAddMoney"
             >
               <v-icon style="font-size: 40px">mdi-cash</v-icon>
-            </v-btn>
+            </v-btn> -->
             <v-btn
               style="background-color: #fcdc94; width: 40px; height: 40px; margin-right: 8px"
               @click="onClickPerson"
@@ -128,7 +128,8 @@
           <tr v-for="item in items" :key="item.id">
             <td>{{ item.id }}</td>
             <td>{{ item.faculty }}</td>
-            <td :style="{ textAlign: 'right', width: '15%' }" @dblclick="startEditing(item)">
+            <td :style="{ textAlign: 'right', width: '50%' }">
+              <!-- ถ้า item.editing เป็น true จะมีช่องกรอก -->
               <v-text-field
                 v-if="item.editing"
                 v-model="item.budget"
@@ -140,22 +141,35 @@
                 @blur="saveBudget(item)"
                 @keydown.enter="saveBudget(item)"
               />
+              <!-- ถ้า item.editing เป็น false จะไม่แสดงช่องกรอก แต่แสดงค่าเดิม -->
               <span v-else>
                 {{ item.budget.toLocaleString() }}
               </span>
             </td>
+
             <td class="text-right">
               <v-btn
                 color="#D9D9D9"
                 icon
                 @click="onClickDepartment(item)"
-                style="
-                  border-radius: 8px;
-                  width: 50px;
-                  height: 30px;
-                "
+                style="border-radius: 8px; width: 50px; height: 30px"
               >
                 <v-icon>mdi-magnify</v-icon>
+              </v-btn>
+            </td>
+            <td class="text-right">
+              <v-btn
+                color="transparent"
+                icon
+                @click="onEdit(item)"
+                style="
+                  display: flex;
+                  justify-content: center;
+                  align-items: center;
+                  box-shadow: none;
+                "
+              >
+                <v-icon>mdi-pencil-outline</v-icon>
               </v-btn>
             </td>
             <td class="text-right">
@@ -436,6 +450,7 @@ const headers = [
   { title: 'ID', key: 'id', align: 'start' },
   { title: 'สาขา', key: 'faculty' },
   { title: 'งบประมาณ', key: 'budget', align: 'end' },
+  { title: '', key: 'actions', align: 'end' },
   { title: '', key: 'actions', align: 'end' },
   { title: '', key: 'actions', align: 'end' },
 ]

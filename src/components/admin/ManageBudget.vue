@@ -288,6 +288,7 @@
           justify-content: flex-end;
         "
       >
+      <div>เพิ่มงบประมาณ</div>>
         <v-icon
           @click="dialogAddMoney = false"
           color="red"
