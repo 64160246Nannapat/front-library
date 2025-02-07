@@ -4,45 +4,7 @@
       <div class="header">
         <img class="header-image" src="@/assets/salary (1).png" alt="Library Image" />
         <h1>สรุปงบประมาณ</h1>
-        <v-row align="center" class="date-status-row" justify="end">
-          <v-col cols="auto">
-            <v-menu
-              v-model="menuDate"
-              :close-on-content-click="false"
-              transition="scale-transition"
-            >
-              <template v-slot:activator="{ on, props }">
-                <v-text-field
-                  v-bind="props"
-                  v-on="on"
-                  v-model="formattedDate"
-                  placeholder="dd/mm/yyyy"
-                  class="custom-date-picker"
-                  hide-details
-                  rounded="lg"
-                  readonly
-                  flat
-                  solo
-                  prepend-inner-icon="$calendar"
-                  suffix-icon="mdi-calendar"
-                  variant="outlined"
-                />
-              </template>
-
-              <v-date-picker v-model="selectedDate" locale="th" @input="onSearch" />
-            </v-menu>
-          </v-col>
-        </v-row>
       </div>
-
-      <!-- Formatted Date Display -->
-      <v-row>
-        <v-col cols="auto">
-          <div class="formatted-date-display">
-            <h2>{{ fullFormattedDate }}</h2>
-          </div>
-        </v-col>
-      </v-row>
 
       <v-row align="center">
         <v-col cols="auto" class="d-flex align-center">
@@ -57,6 +19,33 @@
             rounded="lg"
             @update:modelValue="onSearch"
           ></v-select>
+        </v-col>
+
+        <!-- ใช้ v-spacer ดัน v-col ด้านขวา -->
+        <v-spacer></v-spacer>
+
+        <v-col cols="auto" class="date-status-row">
+          <v-menu v-model="menuDate" :close-on-content-click="false" transition="scale-transition">
+            <template v-slot:activator="{ on, props }">
+              <v-text-field
+                v-bind="props"
+                v-on="on"
+                v-model="formattedDate"
+                placeholder="dd/mm/yyyy"
+                class="custom-date-picker"
+                hide-details
+                rounded="lg"
+                readonly
+                flat
+                solo
+                prepend-inner-icon="$calendar"
+                suffix-icon="mdi-calendar"
+                variant="outlined"
+              />
+            </template>
+
+            <v-date-picker v-model="selectedDate" locale="th" @input="onSearch" />
+          </v-menu>
         </v-col>
       </v-row>
 
@@ -107,7 +96,7 @@ import { useRouter } from 'vue-router'
 // วันที่
 const selectedDate = ref(new Date())
 const menuDate = ref(false)
-const searchFaculty = ref('ทั้งหมด')
+const searchFaculty = ref<string[]>(['ทั้งหมด'])
 const loading = ref(false)
 const serverItems = ref([])
 const router = useRouter()
@@ -131,41 +120,41 @@ const formattedDate = computed(() => {
   return `${day}/${month}/${year}`
 })
 
-const fullFormattedDate = computed(() => {
-  if (!selectedDate.value) return ''
-  const date = new Date(selectedDate.value)
+// const fullFormattedDate = computed(() => {
+//   if (!selectedDate.value) return ''
+//   const date = new Date(selectedDate.value)
 
-  const days = [
-    'วันอาทิตย์',
-    'วันจันทร์',
-    'วันอังคาร',
-    'วันพุธ',
-    'วันพฤหัสบดี',
-    'วันศุกร์',
-    'วันเสาร์',
-  ]
-  const months = [
-    'มกราคม',
-    'กุมภาพันธ์',
-    'มีนาคม',
-    'เมษายน',
-    'พฤษภาคม',
-    'มิถุนายน',
-    'กรกฎาคม',
-    'สิงหาคม',
-    'กันยายน',
-    'ตุลาคม',
-    'พฤศจิกายน',
-    'ธันวาคม',
-  ]
+//   const days = [
+//     'วันอาทิตย์',
+//     'วันจันทร์',
+//     'วันอังคาร',
+//     'วันพุธ',
+//     'วันพฤหัสบดี',
+//     'วันศุกร์',
+//     'วันเสาร์',
+//   ]
+//   const months = [
+//     'มกราคม',
+//     'กุมภาพันธ์',
+//     'มีนาคม',
+//     'เมษายน',
+//     'พฤษภาคม',
+//     'มิถุนายน',
+//     'กรกฎาคม',
+//     'สิงหาคม',
+//     'กันยายน',
+//     'ตุลาคม',
+//     'พฤศจิกายน',
+//     'ธันวาคม',
+//   ]
 
-  const dayName = days[date.getDay()]
-  const day = date.getDate()
-  const monthName = months[date.getMonth()]
-  const year = date.getFullYear() + 543
+//   const dayName = days[date.getDay()]
+//   const day = date.getDate()
+//   const monthName = months[date.getMonth()]
+//   const year = date.getFullYear() + 543
 
-  return `${dayName} ที่ ${day} ${monthName} พ.ศ. ${year}`
-})
+//   return `${dayName} ที่ ${day} ${monthName} พ.ศ. ${year}`
+// })
 
 const FakeAPI = {
   async fetch({ faculty }) {
@@ -236,30 +225,27 @@ const FakeAPI = {
 const onSearch = () => {
   loading.value = true
 
-  FakeAPI.fetch({ page: 1, itemsPerPage: 10 }).then((items: any[]) => {
+  // กรองข้อมูลจาก API
+  FakeAPI.fetch({ faculty: searchFaculty.value }).then((items: any[]) => {
     let filteredItems = items
 
-    // ฟอร์แมตวันที่ที่เลือกเป็นรูปแบบ "dd/mm/yyyy" เพื่อใช้ในการกรอง
+    // ฟอร์แมตวันที่ที่เลือก
     const selectedFormattedDate = formattedDate.value
 
+    // กรองข้อมูลตามวันที่
     if (selectedDate.value && selectedFormattedDate) {
       filteredItems = filteredItems.filter((item) => item.date === selectedFormattedDate)
     }
 
-    // กรองข้อมูลตามคณะที่เลือก (ถ้ามีการเลือกคณะ)
-    if (searchFaculty.value && searchFaculty.value !== 'ทั้งหมด') {
-      filteredItems = filteredItems.filter((item) => item.faculty === searchFaculty.value)
-    }
-
-    // หากไม่มีการกรองเพิ่มเติมและไม่มีวันที่ที่เลือก ให้แสดงข้อมูลทั้งหมด
-    if (!selectedDate.value && (!searchFaculty.value || searchFaculty.value === 'ทั้งหมด')) {
-      filteredItems = items
+    // กรองข้อมูลตามคณะที่เลือก
+    if (!searchFaculty.value.includes('ทั้งหมด')) {
+      filteredItems = filteredItems.filter((item) => searchFaculty.value.includes(item.faculty))
     }
 
     // อัปเดตข้อมูลในตาราง
     serverItems.value = filteredItems
 
-    // แจ้งเตือนถ้าไม่มีข้อมูลตรงกับเงื่อนไข
+    // แจ้งเตือนถ้าไม่มีข้อมูลที่ตรงกับเงื่อนไข
     if (filteredItems.length === 0) {
       console.warn('ไม่พบข้อมูลที่ตรงกับเงื่อนไขที่เลือก')
     }
@@ -283,14 +269,11 @@ const onClickBook = (item) => {
   }
 }
 
-// ติดตามการเปลี่ยนแปลงของ searchFaculty และเรียก onSearch
+// ติดตามการเปลี่ยนแปลงของ searchFaculty และโหลดข้อมูลใหม่
 watch(searchFaculty, fetchData, { deep: true })
-fetchData()
 
-// เรียก onSearch ครั้งแรกเมื่อ component ถูกโหลด
-onMounted(() => {
-  onSearch()
-})
+// โหลดข้อมูลทั้งหมดเมื่อเปิดหน้าเว็บ
+onMounted(fetchData)
 </script>
 
 <style scoped>

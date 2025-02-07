@@ -29,7 +29,6 @@
           <h3 style="margin-right: 20px; margin-top: -20px">สาขา:</h3>
           <v-select
             :items="[
-              'ทั้งหมด',
               'วิทยาการคอมพิวเตอร์',
               'เทคโนโลยีสารสนเทศเพื่ออุตสาหกรรมดิจิทัล',
               'วิศวกรรมซอฟต์แวร์',
@@ -40,10 +39,30 @@
             class="select-book"
             variant="outlined"
             rounded="lg"
-            @input="onSearch"
-          ></v-select>
+            multiple
+            chips
+            clearable
+            @update:modelValue="onSearch"
+          />
         </v-col>
       </v-row>
+
+      <v-btn
+        variant="text"
+        @click="goToSumBookAdmin"
+        style="
+          border: 2px solid #1976d2;
+          border-radius: 8px;
+          padding: 5px 15px;
+          min-width: 200px;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        "
+      >
+        <v-icon>mdi-arrow-left</v-icon>
+        <span>กลับไปที่หน้าสรุปงบประมาณ</span>
+      </v-btn>
 
       <!-- ตารางข้อมูล -->
       <v-data-table
@@ -76,13 +95,15 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import { jsPDF } from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import BuuLogo from '@/assets/Buu-logo11.png'
 
-const searchFaculty = ref('ทั้งหมด')
+const searchFaculty = ref([])
 const loading = ref(false)
 const serverItems = ref([])
+const router = useRouter()
 
 const headers = [
   { title: 'ลำดับ', key: 'id', align: 'start' },
@@ -374,8 +395,8 @@ const FakeAPI = () => {
     ]
 
     // กรองข้อมูลตามคณะที่เลือก
-    if (searchFaculty.value !== 'ทั้งหมด') {
-      serverItems.value = data.filter((item) => item.faculty === searchFaculty.value)
+    if (searchFaculty.value.length > 0) {
+      serverItems.value = data.filter((item) => searchFaculty.value.includes(item.faculty))
     } else {
       serverItems.value = data
     }
@@ -386,6 +407,10 @@ const FakeAPI = () => {
 
 const onSearch = () => {
   FakeAPI()
+}
+
+const goToSumBookAdmin = () => {
+  router.push({ name: 'sumBudgetAdmin' })
 }
 
 watch(searchFaculty, () => {

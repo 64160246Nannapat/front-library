@@ -4,47 +4,10 @@
       <div class="header">
         <img class="header-image" src="@/assets/salary (1).png" alt="Library Image" />
         <h1>สรุปงบประมาณ</h1>
-        <v-row align="center" class="date-status-row" justify="end">
-          <v-col cols="auto">
-            <v-menu
-              v-model="menuDate"
-              :close-on-content-click="false"
-              transition="scale-transition"
-            >
-              <template v-slot:activator="{ on, props }">
-                <v-text-field
-                  v-bind="props"
-                  v-on="on"
-                  v-model="formattedDate"
-                  placeholder="dd/mm/yyyy"
-                  class="custom-date-picker"
-                  hide-details
-                  rounded="lg"
-                  readonly
-                  flat
-                  solo
-                  prepend-inner-icon="$calendar"
-                  suffix-icon="mdi-calendar"
-                  variant="outlined"
-                />
-              </template>
-
-              <v-date-picker v-model="selectedDate" locale="th" @input="onSearch" />
-            </v-menu>
-          </v-col>
-        </v-row>
       </div>
 
-      <!-- Formatted Date Display -->
-      <v-row>
-        <v-col cols="auto">
-          <div class="formatted-date-display">
-            <h2>{{ fullFormattedDate }}</h2>
-          </div>
-        </v-col>
-      </v-row>
-
-      <v-row align="center">
+      <v-row align="center" justify="space-between">
+        <!-- คณะ -->
         <v-col cols="auto" class="d-flex align-center">
           <h3 style="margin-right: 20px; margin-top: -20px">คณะ:</h3>
           <v-select
@@ -53,8 +16,36 @@
             class="select-book"
             variant="outlined"
             rounded="lg"
-            @input="onSearch"
-          ></v-select>
+            multiple
+            chips
+            closable-chips
+            @update:modelValue="onSearch"
+          />
+        </v-col>
+
+        <!-- วันที่ (อยู่ขวาสุด) -->
+        <v-col cols="auto" class="date-status-row">
+          <v-menu v-model="menuDate" :close-on-content-click="false" transition="scale-transition">
+            <template v-slot:activator="{ on, props }">
+              <v-text-field
+                v-bind="props"
+                v-on="on"
+                v-model="formattedDate"
+                placeholder="dd/mm/yyyy"
+                class="custom-date-picker"
+                hide-details
+                rounded="lg"
+                readonly
+                flat
+                solo
+                prepend-inner-icon="$calendar"
+                suffix-icon="mdi-calendar"
+                variant="outlined"
+              />
+            </template>
+
+            <v-date-picker v-model="selectedDate" locale="th" @input="onSearch" />
+          </v-menu>
         </v-col>
       </v-row>
 
@@ -127,42 +118,6 @@ const formattedDate = computed(() => {
   const month = String(date.getMonth() + 1).padStart(2, '0')
   const year = date.getFullYear() + 543
   return `${day}/${month}/${year}`
-})
-
-const fullFormattedDate = computed(() => {
-  if (!selectedDate.value) return ''
-  const date = new Date(selectedDate.value)
-
-  const days = [
-    'วันอาทิตย์',
-    'วันจันทร์',
-    'วันอังคาร',
-    'วันพุธ',
-    'วันพฤหัสบดี',
-    'วันศุกร์',
-    'วันเสาร์',
-  ]
-  const months = [
-    'มกราคม',
-    'กุมภาพันธ์',
-    'มีนาคม',
-    'เมษายน',
-    'พฤษภาคม',
-    'มิถุนายน',
-    'กรกฎาคม',
-    'สิงหาคม',
-    'กันยายน',
-    'ตุลาคม',
-    'พฤศจิกายน',
-    'ธันวาคม',
-  ]
-
-  const dayName = days[date.getDay()]
-  const day = date.getDate()
-  const monthName = months[date.getMonth()]
-  const year = date.getFullYear() + 543
-
-  return `${dayName} ที่ ${day} ${monthName} พ.ศ. ${year}`
 })
 
 // API ปลอมเพื่อเลียนแบบการดึงข้อมูล
