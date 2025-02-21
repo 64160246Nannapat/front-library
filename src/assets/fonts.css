@@ -1,0 +1,48 @@
+/* ฟอนต์ Noto Sans Thai */
+.noto-sans-thai {
+  font-family: 'Noto Sans Thai', serif;
+  font-optical-sizing: auto;
+  font-style: normal;
+}
+
+.noto-sans-thai-light {
+  font-weight: 200;
+}
+
+.noto-sans-thai-regular {
+  font-weight: 400;
+}
+
+.noto-sans-thai-bold {
+  font-weight: 700;
+}
+
+/* ฟอนต์ Mitr */
+.mitr {
+  font-family: 'Mitr', serif;
+  font-style: normal;
+}
+
+.mitr-extralight {
+  font-weight: 200;
+}
+
+.mitr-light {
+  font-weight: 300;
+}
+
+.mitr-regular {
+  font-weight: 400;
+}
+
+.mitr-medium {
+  font-weight: 500;
+}
+
+.mitr-semibold {
+  font-weight: 600;
+}
+
+.mitr-bold {
+  font-weight: 700;
+}
