@@ -328,9 +328,22 @@
                       </v-btn>
                     </div>
                   </template>
-                  <template v-slot:item.checked_date="{ item }">
-                    <span>{{ item.checked_date || '-' }}</span>
+
+                  <template #item.email="{ item }">
+                    <div class="d-flex">
+                      <v-btn
+                        :style="{ backgroundColor: '#889EAF', color: '#506D84' }"
+                        :disabled="!item.offer_form_id"
+                        @click="onMessageClick(item)"
+                      >
+                        <v-icon left style="margin-right: 5px; font-size: 25px"
+                          >mdi-email-outline</v-icon
+                        >
+                      </v-btn>
+                    </div>
                   </template>
+
+                  <!--ตรวจเมื่อ-->
                   <template v-slot:item.checked_time="{ item }">
                     <span>{{ getCheckedTimestamp(item) }}</span>
                   </template>
@@ -708,11 +721,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch, reactive, nextTick } from 'vue'
+import { ref, computed, onMounted, watch, reactive } from 'vue'
 import defaultImage from '@/assets/front-book.png'
 import backImage from '@/assets/back-book.png'
 import axios from 'axios'
-import dayjs from 'dayjs'
 
 // Date & Search Variables
 const selectedDate = ref(new Date())
@@ -791,7 +803,7 @@ const subHeaders = [
   { title: 'ราคาสุทธิ', key: 'book_price', width: '50px' },
   { title: 'รายการซ้ำ', key: 'duplicate_status', width: '60px' },
   { title: 'ดำเนินการ', key: 'view', width: '60px' },
-  { title: 'เสนอเมื่อ', key: 'checked_date', width: '120px' },
+  { title: 'E-mail', key: 'email', width: '120px' },
   { title: 'ตรวจสอบเมื่อ', key: 'checked_time', width: '120px' },
 ]
 
@@ -955,31 +967,6 @@ const getCheckedTimestamp = (item) => {
       .replace(',', ' เวลา') // ✅ แทรกคำว่า "เวลา" ระหว่างวันที่และเวลา
   }
   return checkedTimestamps.value[item.ISBN]
-}
-
-// ฟังก์ชันในการดึงข้อมูล createAt จาก API
-const getCreatedAt = async (offerFormId) => {
-  try {
-    const response = await fetch(`http://localhost:3000/offer-form/${offerFormId}`)
-    if (!response.ok) {
-      throw new Error('Network response was not ok')
-    }
-    const data = await response.json()
-
-    console.log('API Response for ID:', offerFormId, data) // ✅ ดูโครงสร้าง API
-
-    // ตรวจสอบว่า createdAt อยู่ใน response หรือไม่
-    if (data?.createdAt) {
-      console.log('Fetched createdAt:', data.createdAt)
-      return dayjs(data.createdAt).format('DD/MM/YYYY HH:mm')
-    } else {
-      console.log('No createdAt found in:', data)
-      return '-'
-    }
-  } catch (error) {
-    console.error('Error fetching createdAt:', error)
-    return '-'
-  }
 }
 
 const filteredOfferForms = computed(() => {
@@ -1572,31 +1559,6 @@ onMounted(async () => {
     console.error('❌ เกิดข้อผิดพลาดในการดึงข้อมูล:', error)
   }
 })
-
-// onMounted(async () => {
-//   try {
-//     const response = await fetch('http://localhost:3000/offer-form')
-//     if (!response.ok) throw new Error('Failed to fetch data')
-
-//     const data = await response.json()
-//     console.log('Raw API Data:', data) // ✅ ตรวจสอบข้อมูลที่ดึงมา
-
-//     items.value = await Promise.all(
-//       data.map(async (item) => {
-//         console.log('Fetching createdAt for ID:', item.offer_form_id) // ✅ เช็กว่าใช้ ID อะไร
-//         const createdAt = await getCreatedAt(item.offer_form_id)
-//         return {
-//           ...item,
-//           checked_date: createdAt, // แสดงวันที่สร้างในคอลัมน์ "เสนอเมื่อ"
-//         }
-//       }),
-//     )
-
-//     console.log('Processed Items:', items.value)
-//   } catch (error) {
-//     console.error('Error fetching data:', error)
-//   }
-// })
 
 onMounted(() => {
   // โหลดข้อมูลจาก localStorage (ถ้ามี)
