@@ -25,7 +25,7 @@
                   readonly
                   flat
                   solo
-                  prepend-inner-icon="$calendar"
+                  prepend-inner-icon="mdi-calendar"
                   variant="outlined"
                 />
               </template>
@@ -110,7 +110,7 @@ import { ref, computed, watch, onMounted } from 'vue'
 
 // วันที่
 const selectedDate = ref(new Date())
-const selectedDateRange = ref<[Date, Date] | null>(null)
+const selectedDateRange = ref([])
 const menuDate = ref(false)
 const loading = ref(false)
 const allItems = ref([]) // ข้อมูลต้นฉบับ
@@ -136,16 +136,22 @@ const headers = [
 
 const formattedDateRange = computed(() => {
   if (!selectedDateRange.value || selectedDateRange.value.length < 2) return ''
-  const [start, end] = selectedDateRange.value
+
+  const [start, end] = selectedDateRange.value.map((date) => new Date(date)) // แปลงให้เป็น Date Object
+
   return `${formatDate(start)} - ${formatDate(end)}`
 })
 
 const formatDate = (date) => {
-  if (!date) return ''
+  if (!date || isNaN(date.getTime())) return '' // ตรวจสอบว่าค่าเป็น Date จริงหรือไม่
   const day = String(date.getDate()).padStart(2, '0')
   const month = String(date.getMonth() + 1).padStart(2, '0')
   const year = date.getFullYear() + 543
   return `${day}/${month}/${year}`
+}
+
+const onDateSelected = (dates) => {
+  selectedDateRange.value = dates
 }
 
 const formattedDate = computed(() => {

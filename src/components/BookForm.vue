@@ -10,6 +10,7 @@
         <v-form ref="bookForm" v-model="valid" class="form-wrapper">
           <!-- ใช้ Grid Layout สำหรับการจัดฟอร์ม -->
           <div class="form-grid">
+            <!--ข้อมูลผู้เสนอ-->
             <v-row class="form-row" align="center" justify="center" no-gutters>
               <v-col cols="12" md="6" class="mb-1">
                 <!-- ชื่อ-นามสกุล -->
@@ -114,9 +115,10 @@
               </v-col>
             </v-row>
 
+            <!--ข้อมูลหนังสือ-->
             <v-row class="form-row align-center pa-0">
+              <!--
               <v-col cols="12" md="6" class="mb-1">
-                <!-- ชื่อร้านค้า -->
                 <label for="store" style="font-size: 17px">
                   ชื่อร้านค้า<span class="required-asterisk">*</span>
                 </label>
@@ -129,8 +131,9 @@
                   dense
                 ></v-select>
               </v-col>
+            -->
 
-              <v-col cols="12" md="6" class="mb-1">
+              <v-col cols="12" md="12" class="mb-1">
                 <!-- ชื่อหนังสือ -->
                 <label for="title" style="font-size: 17px">
                   ชื่อหนังสือ<span class="required-asterisk">*</span>
@@ -202,9 +205,24 @@
             </v-row>
 
             <v-row class="form-row pa-0 mt-n3">
-              <!-- ลดระยะห่าง -->
+              <!-- ลดระยะห่างแถวนี้ -->
+              <!-- detail -->
+              <v-col cols="12" md="12" class="mb-1">
+                <label for="detail" style="font-size: 17px">รายละะเอียด</label>
+                <v-textarea
+                  v-model="book.Details"
+                  variant="outlined"
+                  class="text-feild-top"
+                  dense
+                  :style="{ width: '100%', minHeight: '100px' }"
+                  rows="4"
+                ></v-textarea>
+              </v-col>
+            </v-row>
+
+            <!--
+            <v-row class="form-row pa-0 mt-n3">
               <v-col cols="12" md="6" class="mb-1">
-                <!-- ราคาสุทธิ -->
                 <label for="price" style="font-size: 17px">
                   ราคาสุทธิ<span class="required-asterisk">*</span>
                 </label>
@@ -218,7 +236,6 @@
               </v-col>
 
               <v-col cols="12" md="6" class="mb-1">
-                <!-- จำนวนเล่ม -->
                 <label for="count" style="font-size: 17px">
                   จำนวนเล่ม<span class="required-asterisk">*</span>
                 </label>
@@ -231,6 +248,7 @@
                 ></v-text-field>
               </v-col>
             </v-row>
+            -->
 
             <!-- ปุ่มยืนยัน -->
             <v-btn
@@ -269,9 +287,9 @@
                 <div>ชื่อ: {{ book.FirstName }} {{ book.LastName }}</div>
                 <div>ตำแหน่ง: {{ book.Role }}</div>
                 <div>คณะ: {{ book.Faculty }}</div>
-                <div>ร้าน: {{ book.Store }}</div>
                 <div>ชื่อหนังสือ: {{ book.Title }}</div>
-                <div>ราคา: {{ book.Price }} บาท, จำนวน: {{ book.Count }} เล่ม</div>
+                <div>จำนวน: {{ book.Count }} เล่ม</div>
+                <div>Details: {{ book.Details || '-' }}</div>
               </div>
               <v-divider v-if="isDuplicate" class="my-4" style="color: black"></v-divider>
               <!-- แสดงข้อความแจ้งเตือนหากพบ ISBN ซ้ำ -->
@@ -356,6 +374,7 @@ const book = ref({
   Count: null,
   Coupon: 'ไม่มีคูปอง',
   User: '',
+  Details: '',
 })
 
 const user = ref({
@@ -437,6 +456,11 @@ const submitForm = async () => {
     const { valid } = await form.validate()
 
     if (valid) {
+      // ตรวจสอบว่า book.Count มีค่าแล้วหรือไม่ ถ้าไม่มีให้ตั้งค่าเป็น 1
+      if (!book.value.Count) {
+        book.value.Count = 1
+      }
+
       // ตรวจสอบ ISBN ซ้ำ
       const duplicate = await checkDuplicateISBN(book.value.isbn)
       isDuplicate.value = duplicate
@@ -499,6 +523,16 @@ const cancelForm = () => {
 const confirmForm = async (bookForm: any) => {
   try {
     const userId = book.value.User ? Number(book.value.User) : null
+
+    // ตั้งค่า book.Count เป็น 1 ถ้าไม่มีการกรอก
+    const bookQuantity = book.value.Count ? Number(book.value.Count) : 1
+
+    // ตรวจสอบค่า book.Price และตั้งค่าเป็น 0 ถ้าค่ามันว่าง
+    // const bookPrice = book.value.Price ? Number(book.value.Price) : 0
+
+    // ตั้งค่า store_id เป็น null
+    // const storeId = book.value.Store ? stores.value.indexOf(book.value.Store) + 1 : 0
+
     const formData = {
       user_fullname: `${book.value.Prefix} ${book.value.FirstName} ${book.value.LastName}`,
       user_name: book.value.FirstName,
@@ -507,15 +541,15 @@ const confirmForm = async (bookForm: any) => {
       user_tel: book.value.Tel,
       faculty_id: Number(book.value.Faculty),
       department_id: book.value.Department,
-      store_id: stores.value.indexOf(book.value.Store) + 1,
+      // store_id: storeId,
       book_title: book.value.Title,
       book_author: book.value.Author,
       book_subject: book.value.Subject,
       book_category: 'เสนอหนังสือออนไลน์',
       published_year: Number(book.value.Year),
       ISBN: book.value.isbn,
-      book_price: Number(book.value.Price),
-      book_quantity: Number(book.value.Count),
+      // book_price: bookPrice,
+      book_quantity: bookQuantity,
       user_id: userId,
       coupon_used: book.value.Coupon,
     }

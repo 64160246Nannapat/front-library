@@ -169,7 +169,7 @@
                   box-shadow: none;
                 "
               >
-                <v-icon>mdi-pencil-outline</v-icon>
+                <v-icon>{{ item.editing ? 'mdi-check' : 'mdi-pencil-outline' }}</v-icon>
               </v-btn>
             </td>
             <td class="text-right">
@@ -419,31 +419,56 @@ const dialogDelete = ref(false) // สถานะการแสดง dialog
 const selectedItem = ref(null) // ไว้เก็บข้อมูลของรายการที่เลือก
 const animatedProgressValue = ref(0)
 
+const onEdit = (item) => {
+  item.editing = !item.editing // กดสลับระหว่างเปิด-ปิด
+}
+
 const serverItems = ref([
-  { id: 1, faculty: 'วิทยาการคอมพิวเตอร์', budget: 50000, date: '13/01/2568' },
-  { id: 2, faculty: 'เทคโนโลยีสารสนเทศเพื่ออุตสาหกรรมดิจิทัล', budget: 70000, date: '13/01/2568' },
-  { id: 3, faculty: 'วิศวกรรมซอฟต์แวร์', budget: 60000, date: '13/01/2568' },
+  { id: 1, faculty: 'วิทยาการคอมพิวเตอร์', budget: 50000, date: '13/01/2568', editing: false },
+  {
+    id: 2,
+    faculty: 'เทคโนโลยีสารสนเทศเพื่ออุตสาหกรรมดิจิทัล',
+    budget: 70000,
+    date: '13/01/2568',
+    editing: false,
+  },
+  { id: 3, faculty: 'วิศวกรรมซอฟต์แวร์', budget: 60000, date: '13/01/2568', editing: false },
   {
     id: 4,
     faculty: 'ปัญญาประดิษฐ์ประยุกต์และเทคโนโลยีอัจฉริยะ',
     budget: 50000,
     date: '13/01/2568',
+    editing: false,
   },
   {
     id: 5,
     faculty: 'วิทยาการข้อมูล หลักสูตรวิทยาศาสตรมหาบัณฑิต',
     budget: 70000,
     date: '13/01/2568',
+    editing: false,
   },
-  { id: 6, faculty: 'วิทยาการข้อมูล หลักสูตรปรัชญาดุษฎีบัณฑิต', budget: 60000, date: '13/01/2568' },
-  { id: 7, faculty: 'สายสนับสนุนวิชาการ', budget: 60000, date: '13/01/2568' },
+  {
+    id: 6,
+    faculty: 'วิทยาการข้อมูล หลักสูตรปรัชญาดุษฎีบัณฑิต',
+    budget: 60000,
+    date: '13/01/2568',
+    editing: false,
+  },
+  { id: 7, faculty: 'สายสนับสนุนวิชาการ', budget: 60000, date: '13/01/2568', editing: false },
   {
     id: 8,
     faculty: 'วิทยาการข้อมูล หลักสูตรวิทยาศาสตรมหาบัณฑิต',
     budget: 70000,
     date: '13/12/2567',
+    editing: false,
   },
-  { id: 9, faculty: 'วิทยาการข้อมูล หลักสูตรปรัชญาดุษฎีบัณฑิต', budget: 60000, date: '13/12/2567' },
+  {
+    id: 9,
+    faculty: 'วิทยาการข้อมูล หลักสูตรปรัชญาดุษฎีบัณฑิต',
+    budget: 60000,
+    date: '13/12/2567',
+    editing: false,
+  },
 ])
 
 const headers = [

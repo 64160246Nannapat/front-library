@@ -155,7 +155,7 @@
                   box-shadow: none;
                 "
               >
-                <v-icon>mdi-pencil-outline</v-icon>
+                <v-icon>{{ item.editing ? 'mdi-check' : 'mdi-pencil-outline' }}</v-icon>
               </v-btn>
             </td>
             <td class="text-right">
@@ -288,7 +288,8 @@
           justify-content: flex-end;
         "
       >
-      <div>เพิ่มงบประมาณ</div>>
+        <div style="font-weight: bold">เพิ่มงบประมาณ</div>
+        <v-spacer></v-spacer>
         <v-icon
           @click="dialogAddMoney = false"
           color="red"
@@ -300,6 +301,19 @@
       </v-card-title>
 
       <v-card-text class="pt-4">
+        <!-- Radio Button สำหรับเลือกการทำรายการ -->
+        <v-radio-group
+          v-model="transactionType"
+          row
+          class="d-flex align-center"
+          style="display: flex; flex-direction: row; gap: 16px"
+        >
+          <v-radio label="เพิ่มงบประมาณ" value="add"></v-radio>
+          <v-radio label="ลดงบประมาณ" value="subtract"></v-radio>
+        </v-radio-group>
+
+        <v-divider class="my-4"></v-divider>
+
         <v-row style="display: flex; align-items: center; margin-top: 8px; margin-bottom: -8px">
           <v-col cols="3" style="text-align: left; font-size: 18px; padding-bottom: 0">
             จำนวนเงิน:
@@ -324,7 +338,7 @@
           class="elevated rounded-pill"
           style="background-color: #f5c8d0; color: #000; font-weight: bold; padding: 8px 16px"
         >
-          เพิ่ม
+          ยืนยัน
         </v-btn>
       </v-card-actions>
     </v-card>
@@ -409,9 +423,10 @@ const dialogDelete = ref(false) // สถานะการแสดง dialog
 const selectedItem = ref(null) // ไว้เก็บข้อมูลของรายการที่เลือก
 const animatedProgressValue = ref(0)
 const yearBudgets = ref<Record<number, number>>({})
+const transactionType = ref('add')
 
 const onEdit = (item) => {
-  item.editing = true;  // เปิดช่องกรอกงบประมาณ
+  item.editing = !item.editing // กดสลับระหว่างเปิด-ปิด
 }
 
 const serverItems = ref([
@@ -547,21 +562,26 @@ const onClickAddMoney = () => {
 
 const onSaveAddMoney = () => {
   if (moneyAmount.value > 0 && selectedYear.value) {
-    // ตรวจสอบว่ามีงบประมาณในปีนี้หรือไม่
+    // ถ้ายังไม่มีงบประมาณในปีที่เลือก ให้เริ่มต้นที่ 0
     if (!yearBudgets.value[selectedYear.value]) {
-      yearBudgets.value[selectedYear.value] = 0 // ถ้ายังไม่มีให้เริ่มจาก 0
+      yearBudgets.value[selectedYear.value] = 0
     }
 
-    // เพิ่มเงินในปีที่เลือก
-    yearBudgets.value[selectedYear.value] += moneyAmount.value
+    // ตรวจสอบว่าเลือกเพิ่มหรือหักงบประมาณ
+    if (transactionType.value === 'add') {
+      yearBudgets.value[selectedYear.value] += moneyAmount.value
+    } else if (transactionType.value === 'subtract') {
+      yearBudgets.value[selectedYear.value] -= moneyAmount.value
+    }
 
-    // อัปเดต totalBudget
+    // อัปเดต totalBudget โดยรวมยอดของแต่ละปี
     totalBudget.value = Object.values(yearBudgets.value).reduce((sum, amount) => sum + amount, 0)
 
-    moneyAmount.value = 0 // รีเซ็ตค่าเงินที่กรอก
-    dialogAddMoney.value = false // ปิด dialog
+    // รีเซ็ตค่าเงินและปิด dialog
+    moneyAmount.value = 0
+    dialogAddMoney.value = false
   } else {
-    alert('กรุณากรอกจำนวนเงินที่ต้องการเพิ่ม และเลือกปี')
+    alert('กรุณากรอกจำนวนเงินและเลือกปี')
   }
 }
 
