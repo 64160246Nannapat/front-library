@@ -154,7 +154,6 @@ const items = [
   // { title: 'ตรวจสอบหนังสือ', icon: checkbook, link: '/home-library/check-book' },
   { title: 'แบบฟอร์มการเสนอหนังสือ', icon: libraryImage, link: '/home-library/book-form' },
   { title: 'สถานะการเสนอซื้อหนังสือ', icon: checklist, link: '/home-library/book-status' },
-  { title: 'แบบฟอร์มการเสนอหนังสือแทน', icon: libraryImage, link: '/home-library/book-form' },
   { title: 'ประมาณงบการซื้อหนังสือ', icon: budget, link: '/home-library/purchase-budget' },
   { title: 'รายชื่อผู้เสนอหนังสือ', icon: list, link: '/home-library/list-book-presenters' },
   { title: 'จัดการร้านค้า', icon: addShop, link: '/home-library/add-shop' },

@@ -245,7 +245,7 @@
           </div>
         </v-form>
         <!-- dialog ยืนยันการส่งข้อมูล-->
-        <v-dialog v-model="dialog" max-width="400px">
+        <v-dialog v-model="dialog" max-width="500px">
           <v-card class="dialog" style="background-color: #ede8dc">
             <v-card-title
               class="text-start"
@@ -253,22 +253,31 @@
                 font-weight: bold;
                 background-color: #c39898;
                 padding: 16px;
-                border-top-left-radius: 0px; /* ไม่มีความมนที่มุมบนซ้าย */
-                border-top-right-radius: 0px; /* ไม่มีความมนที่มุมบนขวา */
-                border-bottom-left-radius: 16px; /* ความมนที่มุมล่างซ้าย */
+                border-top-left-radius: 0px;
+                border-top-right-radius: 0px;
+                border-bottom-left-radius: 16px;
                 border-bottom-right-radius: 16px;
                 font-size: 20px;
               "
             >
-              ยืนยันการส่งแบบฟอร์ม
+              {{ isDuplicate ? 'แจ้งเตือน' : 'ยืนยันการส่งแบบฟอร์ม' }}
             </v-card-title>
+
             <v-card-text class="text-start" style="font-size: 14px; color: #808080">
-              <div>ชื่อ: {{ book.FirstName }} {{ book.LastName }}</div>
-              <div>ตำแหน่ง: {{ book.Role }}</div>
-              <div>คณะ: {{ book.Faculty }}</div>
-              <div>ร้าน: {{ book.Store }}</div>
-              <div>ชื่อหนังสือ: {{ book.Title }}</div>
-              <div>ราคา/จำนวน: {{ book.Price }} บาท, {{ book.Count }} เล่ม</div>
+              <!-- แสดงรายละเอียดหนังสือ -->
+              <div>
+                <div>ชื่อ: {{ book.FirstName }} {{ book.LastName }}</div>
+                <div>ตำแหน่ง: {{ book.Role }}</div>
+                <div>คณะ: {{ book.Faculty }}</div>
+                <div>ร้าน: {{ book.Store }}</div>
+                <div>ชื่อหนังสือ: {{ book.Title }}</div>
+                <div>ราคา: {{ book.Price }} บาท, จำนวน: {{ book.Count }} เล่ม</div>
+              </div>
+              <v-divider v-if="isDuplicate" class="my-4" style="color: black"></v-divider>
+              <!-- แสดงข้อความแจ้งเตือนหากพบ ISBN ซ้ำ -->
+              <div v-if="isDuplicate" style="color: red; font-weight: bold; margin-top: 16px">
+                {{ confirmMessage }}
+              </div>
             </v-card-text>
 
             <v-card-actions justify="start">
@@ -286,8 +295,10 @@
                 ยกเลิก
               </v-btn>
 
+              <!-- ปุ่มยืนยันที่จะส่งฟอร์ม -->
               <v-btn
                 color="black"
+                @click="confirmForm"
                 style="
                   font-weight: bold;
                   border: 2px;
@@ -295,7 +306,6 @@
                   background-color: #58d68d;
                   margin-bottom: 8px;
                 "
-                @click="confirmForm(bookForm)"
               >
                 ยืนยัน
               </v-btn>
@@ -320,7 +330,9 @@ const submitted = ref(false)
 const valid = ref(false) //ใช้กับ v-form
 const dialog = ref(false)
 const isReadOnly = ref(true)
+const isDuplicate = ref(false)
 const disableValidation = ref(false)
+const confirmMessage = ref('')
 const fullName = computed(() => {
   return `${book.value.Prefix} ${book.value.FirstName} ${book.value.LastName}`
 })
@@ -420,25 +432,24 @@ const fetchUserData = async () => {
 }
 
 const submitForm = async () => {
-  const form = bookForm.value // เข้าถึง bookForm จาก ref
+  const form = bookForm.value
   if (form && typeof form.validate === 'function') {
-    const { valid } = await form.validate() // เรียก validate()
+    const { valid } = await form.validate()
 
     if (valid) {
-      // ตรวจสอบ ISBN ซ้ำก่อน
+      // ตรวจสอบ ISBN ซ้ำ
       const duplicate = await checkDuplicateISBN(book.value.isbn)
+      isDuplicate.value = duplicate
+
       if (duplicate) {
-        const confirmSubmit = window.confirm(
-          `"${book.value.Title}" เคยมีการเสนอแล้ว ต้องการจะเสนอหรือไม่?`,
-        )
-        if (!confirmSubmit) {
-          resetForm(bookForm)
-          return // ถ้ากด "ยกเลิก" ให้หยุดการทำงาน
-        }
+        // ถ้ามีการซ้ำ แสดงข้อความแจ้งเตือน
+        confirmMessage.value = `"${book.value.Title}" เคยมีการเสนอแล้ว ต้องการจะเสนอหรือไม่?`
+      } else {
+        // ถ้าไม่ซ้ำ แสดงข้อความยืนยันการส่งฟอร์ม
+        confirmMessage.value = 'ยืนยันการส่งแบบฟอร์ม'
       }
 
-      // ถ้าไม่มี ISBN ซ้ำ หรือกดยืนยัน ให้แสดง dialog เพื่อยืนยันการส่งแบบฟอร์ม
-      dialog.value = true
+      dialog.value = true // แสดง dialog
     } else {
       console.log('Validation Failed')
     }
@@ -447,13 +458,26 @@ const submitForm = async () => {
   }
 }
 
-const checkDuplicateISBN = async (isbn: string) => {
+// ฟังก์ชันตรวจสอบ ISBN ซ้ำ
+const checkDuplicateISBN = async (isbn) => {
   try {
     const response = await axios.get(`http://localhost:3000/offer-form?isbn=${isbn}`)
-    return response.data.length > 0 // ถ้ามีข้อมูลแสดงว่า ISBN ซ้ำ
+    console.log('API Response:', response.data)
+
+    // ตรวจสอบว่า response.data เป็น array และไม่ว่าง
+    if (Array.isArray(response.data) && response.data.length > 0) {
+      // ตรวจสอบว่ามีข้อมูล ISBN ที่ตรงกันหรือไม่
+      for (let offer of response.data) {
+        if (offer.ISBN === isbn) {
+          return true // ISBN ซ้ำ
+        }
+      }
+    }
+
+    return false // ไม่มี ISBN ซ้ำ
   } catch (error) {
     console.error('Error checking duplicate ISBN:', error)
-    return false
+    return false // หากเกิดข้อผิดพลาดให้ถือว่าไม่มี ISBN ซ้ำ
   }
 }
 
@@ -705,7 +729,7 @@ h1 {
 }
 
 .dialog {
-  width: 500px;
+  width: 600px;
 }
 
 .btn-dialog {
