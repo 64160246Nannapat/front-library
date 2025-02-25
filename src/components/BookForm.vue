@@ -10,6 +10,7 @@
         <v-form ref="bookForm" v-model="valid" class="form-wrapper">
           <!-- ใช้ Grid Layout สำหรับการจัดฟอร์ม -->
           <div class="form-grid">
+            <!--ข้อมูลผู้เสนอ-->
             <v-row class="form-row" align="center" justify="center" no-gutters>
               <v-col cols="12" md="6" class="mb-1">
                 <!-- ชื่อ-นามสกุล -->
@@ -114,9 +115,10 @@
               </v-col>
             </v-row>
 
+            <!--ข้อมูลหนังสือ-->
             <v-row class="form-row align-center pa-0">
+              <!--
               <v-col cols="12" md="6" class="mb-1">
-                <!-- ชื่อร้านค้า -->
                 <label for="store" style="font-size: 17px">
                   ชื่อร้านค้า<span class="required-asterisk">*</span>
                 </label>
@@ -129,8 +131,9 @@
                   dense
                 ></v-select>
               </v-col>
+            -->
 
-              <v-col cols="12" md="6" class="mb-1">
+              <v-col cols="12" md="12" class="mb-1">
                 <!-- ชื่อหนังสือ -->
                 <label for="title" style="font-size: 17px">
                   ชื่อหนังสือ<span class="required-asterisk">*</span>
@@ -202,9 +205,24 @@
             </v-row>
 
             <v-row class="form-row pa-0 mt-n3">
-              <!-- ลดระยะห่าง -->
+              <!-- ลดระยะห่างแถวนี้ -->
+              <!-- detail -->
+              <v-col cols="12" md="12" class="mb-1">
+                <label for="detail" style="font-size: 17px">รายละะเอียด</label>
+                <v-textarea
+                  v-model="book.Details"
+                  variant="outlined"
+                  class="text-feild-top"
+                  dense
+                  :style="{ width: '100%', minHeight: '100px' }"
+                  rows="4"
+                ></v-textarea>
+              </v-col>
+            </v-row>
+
+            <!--
+            <v-row class="form-row pa-0 mt-n3">
               <v-col cols="12" md="6" class="mb-1">
-                <!-- ราคาสุทธิ -->
                 <label for="price" style="font-size: 17px">
                   ราคาสุทธิ<span class="required-asterisk">*</span>
                 </label>
@@ -218,7 +236,6 @@
               </v-col>
 
               <v-col cols="12" md="6" class="mb-1">
-                <!-- จำนวนเล่ม -->
                 <label for="count" style="font-size: 17px">
                   จำนวนเล่ม<span class="required-asterisk">*</span>
                 </label>
@@ -231,13 +248,14 @@
                 ></v-text-field>
               </v-col>
             </v-row>
+            -->
 
             <!-- ปุ่มยืนยัน -->
             <v-btn
               :disabled="!valid"
               elevation="8"
               class="mt-4 confirm-btn confirm-btnheight"
-              style="background-color: #C39898"
+              style="background-color: #c39898"
               @click="submitForm"
             >
               ยืนยัน
@@ -245,30 +263,39 @@
           </div>
         </v-form>
         <!-- dialog ยืนยันการส่งข้อมูล-->
-        <v-dialog v-model="dialog" max-width="400px">
+        <v-dialog v-model="dialog" max-width="500px">
           <v-card class="dialog" style="background-color: #ede8dc">
             <v-card-title
               class="text-start"
               style="
                 font-weight: bold;
-                background-color: #C39898;
+                background-color: #c39898;
                 padding: 16px;
-                border-top-left-radius: 0px; /* ไม่มีความมนที่มุมบนซ้าย */
-                border-top-right-radius: 0px; /* ไม่มีความมนที่มุมบนขวา */
-                border-bottom-left-radius: 16px; /* ความมนที่มุมล่างซ้าย */
+                border-top-left-radius: 0px;
+                border-top-right-radius: 0px;
+                border-bottom-left-radius: 16px;
                 border-bottom-right-radius: 16px;
                 font-size: 20px;
               "
             >
-              ยืนยันการส่งแบบฟอร์ม
+              {{ isDuplicate ? 'แจ้งเตือน' : 'ยืนยันการส่งแบบฟอร์ม' }}
             </v-card-title>
+
             <v-card-text class="text-start" style="font-size: 14px; color: #808080">
-              <div>ชื่อ: {{ book.FirstName }} {{ book.LastName }}</div>
-              <div>ตำแหน่ง: {{ book.Role }}</div>
-              <div>คณะ: {{ book.Faculty }}</div>
-              <div>ร้าน: {{ book.Store }}</div>
-              <div>ชื่อหนังสือ: {{ book.Title }}</div>
-              <div>ราคา/จำนวน: {{ book.Price }} บาท, {{ book.Count }} เล่ม</div>
+              <!-- แสดงรายละเอียดหนังสือ -->
+              <div>
+                <div>ชื่อ: {{ book.FirstName }} {{ book.LastName }}</div>
+                <div>ตำแหน่ง: {{ book.Role }}</div>
+                <div>คณะ: {{ book.Faculty }}</div>
+                <div>ชื่อหนังสือ: {{ book.Title }}</div>
+                <div>จำนวน: {{ book.Count }} เล่ม</div>
+                <div>Details: {{ book.Details || '-' }}</div>
+              </div>
+              <v-divider v-if="isDuplicate" class="my-4" style="color: black"></v-divider>
+              <!-- แสดงข้อความแจ้งเตือนหากพบ ISBN ซ้ำ -->
+              <div v-if="isDuplicate" style="color: red; font-weight: bold; margin-top: 16px">
+                {{ confirmMessage }}
+              </div>
             </v-card-text>
 
             <v-card-actions justify="start">
@@ -286,8 +313,10 @@
                 ยกเลิก
               </v-btn>
 
+              <!-- ปุ่มยืนยันที่จะส่งฟอร์ม -->
               <v-btn
                 color="black"
+                @click="confirmForm"
                 style="
                   font-weight: bold;
                   border: 2px;
@@ -295,7 +324,6 @@
                   background-color: #58d68d;
                   margin-bottom: 8px;
                 "
-                @click="confirmForm(bookForm)"
               >
                 ยืนยัน
               </v-btn>
@@ -320,7 +348,9 @@ const submitted = ref(false)
 const valid = ref(false) //ใช้กับ v-form
 const dialog = ref(false)
 const isReadOnly = ref(true)
+const isDuplicate = ref(false)
 const disableValidation = ref(false)
+const confirmMessage = ref('')
 const fullName = computed(() => {
   return `${book.value.Prefix} ${book.value.FirstName} ${book.value.LastName}`
 })
@@ -344,6 +374,7 @@ const book = ref({
   Count: null,
   Coupon: 'ไม่มีคูปอง',
   User: '',
+  Details: '',
 })
 
 const user = ref({
@@ -420,18 +451,57 @@ const fetchUserData = async () => {
 }
 
 const submitForm = async () => {
-  const form = bookForm.value // เข้าถึง bookForm จาก ref
+  const form = bookForm.value
   if (form && typeof form.validate === 'function') {
-    const { valid } = await form.validate() // เรียก validate()
+    const { valid } = await form.validate()
 
     if (valid) {
-      // หาก valid ให้แสดง dialog เพื่อยืนยันการส่งแบบฟอร์ม
-      dialog.value = true
+      // ตรวจสอบว่า book.Count มีค่าแล้วหรือไม่ ถ้าไม่มีให้ตั้งค่าเป็น 1
+      if (!book.value.Count) {
+        book.value.Count = 1
+      }
+
+      // ตรวจสอบ ISBN ซ้ำ
+      const duplicate = await checkDuplicateISBN(book.value.isbn)
+      isDuplicate.value = duplicate
+
+      if (duplicate) {
+        // ถ้ามีการซ้ำ แสดงข้อความแจ้งเตือน
+        confirmMessage.value = `"${book.value.Title}" เคยมีการเสนอแล้ว ต้องการจะเสนอซ้ำหรือไม่?`
+      } else {
+        // ถ้าไม่ซ้ำ แสดงข้อความยืนยันการส่งฟอร์ม
+        confirmMessage.value = 'ยืนยันการส่งแบบฟอร์ม'
+      }
+
+      dialog.value = true // แสดง dialog
     } else {
       console.log('Validation Failed')
     }
   } else {
     console.error('Form reference is invalid or validate is not a function')
+  }
+}
+
+// ฟังก์ชันตรวจสอบ ISBN ซ้ำ
+const checkDuplicateISBN = async (isbn) => {
+  try {
+    const response = await axios.get(`http://bookfair.buu.in.th:8041/offer-form?isbn=${isbn}`)
+    console.log('API Response:', response.data)
+
+    // ตรวจสอบว่า response.data เป็น array และไม่ว่าง
+    if (Array.isArray(response.data) && response.data.length > 0) {
+      // ตรวจสอบว่ามีข้อมูล ISBN ที่ตรงกันหรือไม่
+      for (let offer of response.data) {
+        if (offer.ISBN === isbn) {
+          return true // ISBN ซ้ำ
+        }
+      }
+    }
+
+    return false // ไม่มี ISBN ซ้ำ
+  } catch (error) {
+    console.error('Error checking duplicate ISBN:', error)
+    return false // หากเกิดข้อผิดพลาดให้ถือว่าไม่มี ISBN ซ้ำ
   }
 }
 
@@ -452,7 +522,17 @@ const cancelForm = () => {
 
 const confirmForm = async (bookForm: any) => {
   try {
-    const userId = book.value.User ? Number(book.value.User) : null // ตรวจสอบ user_id
+    const userId = book.value.User ? Number(book.value.User) : null
+
+    // ตั้งค่า book.Count เป็น 1 ถ้าไม่มีการกรอก
+    const bookQuantity = book.value.Count ? Number(book.value.Count) : 1
+
+    // ตรวจสอบค่า book.Price และตั้งค่าเป็น 0 ถ้าค่ามันว่าง
+    // const bookPrice = book.value.Price ? Number(book.value.Price) : 0
+
+    // ตั้งค่า store_id เป็น null
+    // const storeId = book.value.Store ? stores.value.indexOf(book.value.Store) + 1 : 0
+
     const formData = {
       user_fullname: `${book.value.Prefix} ${book.value.FirstName} ${book.value.LastName}`,
       user_name: book.value.FirstName,
@@ -461,20 +541,20 @@ const confirmForm = async (bookForm: any) => {
       user_tel: book.value.Tel,
       faculty_id: Number(book.value.Faculty),
       department_id: book.value.Department,
-      store_id: stores.value.indexOf(book.value.Store) + 1,
+      // store_id: storeId,
       book_title: book.value.Title,
       book_author: book.value.Author,
       book_subject: book.value.Subject,
       book_category: 'เสนอหนังสือออนไลน์',
       published_year: Number(book.value.Year),
       ISBN: book.value.isbn,
-      book_price: Number(book.value.Price),
-      book_quantity: Number(book.value.Count),
-      user_id: userId, // ใช้ userId ที่ถูกตรวจสอบแล้ว
+      // book_price: bookPrice,
+      book_quantity: bookQuantity,
+      user_id: userId,
       coupon_used: book.value.Coupon,
     }
 
-    const response = await axios.post('http://localhost:3000/offer-form', formData, {
+    const response = await axios.post('http://bookfair.buu.in.th:8041/offer-form', formData, {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -483,8 +563,8 @@ const confirmForm = async (bookForm: any) => {
 
     console.log('Response:', response.data)
     submitted.value = true
-    dialog.value = false // ปิด dialog
-    resetForm(bookForm) // ล้างค่าฟอร์ม
+    dialog.value = false
+    resetForm(bookForm)
   } catch (error) {
     console.error('Error submitting form:', error)
     if (error.response && error.response.data) {
@@ -534,7 +614,7 @@ const resetForm = (bookForm: any) => {
 
 const fetchStores = async () => {
   try {
-    const response = await axios.get('http://localhost:3000/store')
+    const response = await axios.get('http://bookfair.buu.in.th:8041/store')
     console.log('Response data:', response.data) // ตรวจสอบข้อมูลที่ส่งกลับมา
     stores.value = response.data.map((store: any) => store.store_name) // ปรับตามโครงสร้างข้อมูล
   } catch (error) {
@@ -544,7 +624,7 @@ const fetchStores = async () => {
 
 const fetchFaculties = async () => {
   try {
-    const response = await axios.get('http://localhost:3000/faculty')
+    const response = await axios.get('http://bookfair.buu.in.th:8041/faculty')
     console.log('Response data:', response.data) // ตรวจสอบข้อมูลที่ส่งกลับมา
     faculties.value = response.data.map((faculty: any) => faculty.faculty_name)
   } catch (error) {
@@ -554,7 +634,7 @@ const fetchFaculties = async () => {
 
 const fetchDepartments = async () => {
   try {
-    const response = await axios.get('http://localhost:3000/department')
+    const response = await axios.get('http://bookfair.buu.in.th:8041/department')
     console.log('Response data:', response.data) // ตรวจสอบข้อมูลที่ส่งกลับมา
     departments.value = response.data.map((department: any) => department.department_name)
   } catch (error) {
@@ -572,7 +652,7 @@ const refreshToken = async () => {
   const refreshToken = localStorage.getItem('refresh_token')
   if (refreshToken) {
     try {
-      const response = await axios.post('http://localhost:3000/auth/refresh', { refreshToken })
+      const response = await axios.post('http://bookfair.buu.in.th:8041/auth/refresh', { refreshToken })
       const { access_token, refresh_token } = response.data
       // เก็บ Access Token และ Refresh Token ใหม่
       localStorage.setItem('token', access_token)
@@ -683,7 +763,7 @@ h1 {
 }
 
 .dialog {
-  width: 500px;
+  width: 600px;
 }
 
 .btn-dialog {

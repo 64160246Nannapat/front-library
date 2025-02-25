@@ -103,7 +103,7 @@
           </v-tab>
         </v-tabs>
 
-        <v-col cols="12" md="6" lg="4" class="ml-auto d-flex align-center">
+        <v-col cols="12" md="6" lg="4" class="ml-auto d-flex justify-end align-center">
           <h3 style="margin-right: 20px; margin-top: -20px">ประเภท:</h3>
           <v-select
             :items="['เสนอหนังสือออนไลน์', 'เสนอหนังสืองานหนังสือ']"
@@ -123,19 +123,57 @@
         :items="filteredItems"
         :items-length="totalItems"
         :loading="loading"
-        item-value="ISBN"
+        item-value="offer_form_id"
         :hide-default-footer="true"
         class="custom-table no-scrollbar"
-        style="width: 100%; table-layout: auto; border-collapse: collapse"
+        style="width: 100%; table-layout: fixed; border-collapse: collapse"
         item-class="getRowClass"
+        fixed-header
       >
+        <!--:header-props="{ style: 'background-color: #d3d3d3; color: black' }"-->
+        <!-- หัวข้อคอลัมน์ของตารางหลัก -->
         <template #item.rowIndex="{ index }">
-          {{ index + 1 }}
-          <!--แสดงเลขลำดับข้อมูล-->
+          <div style="text-align: left">{{ index + 1 }}</div>
+        </template>
+
+        <template #item.user_fullname="{ item }">
+          <div style="text-align: left">{{ item.user_fullname }}</div>
+        </template>
+
+        <template #item.store_name="{ item }">
+          <div style="text-align: left">{{ item.store?.store_name || '-' }}</div>
+        </template>
+
+        <template #item.book_title="{ item }">
+          <div style="text-align: left">{{ item.book_title }}</div>
+        </template>
+
+        <template #item.book_author="{ item }">
+          <div style="text-align: left">{{ item.book_author }}</div>
+        </template>
+
+        <template #item.published_year="{ item }">
+          <div style="text-align: left">{{ item.published_year }}</div>
+        </template>
+
+        <template #item.ISBN="{ item }">
+          <div style="text-align: left">
+            <span :class="{ 'text-danger': hasDuplicateISBN(item.ISBN) }">
+              {{ item.ISBN }}
+            </span>
+          </div>
+        </template>
+
+        <template #item.book_price="{ item }">
+          <div style="min-width: 60px; text-align: left">{{ item.book_price }}</div>
+        </template>
+
+        <template #item.book_quantity="{ item }">
+          <div style="min-width: 60px; text-align: left">{{ item.book_quantity }}</div>
         </template>
 
         <template #item.form_status="{ item }">
-          {{ item.form_status }}
+          <div style="min-width: 120px; text-align: left">{{ item.form_status }}</div>
         </template>
 
         <!-- <template v-slot:item.actions="{ item }">
@@ -205,13 +243,7 @@
           </div>
         </template> -->
 
-        <template #item.ISBN="{ item }">
-          <span :class="{ 'text-danger': hasDuplicateISBN(item.ISBN) }">
-            <!--แสดงว่ามีเลข isbn ซ้ำกันไหม-->
-            {{ item.ISBN }}
-          </span>
-        </template>
-
+        <!--ปุ่มตารางหลัก-->
         <!-- ฟังก์ชันที่ทำการตรวจสอบ ISBN -->
         <template #item.check="{ item }">
           <v-btn
@@ -253,42 +285,75 @@
           </tr>
         </template> -->
 
+        <!-- ตารางแทรก -->
         <template #expanded-row="{ item }">
-          <v-container v-if="expandedItems.includes(item.ISBN)" fluid>
-            <!-- แสดงข้อความ "ไม่มีรายการหนังสือซ้ำ" -->
-            <template v-if="noDuplicatesMessages[item.ISBN]">
-              <v-alert
-                type="info"
-                class="mt-4 text-center"
-                style="white-space: nowrap; width: 100%"
-              >
-                {{ noDuplicatesMessages[item.ISBN] }}
-              </v-alert>
-            </template>
-
-            <!-- แสดงรายการซ้ำโดยให้ข้อมูลตรงคอลัมน์ -->
-            <template v-if="getDuplicateItems(item).length > 0">
-              <!--ถ้ามีรายการซ้ำ จะทำการเรียก getDup-->
-              <v-row
-                v-for="(duplicate, index) in getDuplicateItems(item)"
-                :key="duplicate.offer_form_id"
-                no-gutters
-                class="px-3 py-1"
-                style="border-bottom: 1px solid #ddd"
-              >
-                <v-col
-                  v-for="header in headers"
-                  :key="header.key"
-                  :style="{ minWidth: header.width ? header.width : 'auto' }"
-                  class="py-1 px-2"
+          <tr v-if="expandedItems[0] === item.offer_form_id">
+            <td :colspan="headers.length + 1" style="padding: 0">
+              <v-container fluid>
+                <v-data-table
+                  v-if="getDuplicateItems(item).length > 0"
+                  :headers="subHeaders"
+                  :items="getDuplicateItems(item)"
+                  item-value="offer_form_id"
+                  class="custom-table no-scrollbar"
+                  style="
+                    width: 100%;
+                    border-collapse: collapse;
+                    table-layout: fixed;
+                    background-color: #f5f5f5;
+                  "
+                  :hide-default-footer="true"
+                  fixed-header
+                  :header-props="{ style: 'background-color: #DCD7C9; color: black' }"
                 >
-                  <span :class="{ 'text-danger': header.key === 'ISBN' }">
-                    {{ duplicate[header.key] || '-' }}
-                  </span>
-                </v-col>
-              </v-row>
-            </template>
-          </v-container>
+                  <!-- Slot sub table -->
+                  <template v-slot:item.user_fullname="{ item }">
+                    <span>{{ item.user_fullname || '-' }}</span>
+                  </template>
+                  <template v-slot:item.store.store_name="{ item }">
+                    <span>{{ item.store?.store_name || '-' }}</span>
+                  </template>
+                  <template v-slot:item.duplicate_status="{ item }">
+                    <span style="color: red; font-weight: bold">เสนอซ้ำ</span>
+                  </template>
+                  <template v-slot:item.view="{ item }">
+                    <div style="text-align: center">
+                      <v-btn
+                        :style="{ backgroundColor: '#AAB99A', color: '#727D73' }"
+                        @click="onCheckClick(item)"
+                      >
+                        <v-icon left style="margin-right: 5px; font-size: 25px">
+                          mdi-list-status
+                        </v-icon>
+                      </v-btn>
+                    </div>
+                  </template>
+
+                  <template #item.email="{ item }">
+                    <div class="d-flex">
+                      <v-btn
+                        :style="{ backgroundColor: '#889EAF', color: '#506D84' }"
+                        :disabled="!item.offer_form_id"
+                        @click="onMessageClick(item)"
+                      >
+                        <v-icon left style="margin-right: 5px; font-size: 25px"
+                          >mdi-email-outline</v-icon
+                        >
+                      </v-btn>
+                    </div>
+                  </template>
+
+                  <!--ตรวจเมื่อ-->
+                  <template v-slot:item.checked_time="{ item }">
+                    <span>{{ getCheckedTimestamp(item) }}</span>
+                  </template>
+                </v-data-table>
+                <div v-else style="text-align: center; padding: 20px; color: grey">
+                  ไม่มีรายการหนังสือซ้ำ
+                </div>
+              </v-container>
+            </td>
+          </tr>
         </template>
 
         <!-- Table-in-Table ที่แสดงหนังสือที่ซ้ำ -->
@@ -536,8 +601,10 @@
 
             <v-divider class="my-4"></v-divider>
             <p><strong>ชื่อผู้เสนอ:</strong> {{ selectedItem?.user_fullname || 'ไม่ระบุ' }}</p>
-            <p><strong>คณะ:</strong></p>
-            <p><strong>สาขา:</strong></p>
+            <p><strong>คณะ:</strong> {{ selectedItem?.faculty?.faculty_name || 'ไม่ระบุ' }}</p>
+            <p>
+              <strong>สาขา:</strong> {{ selectedItem?.department?.department_name || 'ไม่ระบุ' }}
+            </p>
             <p><strong>ชื่อหนังสือ:</strong> {{ selectedItem?.book_title }}</p>
             <p><strong>ISBN:</strong> {{ selectedItem?.ISBN }}</p>
             <p><strong>ราคา:</strong> {{ selectedItem?.book_price }} บาท</p>
@@ -665,7 +732,7 @@ const menuDate = ref(false)
 const dialogSuccess = ref(false)
 const searchBook = ref('เสนอหนังสือออนไลน์')
 const selectedTab = ref('กำลังดำเนินการ')
-const loading = ref<boolean>(false)
+const loading = ref(false)
 const dialog = ref(false)
 const selectedBookImage = ref('ไม่มีรูปภาพ')
 const totalItems = ref(0)
@@ -682,12 +749,14 @@ const selectedImage = ref('')
 const messageDialog = ref(false)
 const confirmDialog = ref(false)
 const selectedItem = ref(null)
+const selectedItems = ref([])
 const message = ref('')
 const activeTab = ref('duplicate')
 const offerForms = ref([])
-const dialogAdd = ref(false) // สถานะการแสดง Dialog
-const expandedItems = ref<string[]>([])
+const items = ref([])
+const expandedItems = ref([])
 const booksData = ref<BookItem[]>([])
+const checkedTimestamps = ref<{ [key: string]: string }>({}) // เก็บค่า timestamp
 
 interface BookItem {
   offer_form_id: number
@@ -710,18 +779,32 @@ interface BookItem {
 
 // Header สำหรับ 'เสนอหนังสือออนไลน์'
 const NoImageHeaders = [
-  { title: 'ลำดับ', key: 'rowIndex', align: 'start' },
-  { title: 'ข้อมูลผู้คัดเลือก', key: 'user_fullname' },
-  { title: 'ร้านค้า', key: 'store.store_name' },
-  { title: 'ชื่อหนังสือ', key: 'book_title' },
-  { title: 'ผู้แต่ง', key: 'book_author' },
-  { title: 'ปีพิมพ์', key: 'published_year' },
-  { title: 'ISBN', key: 'ISBN' },
-  { title: 'ราคาสุทธิ', key: 'book_price' },
-  { title: 'จำนวน', key: 'book_quantity' },
-  { title: 'ตรวจหนังสือ', key: 'check' },
-  { title: 'ดำเนินการ', key: 'view' },
-  { title: 'E-mail', key: 'email' },
+  { title: 'ลำดับ', key: 'rowIndex', width: '50px', align: 'start' },
+  { title: 'ข้อมูลผู้คัดเลือก', key: 'user_fullname', width: '150px' },
+  { title: 'ร้านค้า', key: 'store.store_name', width: '120px' },
+  { title: 'ชื่อหนังสือ', key: 'book_title', width: '200px' },
+  { title: 'ผู้แต่ง', key: 'book_author', width: '100px' },
+  { title: 'ปีพิมพ์', key: 'published_year', width: '60px' },
+  { title: 'ISBN', key: 'ISBN', width: '100px' },
+  { title: 'ราคาสุทธิ', key: 'book_price', width: '60px' },
+  { title: 'จำนวน', key: 'book_quantity', width: '60px' },
+  { title: 'ตรวจหนังสือ', key: 'check', width: '120px' },
+  { title: 'ดำเนินการ', key: 'view', width: '120px' },
+  { title: 'E-mail', key: 'email', width: '120px' },
+]
+
+const subHeaders = [
+  { title: 'ข้อมูลผู้คัดเลือก', key: 'user_fullname', width: '120px' },
+  { title: 'ร้านค้า', key: 'store.store_name', width: '100px' },
+  { title: 'ชื่อหนังสือ', key: 'book_title', width: '180px' },
+  { title: 'ผู้แต่ง', key: 'book_author', width: '80px' },
+  { title: 'ปีพิมพ์', key: 'published_year', width: '60px' },
+  { title: 'ISBN', key: 'ISBN', width: '80px' },
+  { title: 'ราคาสุทธิ', key: 'book_price', width: '50px' },
+  { title: 'รายการซ้ำ', key: 'duplicate_status', width: '60px' },
+  { title: 'ดำเนินการ', key: 'view', width: '60px' },
+  { title: 'E-mail', key: 'email', width: '120px' },
+  { title: 'ตรวจสอบเมื่อ', key: 'checked_time', width: '120px' },
 ]
 
 // Header สำหรับ 'เสนอหนังสืองานหนังสือ'
@@ -870,6 +953,22 @@ const filterDataByDate = (data: any[], selectedDate: Date) => {
     }))
 }
 
+//เวลาตรวจสอบเมื่อ ในตารางแทรก
+const getCheckedTimestamp = (item) => {
+  if (!checkedTimestamps.value[item.ISBN]) {
+    checkedTimestamps.value[item.ISBN] = new Date()
+      .toLocaleString('th-TH', {
+        year: 'numeric',
+        month: 'short', // ✅ แสดงเดือนแบบย่อ
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      })
+      .replace(',', ' เวลา') // ✅ แทรกคำว่า "เวลา" ระหว่างวันที่และเวลา
+  }
+  return checkedTimestamps.value[item.ISBN]
+}
+
 const filteredOfferForms = computed(() => {
   console.log('selectedISBN:', selectedISBN.value)
   console.log('selectedCreatedAt:', selectedCreatedAt.value)
@@ -898,8 +997,8 @@ const fetchDataFromAPI = async ({ page, itemsPerPage }: { page: number; itemsPer
         itemsPerPage,
       },
     })
-
     const data = response.data
+
     return {
       items: data.map((item: any) => ({
         ...item,
@@ -926,21 +1025,18 @@ const fetchOfferForms = async (page = 1) => {
 }
 
 const onCheckClick = async (item) => {
+  console.log('Selected Item:', item) // ✅ ตรวจสอบข้อมูลที่ส่งมา
+
   if (!item.offer_form_id) {
     console.error('Missing offer_form_id in item:', item)
-    return // หยุดการทำงานถ้าไม่มี offer_form_id
+    return
   }
 
   selectedItem.value = item
-
-  // อัปเดตวันที่และเวลา
   updateDateTime()
 
   try {
-    // อัปเดต form_status และ duplicate_check ก่อนเปิด dialog
     await updateApproveStatus(item)
-
-    // เปิด dialog ยืนยันการเลือก
     confirmDialog.value = true
   } catch (error) {
     console.error('Error updating approve status and duplicate_check:', error)
@@ -1195,76 +1291,52 @@ const checkedDateTimeMap = ref<Record<string, string>>(
 
 // ตรวจสอบว่ามี ISBN ซ้ำหรือไม่
 const hasDuplicateISBN = (isbn) => {
-  return (
-    booksData.value.filter((book) => normalizeISBN(book.ISBN) === normalizeISBN(isbn)).length > 1 //ถ้าพบ isbn มากกว่า 1 แสดงว่าซ้ำ
-  )
+  const normalizedISBN = cleanISBN(isbn)
+  return booksData.value.filter((book) => cleanISBN(book.ISBN) === normalizedISBN).length > 1
 }
 
-//ล้างค่า isbn ก่อนเปรียบเทียบหาเลข isbn ที่ซ้ำกัน
 const cleanISBN = (isbn) => {
   if (!isbn) return ''
   return String(isbn)
-    .trim() //ลบช่องว่าง
-    .replace(/[^0-9xX]/g, '') //ลบอักขระพิเศษ
+    .trim()
+    .replace(/[^0-9xX]/g, '') // ลบอักขระพิเศษ
 }
 
-//ค้นหาหนังสือซ้ำผ่าน isbn
+const isDuplicateRow = (item) => {
+  const duplicateItems = getDuplicateItems(item)
+  return duplicateItems.length > 0 // ถ้ามีข้อมูลซ้ำอย่างน้อย 1 รายการ
+}
+
+//หาเฉพาะรายการซ้ำ (คืนค่าเป็น array ที่มีรายการซ้ำเพียงตัวแรก)
 const getDuplicateItems = (item) => {
-  if (!booksData.value || booksData.value.length === 0) {
-    console.warn('⚠️ ไม่มีข้อมูล booksData')
-    return [] //คืนค่าหนังสือที่ซ้ำ isbn เป็น array
+  if (!item || !item.ISBN) {
+    console.warn('⚠️ ไม่มีข้อมูล item หรือ ISBN')
+    return []
   }
-
-  console.log('🔍 กำลังตรวจสอบ:', item)
-  console.log('🔹 ISBN ที่ตรวจสอบ:', item.ISBN, typeof item.ISBN)
-  console.log('📖 booksData ทั้งหมด:', booksData.value)
-
-  const duplicates = booksData.value.filter((book) => {
-    console.log(`⚖ เปรียบเทียบ: ${cleanISBN(book.ISBN)} === ${cleanISBN(item.ISBN)}`)
-
+  const normalizedItemISBN = cleanISBN(item.ISBN)
+  const duplicate = booksData.value.find((selectedItem) => {
+    const normalizedSelectedISBN = cleanISBN(selectedItem.ISBN)
     return (
-      cleanISBN(book.ISBN) === cleanISBN(item.ISBN) && book.offer_form_id !== item.offer_form_id
+      normalizedSelectedISBN === normalizedItemISBN &&
+      selectedItem.offer_form_id !== item.offer_form_id
     )
   })
-
-  console.log('📌 พบรายการซ้ำ:', duplicates)
-  return duplicates
+  return duplicate ? [duplicate] : []
 }
 
-// ทำการ เปิด/ปิด ตารางแทรก expandeds rows
+// ทำการ เปิด/ปิด ตารางแทรก expanded rows (เก็บเฉพาะ offer_form_id ของรายการที่ถูกคลิก)
 const toggleExpand = (item) => {
-  console.log('ตรวจสอบหนังสือที่มี ISBN:', item.ISBN)
-
-  const index = expandedItems.value.indexOf(item.ISBN)
-
-  if (index !== -1) {
-    // ถ้ากดซ้ำ ให้ปิดตารางแทรกและเคลียร์ข้อความ
-    expandedItems.value.splice(index, 1)
-    noDuplicatesMessages[item.ISBN] = ''
-    console.log('🔽 ปิดตารางแทรกสำหรับ ISBN:', item.ISBN)
+  if (expandedItems.value.includes(item.offer_form_id)) {
+    expandedItems.value = []
+    console.log('ปิด expanded row สำหรับ offer_form_id:', item.offer_form_id)
   } else {
-    const duplicates = getDuplicateItems(item)
-
-    if (duplicates.length > 0) {
-      console.log('✅ พบรายการซ้ำ:', duplicates)
-      noDuplicatesMessages[item.ISBN] = '' // ถ้ามีซ้ำให้เคลียร์ข้อความ
-    } else {
-      console.log('❌ ไม่มีรายการซ้ำ')
-      noDuplicatesMessages[item.ISBN] = 'ไม่มีรายการหนังสือซ้ำ'
-    }
-
-    expandedItems.value.push(item.ISBN) // เปิดตารางแทรก
-    console.log('🔼 เปิดตารางแทรกสำหรับ ISBN:', item.ISBN)
+    expandedItems.value = [item.offer_form_id]
+    console.log('เปิด expanded row สำหรับ offer_form_id:', item.offer_form_id)
   }
 }
 
 // ฟังก์ชันที่แสดงข้อความเมื่อไม่มีรายการซ้ำ
-const noDuplicatesMessages = reactive({}) //reactive ใช้เก็บข้อความเมื่อไม่มีรายการซ้ำ
-
-// const alertNoDuplicates = (item) => {
-//   console.log(`📚 ไม่มีรายการซ้ำสำหรับ ISBN: ${item.ISBN}`)
-//   noDuplicatesISBN.value = item.ISBN
-// }
+const noDuplicatesMessages = reactive({}) // reactive ใช้เก็บข้อความเมื่อไม่มีรายการซ้ำ
 
 // ปรับ ISBN ให้เป็นรูปแบบเดียวกัน
 const normalizeISBN = (isbn) => {
@@ -1459,10 +1531,30 @@ watch(dialogSuccess, (newValue) => {
 
 onMounted(async () => {
   try {
+    // ดึงข้อมูลจาก API
     const response = await fetch('http://localhost:3000/offer-form')
     const data = await response.json()
     booksData.value = data
     console.log('📚 ดึงข้อมูลสำเร็จ:', booksData.value)
+
+    // คัดกรองรายการที่ไม่ซ้ำกันในแต่ละวัน (แสดงเฉพาะรายการแรก)
+    const uniqueBooks = []
+    const duplicates = []
+
+    booksData.value.forEach((item) => {
+      if (!hasDuplicateISBN(item.ISBN)) {
+        // ถ้าไม่ซ้ำให้เพิ่มเข้าใน uniqueBooks
+        uniqueBooks.push(item)
+      } else {
+        // ถ้าซ้ำ ให้เพิ่มเข้าในรายการซ้ำ
+        duplicates.push(item)
+      }
+    })
+
+    // อัปเดต filteredItems สำหรับการแสดงในตารางหลัก
+    filteredItems.value = uniqueBooks
+    // อัปเดตรายการซ้ำสำหรับการแสดงในตารางแทรก
+    expandedItems.value = duplicates
   } catch (error) {
     console.error('❌ เกิดข้อผิดพลาดในการดึงข้อมูล:', error)
   }
@@ -1714,5 +1806,23 @@ h1 {
 
 .highlight-row {
   background-color: rgba(255, 0, 0, 0.2); /* สีแดงอ่อน */
+}
+
+.custom-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.table-cell {
+  min-width: 100px;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.duplicate-row {
+  background-color: #ffeb99 !important; /* สีเหลืองอ่อน */
 }
 </style>

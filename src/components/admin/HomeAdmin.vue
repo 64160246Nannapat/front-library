@@ -163,7 +163,6 @@ const items = [
   { title: 'ตรวจสอบหนังสือ', icon: checkbook, link: '/home-admin/check-book' },
   { title: 'แบบฟอร์มการเสนอหนังสือ', icon: libraryImage, link: '/home-admin/book-form' },
   { title: 'สถานะการเสนอซื้อหนังสือ', icon: checklist, link: '/home-admin/book-status' },
-  { title: 'แบบฟอร์มการเสนอหนังสือแทน', icon: libraryImage, link: '/home-admin/book-form' },
   { title: 'จัดการงบประมาณ', icon: pieChart, link: '/home-admin/manage-budget' },
   { title: 'สรุปงบประมาณ', icon: salary, link: '/home-admin/sum-budget' },
   { title: 'ประมาณงบการซื้อหนังสือ', icon: budget, link: '/home-admin/purchase-budget' },

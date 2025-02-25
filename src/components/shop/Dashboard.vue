@@ -66,14 +66,17 @@
               :headers="tableHeaders"
               :items="recentProposals"
               item-key="name"
-              :hide-default-footer="true"
+              :hide-default-footer="false"
             >
               <template v-slot:item="{ item, index }">
                 <tr>
                   <td>{{ index + 1 }}</td>
                   <td>{{ item.name }}</td>
                   <td>{{ item.role }}</td>
+                  <td>{{ item.faculty }}</td>
                   <td>{{ item.book }}</td>
+                  <td>{{ item.quantity }}</td>
+                  <td>{{ item.price }}</td>
                 </tr>
               </template>
             </v-data-table>
@@ -117,17 +120,48 @@ const proposals = ref([
 
 // ข้อมูลสำหรับ Recent Proposals
 const recentProposals = ref([
-  { name: 'ผศ.ดร พิเชษ วะยะลุน', role: 'อาจารย์', book: 'แผลเก่า' },
-  { name: 'นาย เกรียงศักดิ์ ปานโพธิ์ทอง', role: 'บุคลากร', book: 'ความฝันของนักเขียน' },
-  { name: 'อาจารย์ วรวิทย์ วีระพันธุ์', role: 'อาจารย์', book: 'แมวยิ้มง่ายใช่ว่าแตกสลายไม่เป็น' },
-  { name: 'อาจารย์ เหมรัศมิ์ วชิรหัตถพงศ์', role: 'อาจารย์', book: '4 วินาที = Four seconds' },
+  {
+    name: 'ผศ.ดร พิเชษ วะยะลุน',
+    role: 'อาจารย์',
+    faculty: 'วิทยาการสารสนเทศ',
+    book: 'แผลเก่า',
+    quantity: '1',
+    price: '250',
+  },
+  {
+    name: 'นาย เกรียงศักดิ์ ปานโพธิ์ทอง',
+    role: 'บุคลากร',
+    faculty: 'วิทยาการสารสนเทศ',
+    book: 'ความฝันของนักเขียน',
+    quantity: '1',
+    price: '250',
+  },
+  {
+    name: 'อาจารย์ วรวิทย์ วีระพันธุ์',
+    role: 'อาจารย์',
+    faculty: 'วิทยาการสารสนเทศ',
+    book: 'แมวยิ้มง่ายใช่ว่าแตกสลายไม่เป็น',
+    quantity: '1',
+    price: '250',
+  },
+  {
+    name: 'อาจารย์ เหมรัศมิ์ วชิรหัตถพงศ์',
+    role: 'อาจารย์',
+    faculty: 'วิทยาการสารสนเทศ',
+    book: '4 วินาที = Four seconds',
+    quantity: '1',
+    price: '250',
+  },
 ])
 
 const tableHeaders = [
   { title: 'ลำดับ', align: 'start', key: 'id' },
-  { title: 'ชื่อ', align: 'start', key: 'name' },
+  { title: 'รายชื่อ', align: 'start', key: 'name' },
   { title: 'ตำแหน่ง', align: 'start', key: 'role' },
-  { title: 'หนังสือ', align: 'start', key: 'book' },
+  { title: 'คณะ', align: 'start', key: 'faculty' },
+  { title: 'ชื่อหนังสือ', align: 'start', key: 'book' },
+  { title: 'จำนวน', align: 'start', key: 'quantity' },
+  { title: 'ราคาสุทธิ', align: 'end', key: 'price' },
 ]
 
 // ใช้ ref เพื่อให้ Vue จัดการ <canvas>

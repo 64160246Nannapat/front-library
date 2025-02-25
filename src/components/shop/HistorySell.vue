@@ -1,6 +1,6 @@
 <template>
   <v-main style="height: 500px; margin-top: 20px">
-    <v-container>
+    <v-container fluid>
       <div class="header">
         <img class="header-image" src="@/assets/file (1).png" alt="Library Image" />
         <h1>ประวัติการขาย</h1>
@@ -106,6 +106,9 @@ const serverItems = ref([])
 const headers = [
   { title: 'ลำดับ', key: 'id', align: 'start' },
   { title: 'ชื่อหนังสือ', key: 'title' },
+  { title: 'ชื่อผู้เสนอ', key: 'name' },
+  { title: 'ตำแหน่ง', key: 'position' },
+  { title: 'คณะ', key: 'faculty' },
   { title: 'ISBN', key: 'isbn' },
   { title: 'ราคาสุทธิ', key: 'price' },
   { title: 'จำนวน', key: 'quantity' },
@@ -167,6 +170,9 @@ const FakeAPI = {
           {
             id: 1,
             title: 'ความรู้สึกของเราสำคัญที่สุด',
+            name: 'นางสาวธิดารัตน์ มีตา',
+            position: 'นิสิต',
+            faculty: 'วิทยาการสารสนเทศ',
             date: '06/02/2568',
             isbn: '9786161857707',
             price: 250,
@@ -176,6 +182,9 @@ const FakeAPI = {
           {
             id: 2,
             title: 'วิทยาศาสตร์ของการใช้ชีวิต = The science of living',
+            name: 'นางสาวธิดารัตน์ มีตา',
+            position: 'นิสิต',
+            faculty: 'วิทยาการสารสนเทศ',
             date: '06/02/2568',
             isbn: '9786162875434',
             price: 350,
@@ -184,8 +193,10 @@ const FakeAPI = {
           },
           {
             id: 3,
-            title:
-              'คุณคางคกไปพบนักจิตบำบัด : การผจญภัยทางจิตวิทยา = Counselling for toads : a psychological adventure ',
+            title: 'คุณคางคกไปพบนักจิตบำบัด : การผจญภัยทางจิตวิทยา',
+            name: 'นางสาวธิดารัตน์ มีตา',
+            position: 'นิสิต',
+            faculty: 'วิทยาการสารสนเทศ',
             date: '06/02/2568',
             isbn: '9786160459049',
             price: 500,
@@ -195,6 +206,9 @@ const FakeAPI = {
           {
             id: 4,
             title: 'ร่างกายไม่เคยโกหก = What every body is saying',
+            name: 'นางสาวธิดารัตน์ มีตา',
+            position: 'นิสิต',
+            faculty: 'วิทยาการสารสนเทศ',
             date: '06/02/2568',
             isbn: '9786162875687',
             price: 500,
@@ -204,6 +218,9 @@ const FakeAPI = {
           {
             id: 5,
             title: 'ภาวะลื่นไหล ทำอะไรก็ง่ายหมด = Productivity flow',
+            name: 'นางสาวธิดารัตน์ มีตา',
+            position: 'นิสิต',
+            faculty: 'วิทยาการสารสนเทศ',
             date: '06/02/2568',
             isbn: '9786169373964',
             price: 500,
@@ -213,6 +230,9 @@ const FakeAPI = {
           {
             id: 6,
             title: 'หัวไม่ดีก็มีวิธีสอบผ่าน',
+            name: 'นางสาวธิดารัตน์ มีตา',
+            position: 'นิสิต',
+            faculty: 'วิทยาการสารสนเทศ',
             date: '06/02/2568',
             isbn: '9786165786195',
             price: 500,
@@ -334,7 +354,7 @@ const onClickFile = async () => {
   doc.text(text, textX, textY)
 
   doc.setFontSize(14)
-  const subText = `ประจำวันที่ ${formattedDate.value}`
+  const subText = `ประจำ${fullFormattedDate.value}`
   const subTextX = (doc.internal.pageSize.width - doc.getTextWidth(subText)) / 2
   const subTextY = textY + 10
   doc.text(subText, subTextX, subTextY)
@@ -349,6 +369,8 @@ const onClickFile = async () => {
   // เตรียมข้อมูลตาราง
   const tableData = filteredItems.map((item, index) => [
     (index + 1).toString(),
+    item.name,
+    item.faculty,
     item.title,
     item.quantity.toString(),
     (item.price * item.quantity).toLocaleString(),
@@ -356,12 +378,12 @@ const onClickFile = async () => {
 
   // สร้างตาราง
   autoTable(doc, {
-    head: [['ลำดับ', 'ชื่อหนังสือ', 'จำนวน', 'จำนวนเงิน (บาท)']],
+    head: [['ลำดับ', 'ชื่อผู้เสนอ', 'คณะ', 'ชื่อหนังสือ', 'จำนวน', 'ราคา']],
     body: tableData,
     startY: subTextY + 20,
     styles: {
       font: 'Sarabun',
-      fontSize: 12,
+      fontSize: 10,
     },
     headStyles: {
       fillColor: [102, 102, 0],
@@ -374,7 +396,7 @@ const onClickFile = async () => {
   // เพิ่มผลรวมด้านล่าง
   const totalPrice = filteredItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
   const totalText = `งบประมาณรวม ${totalPrice.toLocaleString()} บาท`
-  doc.setFontSize(14)
+  doc.setFontSize(12)
   doc.text(
     totalText,
     doc.internal.pageSize.width - doc.getTextWidth(totalText) - 10,
@@ -382,7 +404,7 @@ const onClickFile = async () => {
   )
 
   // บันทึก PDF
-  doc.save('budget-summary.pdf')
+  doc.save('history-sell-book.pdf')
 }
 
 watch([selectedDate], onSearch, { immediate: true })

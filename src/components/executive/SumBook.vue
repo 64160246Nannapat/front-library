@@ -11,26 +11,29 @@
               v-model="menuDate"
               :close-on-content-click="false"
               transition="scale-transition"
+              offset-y
             >
               <template v-slot:activator="{ on, props }">
                 <v-text-field
                   v-bind="props"
-                  v-on="on"
-                  v-model="formattedDate"
-                  placeholder="dd/mm/yyyy"
+                  v-model="formattedDateRange"
+                  placeholder="เลือกช่วงวันที่"
                   class="custom-date-picker"
                   hide-details
                   rounded="lg"
                   readonly
                   flat
                   solo
-                  prepend-inner-icon="$calendar"
-                  suffix-icon="mdi-calendar"
+                  prepend-inner-icon="mdi-calendar"
                   variant="outlined"
                 />
               </template>
-
-              <v-date-picker v-model="selectedDate" locale="th" @input="onSearch" />
+              <v-date-picker
+                v-model="selectedDateRange"
+                locale="th"
+                range
+                @update:model-value="onDateSelected"
+              />
             </v-menu>
           </v-col>
         </v-row>
@@ -90,10 +93,10 @@
 
       <!-- รวมข้อมูล -->
       <v-row class="mt-4">
-        <v-col cols="6" class="text-start" style="font-weight: bold;">
+        <v-col cols="6" class="text-start" style="font-weight: bold">
           รวม: <b>{{ total.price }}</b> บาท
         </v-col>
-        <v-col cols="6" class="text-end" style="font-weight: bold;">
+        <v-col cols="6" class="text-end" style="font-weight: bold">
           จำนวน: <b>{{ total.quantity }}</b> เล่ม
         </v-col>
       </v-row>
@@ -106,6 +109,7 @@ import { ref, computed, watch, onMounted } from 'vue'
 
 // วันที่
 const selectedDate = ref(new Date())
+const selectedDateRange = ref([])
 const menuDate = ref(false)
 const loading = ref(false)
 const allItems = ref([]) // ข้อมูลต้นฉบับ
@@ -128,6 +132,36 @@ const headers = [
   { title: 'สถานะ', key: 'status' },
   { title: 'คณะ', key: 'faculty' },
 ]
+
+const formattedDateRange = computed(() => {
+  if (!Array.isArray(selectedDateRange.value) || selectedDateRange.value.length < 2) {
+    return ''
+  }
+
+  const [start, end] = selectedDateRange.value.map((date) => new Date(date)) // แปลงเป็น Date Object
+  return `${formatDate(start)} - ${formatDate(end)}`
+})
+
+const formatDate = (date) => {
+  if (!date || isNaN(date.getTime())) return '' // ตรวจสอบค่าวันที่
+  const day = String(date.getDate()).padStart(2, '0')
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const year = date.getFullYear() + 543
+  return `${day}/${month}/${year}`
+}
+
+// ✅ ตรวจสอบให้แน่ใจว่า selectedDateRange เป็น Array ที่มีค่าถูกต้อง
+const onDateSelected = (dates) => {
+  console.log('ค่าที่เลือกจาก date-picker:', dates) // Debug ค่า
+
+  if (!dates || !Array.isArray(dates) || dates.length < 2) {
+    selectedDateRange.value = []
+    return
+  }
+
+  // ✅ ใช้ [...dates] เพื่อแน่ใจว่า Vue อัปเดตค่า
+  selectedDateRange.value = [...dates]
+}
 
 const formattedDate = computed(() => {
   if (!selectedDate.value) return ''
@@ -205,7 +239,8 @@ const FakeAPI = {
           {
             id: 3,
             faculty: 'บริหาร',
-            title: 'คุณคางคกไปพบนักจิตบำบัด : การผจญภัยทางจิตวิทยา = Counselling for toads : a psychological adventure',
+            title:
+              'คุณคางคกไปพบนักจิตบำบัด : การผจญภัยทางจิตวิทยา = Counselling for toads : a psychological adventure',
             isbn: '9786160459049',
             shop: 'ร้านนี้ดี',
             price: 250,
@@ -259,23 +294,28 @@ const onSearch = async () => {
   const items = await FakeAPI.fetch()
 
   let filteredItems = items.filter((item) => {
-    const matchesDate = !selectedDate.value || item.date === formattedDate.value
-    const matchesFaculty = searchFaculty.value === 'ทั้งหมด' || item.faculty === searchFaculty.value
-    const matchesCoupon = searchCoupon.value === 'ทั้งหมด' || item.status === searchCoupon.value
-    return matchesDate && matchesFaculty && matchesCoupon
+    if (!selectedDateRange.value) return true
+
+    const [start, end] = selectedDateRange.value
+    const itemDate = new Date(item.date.split('/').reverse().join('-')) // แปลงเป็น Date
+
+    return itemDate >= start && itemDate <= end
   })
 
   total.value.price = filteredItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
   total.value.quantity = filteredItems.reduce((sum, item) => sum + item.quantity, 0)
   serverItems.value = filteredItems
   loading.value = false
-  menuDate.value = false
 }
 
 onMounted(() => {
   const today = new Date()
-  selectedDate.value = today
-  onSearch() // เรียกฟังก์ชันค้นหาทันทีเมื่อเริ่มต้น
+  selectedDateRange.value = [today, today] // ตั้งค่าช่วงเริ่มต้นเป็นวันนี้
+  onSearch()
+})
+
+watch(selectedDateRange, (newVal) => {
+  console.log('ค่า selectedDateRange ที่อัปเดต:', newVal)
 })
 
 watch([selectedDate, searchFaculty, searchCoupon], onSearch)
@@ -311,7 +351,7 @@ h1 {
   overflow: visible;
   text-overflow: unset;
   width: 100px;
-  min-width: 200px;
+  min-width: 250px;
   text-align: center;
   justify-content: center;
   align-content: center;
