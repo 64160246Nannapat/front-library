@@ -86,7 +86,7 @@ const refreshToken = async () => {
   const refreshToken = localStorage.getItem('refresh_token')
   if (refreshToken) {
     try {
-      const response = await axios.post('http://localhost:3000/auth/refresh', { refreshToken })
+      const response = await axios.post('http://bookfair.buu.in.th:8041/auth/refresh', { refreshToken })
       const { access_token, refresh_token } = response.data
       // เก็บ Access Token และ Refresh Token ใหม่
       localStorage.setItem('token', access_token)
@@ -113,21 +113,34 @@ const fetchUserData = async () => {
     return
   }
 
+  const getUserName = (decoded: any) => {
+    if (decoded.role === 'Executive' && decoded.executive) {
+      return `${decoded.executive.user_prefix || ''} ${decoded.executive.user_firstName || ''} ${decoded.executive.user_lastName || ''}`.trim()
+    } else {
+      return decoded.username || 'ไม่ทราบชื่อ'
+    }
+  }
+
+  const getUserRole = (decoded: any) => {
+    if (decoded.role === 'Executive' && decoded.executive) {
+      return `${decoded.executive.duty_name || ''}`.trim()
+    } else {
+      return decoded.role || 'ไม่ทราบตำแหน่ง'
+    }
+  }
+
   if (isTokenExpired(token)) {
-    // ถ้า Token หมดอายุ ให้รีเฟรชด้วย Refresh Token
     const newAccessToken = await refreshToken()
     if (newAccessToken) {
-      // หลังจากรีเฟรช Token ใหม่แล้ว ให้ทำการดึงข้อมูลผู้ใช้
       const decoded: any = jwtDecode(newAccessToken)
-      user.value.name = `${decoded.prefix || ''} ${decoded.firstName || ''} ${decoded.lastName || ''}`.trim() || 'ไม่ทราบชื่อ'
-      user.value.role = decoded.management_position_name || decoded.position_name || 'ไม่ทราบตำแหน่ง';
+      user.value.name = getUserName(decoded)
+      user.value.role = getUserRole(decoded)
     }
   } else {
-    // Token ยังไม่หมดอายุ
     try {
       const decoded: any = jwtDecode(token)
-      user.value.name = `${decoded.prefix || ''} ${decoded.firstName || ''} ${decoded.lastName || ''}`.trim() || 'ไม่ทราบชื่อ'
-      user.value.role = decoded.management_position_name || decoded.position_name || 'ไม่ทราบตำแหน่ง';
+      user.value.name = getUserName(decoded)
+      user.value.role = getUserRole(decoded)
     } catch (error) {
       console.error('Token decoding error:', error)
     }
@@ -148,7 +161,7 @@ const items = [
   { title: 'สรุปงบประมาณ', icon: salary, link: '/home-executive/sum-budget' },
   { title: 'ร้านค้า', icon: store, link: '/home-executive/show-shop' },
   { title: 'สรุปร้านค้า', icon: sumShop, link: '/home-executive/sum-shop' },
-  { title: 'LOGOUT', icon: logout, action: '/' },
+  { title: 'LOGOUT', icon: logout, action: 'logout' },
 ]
 
 // Logout function
@@ -156,7 +169,7 @@ const handleLogout = async () => {
   try {
     console.log('Attempting to logout...') // ตรวจสอบว่าฟังก์ชันทำงาน
     const response = await axios.post(
-      'http://localhost:3000/auth/logout',
+      'http://bookfair.buu.in.th:8041/auth/logout',
       {},
       {
         headers: {

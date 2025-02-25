@@ -8,7 +8,8 @@
 
         <div class="form-container">
           <v-row @keydown.enter="login">
-            <!-- Username -->
+
+            <!-- ช่องกรอกชื่อผู้ใช้ -->
             <v-col cols="12">
               <v-text-field
                 label="Username"
@@ -24,7 +25,7 @@
               </div>
             </v-col>
 
-            <!-- Password -->
+            <!-- ช่องกรอกรหัสผ่าน -->
             <v-col cols="12" style="text-align: center">
               <v-text-field
                 label="Password"
@@ -43,14 +44,14 @@
               </div>
             </v-col>
 
-            <!-- Login Button -->
+            <!-- ปุ่มเข้าสู่ระบบ -->
             <v-col cols="8">
               <v-btn class="mb-8 custom-btn custom-login" variant="tonal" block @click="login">
                 Log In
               </v-btn>
             </v-col>
 
-            <!-- Note -->
+            <!-- คำอธิบาย -->
             <v-col>
               <v-text class="custom-text" style="color: #a87e60">
                 ***USERNAME และ PASSWORD ที่เข้าใช้เครือข่ายอินเทอร์เน็ตของมหาวิทยาลัย***
@@ -91,83 +92,63 @@ const login = async () => {
   }
 
   try {
-    // เรียก API
-    const response = await axios.post('http://localhost:3000/auth/login', {
+    const response = await axios.post('http://bookfair.buu.in.th:8041/auth/login', {
       username: username.value,
       password: password.value,
     })
 
-    console.log('Response Data:', response.data)
-
     const { access_token, refresh_token, role } = response.data
 
-    if (!role) {
-      errorMessage.value = 'เกิดข้อผิดพลาด: ไม่พบข้อมูลบทบาท (role)'
-      console.error('Missing role:', response.data)
-      return
-    }
-
     if (access_token && refresh_token) {
-      // เก็บ Token และ Refresh Token ลง localStorage
       localStorage.setItem('token', access_token)
       localStorage.setItem('refresh_token', refresh_token)
-    } else {
-      console.error('ไม่พบ Token หลังจาก Login')
     }
 
-    console.log('Role:', role)
-    console.log('Redirecting...')
-
-    // เปลี่ยนเส้นทางตาม Role
     switch (role) {
-      case 'Student':
-        router.push('/home-student/book-form')
-        break
       case 'Executive':
         router.push('/home-executive/sum-book')
-        break
-      case 'Teacher':
-        router.push('/home-teacher/coupon')
-        break
-      case 'StaffLibrary':
-        router.push('/home-library/manage-sell-book')
-        break
-      case 'Store':
-        router.push('/home-shop/dash-board')
-        break
-      case 'StaffFaculty':
-        router.push('/home-faculty/manage-budget')
         break
       case 'Admin':
         router.push('/home-admin/manage-sell-book')
         break
-      default:
-        router.push(`/home-${role}`)
+      case 'StaffLibrary':
+        router.push('/home-library/manage-sell-book')
+        break
+      case 'StaffFaculty':
+        router.push('/home-faculty/manage-budget')
+        break
+      case 'StaffDepartment':
+        router.push('/home-library/manage-sell-book')
+        break
+      case 'Teacher':
+        router.push('/home-teacher/coupon')
+        break
+      case 'Student':
+        router.push('/home-student/book-form')
+        break
+      case 'Store':
+        router.push('/home-shop/dash-board')
         break
     }
   } catch (error) {
     if (axios.isAxiosError(error)) {
       console.error('Axios Error:', error)
       if (error.response && error.response.status === 401) {
-        const errorData = error.response.data // สมมติว่า API ให้ข้อมูลระบุว่า username หรือ password ผิด
+        const errorData = error.response.data
         if (errorData.invalidUsername) {
           usernameError.value = 'ชื่อผู้ใช้ไม่ถูกต้อง'
 
-          // Reset ทั้ง username และ password
           username.value = ''
           password.value = ''
         } else if (errorData.invalidPassword) {
           passwordError.value = 'รหัสผ่านไม่ถูกต้อง'
-          usernameError.value = null // ไม่มีข้อผิดพลาดใน username
+          usernameError.value = null
 
-          // Reset แค่ password
           password.value = ''
         } else {
-          // ข้อผิดพลาดทั่วไป
           usernameError.value = 'ชื่อผู้ใช้ไม่ถูกต้อง'
           passwordError.value = 'รหัสผ่านไม่ถูกต้อง'
 
-          // Reset ทั้ง username และ password
           username.value = ''
           password.value = ''
         }

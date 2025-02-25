@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // สร้าง instance ของ Axios
 const instance = axios.create({
-  baseURL: 'http://localhost:3000', // ชี้ไปที่ Backend
+  baseURL: 'http://bookfair.buu.in.th:8041', // ชี้ไปที่ Backend
   headers: {
     'Content-Type': 'application/json',
   },
