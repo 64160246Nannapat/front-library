@@ -16,7 +16,6 @@
               <template v-slot:activator="{ on, props }">
                 <v-text-field
                   v-bind="props"
-                  v-on="on"
                   v-model="formattedDateRange"
                   placeholder="เลือกช่วงวันที่"
                   class="custom-date-picker"
@@ -33,7 +32,7 @@
                 v-model="selectedDateRange"
                 locale="th"
                 range
-                @update:modelValue="onDateSelected"
+                @update:model-value="onDateSelected"
               />
             </v-menu>
           </v-col>
@@ -135,23 +134,33 @@ const headers = [
 ]
 
 const formattedDateRange = computed(() => {
-  if (!selectedDateRange.value || selectedDateRange.value.length < 2) return ''
+  if (!Array.isArray(selectedDateRange.value) || selectedDateRange.value.length < 2) {
+    return ''
+  }
 
-  const [start, end] = selectedDateRange.value.map((date) => new Date(date)) // แปลงให้เป็น Date Object
-
+  const [start, end] = selectedDateRange.value.map((date) => new Date(date)) // แปลงเป็น Date Object
   return `${formatDate(start)} - ${formatDate(end)}`
 })
 
 const formatDate = (date) => {
-  if (!date || isNaN(date.getTime())) return '' // ตรวจสอบว่าค่าเป็น Date จริงหรือไม่
+  if (!date || isNaN(date.getTime())) return '' // ตรวจสอบค่าวันที่
   const day = String(date.getDate()).padStart(2, '0')
   const month = String(date.getMonth() + 1).padStart(2, '0')
   const year = date.getFullYear() + 543
   return `${day}/${month}/${year}`
 }
 
+// ✅ ตรวจสอบให้แน่ใจว่า selectedDateRange เป็น Array ที่มีค่าถูกต้อง
 const onDateSelected = (dates) => {
-  selectedDateRange.value = dates
+  console.log('ค่าที่เลือกจาก date-picker:', dates) // Debug ค่า
+
+  if (!dates || !Array.isArray(dates) || dates.length < 2) {
+    selectedDateRange.value = []
+    return
+  }
+
+  // ✅ ใช้ [...dates] เพื่อแน่ใจว่า Vue อัปเดตค่า
+  selectedDateRange.value = [...dates]
 }
 
 const formattedDate = computed(() => {
@@ -303,6 +312,10 @@ onMounted(() => {
   const today = new Date()
   selectedDateRange.value = [today, today] // ตั้งค่าช่วงเริ่มต้นเป็นวันนี้
   onSearch()
+})
+
+watch(selectedDateRange, (newVal) => {
+  console.log('ค่า selectedDateRange ที่อัปเดต:', newVal)
 })
 
 watch([selectedDate, searchFaculty, searchCoupon], onSearch)

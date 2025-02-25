@@ -467,7 +467,7 @@ const submitForm = async () => {
 
       if (duplicate) {
         // ถ้ามีการซ้ำ แสดงข้อความแจ้งเตือน
-        confirmMessage.value = `"${book.value.Title}" เคยมีการเสนอแล้ว ต้องการจะเสนอหรือไม่?`
+        confirmMessage.value = `"${book.value.Title}" เคยมีการเสนอแล้ว ต้องการจะเสนอซ้ำหรือไม่?`
       } else {
         // ถ้าไม่ซ้ำ แสดงข้อความยืนยันการส่งฟอร์ม
         confirmMessage.value = 'ยืนยันการส่งแบบฟอร์ม'
@@ -485,7 +485,7 @@ const submitForm = async () => {
 // ฟังก์ชันตรวจสอบ ISBN ซ้ำ
 const checkDuplicateISBN = async (isbn) => {
   try {
-    const response = await axios.get(`http://localhost:3000/offer-form?isbn=${isbn}`)
+    const response = await axios.get(`http://bookfair.buu.in.th:8041/offer-form?isbn=${isbn}`)
     console.log('API Response:', response.data)
 
     // ตรวจสอบว่า response.data เป็น array และไม่ว่าง
@@ -554,7 +554,7 @@ const confirmForm = async (bookForm: any) => {
       coupon_used: book.value.Coupon,
     }
 
-    const response = await axios.post('http://localhost:3000/offer-form', formData, {
+    const response = await axios.post('http://bookfair.buu.in.th:8041/offer-form', formData, {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -614,7 +614,7 @@ const resetForm = (bookForm: any) => {
 
 const fetchStores = async () => {
   try {
-    const response = await axios.get('http://localhost:3000/store')
+    const response = await axios.get('http://bookfair.buu.in.th:8041/store')
     console.log('Response data:', response.data) // ตรวจสอบข้อมูลที่ส่งกลับมา
     stores.value = response.data.map((store: any) => store.store_name) // ปรับตามโครงสร้างข้อมูล
   } catch (error) {
@@ -624,7 +624,7 @@ const fetchStores = async () => {
 
 const fetchFaculties = async () => {
   try {
-    const response = await axios.get('http://localhost:3000/faculty')
+    const response = await axios.get('http://bookfair.buu.in.th:8041/faculty')
     console.log('Response data:', response.data) // ตรวจสอบข้อมูลที่ส่งกลับมา
     faculties.value = response.data.map((faculty: any) => faculty.faculty_name)
   } catch (error) {
@@ -634,7 +634,7 @@ const fetchFaculties = async () => {
 
 const fetchDepartments = async () => {
   try {
-    const response = await axios.get('http://localhost:3000/department')
+    const response = await axios.get('http://bookfair.buu.in.th:8041/department')
     console.log('Response data:', response.data) // ตรวจสอบข้อมูลที่ส่งกลับมา
     departments.value = response.data.map((department: any) => department.department_name)
   } catch (error) {
@@ -652,7 +652,7 @@ const refreshToken = async () => {
   const refreshToken = localStorage.getItem('refresh_token')
   if (refreshToken) {
     try {
-      const response = await axios.post('http://localhost:3000/auth/refresh', { refreshToken })
+      const response = await axios.post('http://bookfair.buu.in.th:8041/auth/refresh', { refreshToken })
       const { access_token, refresh_token } = response.data
       // เก็บ Access Token และ Refresh Token ใหม่
       localStorage.setItem('token', access_token)
