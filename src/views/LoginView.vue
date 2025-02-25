@@ -118,7 +118,7 @@ const login = async () => {
         router.push('/home-faculty/manage-budget')
         break
       case 'StaffDepartment':
-        router.push('/home-library/manage-sell-book')
+        router.push('/home-faculty/manage-budget')
         break
       case 'Teacher':
         router.push('/home-teacher/coupon')
