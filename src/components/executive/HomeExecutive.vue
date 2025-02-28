@@ -86,7 +86,7 @@ const refreshToken = async () => {
   const refreshToken = localStorage.getItem('refresh_token')
   if (refreshToken) {
     try {
-      const response = await axios.post('http://bookfair.buu.in.th:8041/auth/refresh', { refreshToken })
+      const response = await axios.post('http://bookfair.buu.in.th:8043/auth/refresh', { refreshToken })
       const { access_token, refresh_token } = response.data
       // เก็บ Access Token และ Refresh Token ใหม่
       localStorage.setItem('token', access_token)
@@ -169,7 +169,7 @@ const handleLogout = async () => {
   try {
     console.log('Attempting to logout...') // ตรวจสอบว่าฟังก์ชันทำงาน
     const response = await axios.post(
-      'http://bookfair.buu.in.th:8041/auth/logout',
+      'http://bookfair.buu.in.th:8043/auth/logout',
       {},
       {
         headers: {

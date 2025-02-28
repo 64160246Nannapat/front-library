@@ -5,12 +5,13 @@
     "allowSyntheticDefaultImports": true,
     "baseUrl": "./",
     "paths": {
-      "@/*": [
-        "src/*"
-      ]
-    }
+      "@/*": ["src/*"]
+    },
+    "declaration": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
   },
-  "files": [],
+  "include": ["src/**/*.ts", "src/**/*.vue"],
   "references": [
     {
       "path": "./tsconfig.node.json"
