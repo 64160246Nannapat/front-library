@@ -1,9 +1,7 @@
-//import { fileURLToPath, URL } from 'node:url'
 import path from 'path'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
-//import vueDevTools from 'vite-plugin-vue-devtools'
 
 export default defineConfig({
   assetsInclude: ['/*.ttf', '/.woff', '**/.woff2'],
@@ -14,7 +12,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
-    '@layouts': path.resolve(__dirname, './src/layouts'),
+      '@layouts': path.resolve(__dirname, './src/layouts'),
     },
   },
   server: {
@@ -27,6 +25,9 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    rollupOptions: {
+      external: ['jquery']  // เพิ่มการตั้งค่าตรงนี้
+    }
+  }
 })
-
-

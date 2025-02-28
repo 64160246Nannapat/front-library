@@ -73,6 +73,8 @@ const isTokenExpired = (token: string) => {
   const decoded: any = jwtDecode(token)
   const currentTime = Date.now() / 1000
   return decoded.exp < currentTime
+  const currentTime = Date.now() / 1000
+  return decoded.exp < currentTime
 }
 
 const refreshToken = async () => {
@@ -121,16 +123,36 @@ const fetchUserData = async () => {
     }
   }
 
+  const getUserName = (decoded: any) => {
+    if (decoded.role === 'Teacher' && decoded.teacher) {
+      return `${decoded.teacher.user_prefix || ''} ${decoded.teacher.user_firstName || ''} ${decoded.teacher.user_lastName || ''}`.trim()
+    } else {
+      return decoded.username || 'ไม่ทราบชื่อ'
+    }
+  }
+
+  const getUserRole = (decoded: any) => {
+    if (decoded.role === 'Teacher' && decoded.teacher) {
+      return `${decoded.teacher.duty_name || ''} ${decoded.teacher.faculty_name || ''}`.trim()
+    } else {
+      return decoded.role || 'ไม่ทราบตำแหน่ง'
+    }
+  }
+
   if (isTokenExpired(token)) {
     const newAccessToken = await refreshToken()
     if (newAccessToken) {
       const decoded: any = jwtDecode(newAccessToken)
       user.value.name = getUserName(decoded)
       user.value.role = getUserRole(decoded)
+      user.value.name = getUserName(decoded)
+      user.value.role = getUserRole(decoded)
     }
   } else {
     try {
       const decoded: any = jwtDecode(token)
+      user.value.name = getUserName(decoded)
+      user.value.role = getUserRole(decoded)
       user.value.name = getUserName(decoded)
       user.value.role = getUserRole(decoded)
     } catch (error) {
@@ -155,6 +177,7 @@ const items = [
 const handleLogout = async () => {
   try {
     console.log('Attempting to logout...')
+    console.log('Attempting to logout...')
     const response = await axios.post(
       'http://bookfair.buu.in.th:8044/auth/logout',
       {},
@@ -167,7 +190,11 @@ const handleLogout = async () => {
     console.log(response.data)
     localStorage.clear()
     window.location.href = '/'
+    console.log(response.data)
+    localStorage.clear()
+    window.location.href = '/'
   } catch (error) {
+    console.error('Logout error:', error)
     console.error('Logout error:', error)
     alert('การออกจากระบบล้มเหลว กรุณาลองใหม่')
   }

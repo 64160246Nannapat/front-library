@@ -135,10 +135,14 @@ const fetchUserData = async () => {
       const decoded: any = jwtDecode(newAccessToken)
       user.value.name = getUserName(decoded)
       user.value.role = getUserRole(decoded)
+      user.value.name = getUserName(decoded)
+      user.value.role = getUserRole(decoded)
     }
   } else {
     try {
       const decoded: any = jwtDecode(token)
+      user.value.name = getUserName(decoded)
+      user.value.role = getUserRole(decoded)
       user.value.name = getUserName(decoded)
       user.value.role = getUserRole(decoded)
     } catch (error) {
@@ -161,7 +165,7 @@ const items = [
   { title: 'สรุปงบประมาณ', icon: salary, link: '/home-executive/sum-budget' },
   { title: 'ร้านค้า', icon: store, link: '/home-executive/show-shop' },
   { title: 'สรุปร้านค้า', icon: sumShop, link: '/home-executive/sum-shop' },
-  { title: 'LOGOUT', icon: logout, action: '/' },
+  { title: 'LOGOUT', icon: logout, action: 'logout' },
 ]
 
 // Logout function
