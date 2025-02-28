@@ -73,8 +73,6 @@ const isTokenExpired = (token: string) => {
   const decoded: any = jwtDecode(token)
   const currentTime = Date.now() / 1000
   return decoded.exp < currentTime
-  const currentTime = Date.now() / 1000
-  return decoded.exp < currentTime
 }
 
 const refreshToken = async () => {
@@ -105,22 +103,6 @@ const fetchUserData = async () => {
     alert('ไม่พบ Token กรุณาเข้าสู่ระบบใหม่')
     window.location.href = '/'
     return
-  }
-
-  const getUserName = (decoded: any) => {
-    if (decoded.role === 'Teacher' && decoded.teacher) {
-      return `${decoded.teacher.user_prefix || ''} ${decoded.teacher.user_firstName || ''} ${decoded.teacher.user_lastName || ''}`.trim()
-    } else {
-      return decoded.username || 'ไม่ทราบชื่อ'
-    }
-  }
-
-  const getUserRole = (decoded: any) => {
-    if (decoded.role === 'Teacher' && decoded.teacher) {
-      return `${decoded.teacher.duty_name || ''} ${decoded.teacher.faculty_name || ''}`.trim()
-    } else {
-      return decoded.role || 'ไม่ทราบตำแหน่ง'
-    }
   }
 
   const getUserName = (decoded: any) => {
