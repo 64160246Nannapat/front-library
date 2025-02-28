@@ -289,7 +289,7 @@
                 <div>คณะ: {{ book.Faculty }}</div>
                 <div>ชื่อหนังสือ: {{ book.Title }}</div>
                 <div>จำนวน: {{ book.Count }} เล่ม</div>
-                <div>Details: {{ book.Details || '-' }}</div>
+                <div>รายละเอียด: {{ book.Details || '-' }}</div>
               </div>
               <v-divider v-if="isDuplicate" class="my-4" style="color: black"></v-divider>
               <!-- แสดงข้อความแจ้งเตือนหากพบ ISBN ซ้ำ -->
@@ -352,7 +352,7 @@ const isDuplicate = ref(false)
 const disableValidation = ref(false)
 const confirmMessage = ref('')
 const fullName = computed(() => {
-  return `${book.value.Prefix} ${book.value.FirstName} ${book.value.LastName}`
+  return `${book.value.Prefix || ''} ${book.value.FirstName || ''} ${book.value.LastName || ''}`.trim()
 })
 
 const book = ref({
@@ -407,6 +407,49 @@ const rules = {
   radio: (value) => !!value || 'กรุณาเลือกหนึ่งตัวเลือก',
 }
 
+// const fetchUserData = async () => {
+//   const token = localStorage.getItem('token')
+
+//   if (!token) {
+//     alert('ไม่พบ Token กรุณาเข้าสู่ระบบใหม่')
+//     window.location.href = '/'
+//     return
+//   }
+
+//   try {
+//     let userId = null
+//     const decoded: any = isTokenExpired(token) ? await refreshAndDecodeToken() : jwtDecode(token)
+
+//     if (decoded) {
+//       userId = decoded.sub // ดึง user_id จาก sub ใน token
+//       user.value.Prefix = decoded.prefix
+//       user.value.FirstName = decoded.firstName
+//       user.value.LastName = decoded.lastName
+//       user.value.Role = decoded.offer_position
+//       user.value.Faculty = decoded.faculty
+//       user.value.Department = decoded.department
+//       user.value.Tel = decoded.tel
+//       user.value.Email = decoded.email
+//       user.value.User = userId // เก็บ user_id ที่ดึงมา
+//     }
+
+//     // ตั้งค่าอื่น ๆ ให้กับ book
+//     book.value.Prefix = user.value.Prefix
+//     book.value.FirstName = user.value.FirstName
+//     book.value.LastName = user.value.LastName
+//     book.value.Role = user.value.Role
+//     book.value.Faculty = user.value.Faculty
+//     book.value.Department = user.value.Department
+//     book.value.Tel = user.value.Tel
+//     book.value.Email = user.value.Email
+//     book.value.User = user.value.User
+
+//     isReadonly.value = true
+//   } catch (error) {
+//     console.error('Token decoding error:', error)
+//   }
+// }
+
 const fetchUserData = async () => {
   const token = localStorage.getItem('token')
 
@@ -421,32 +464,128 @@ const fetchUserData = async () => {
     const decoded: any = isTokenExpired(token) ? await refreshAndDecodeToken() : jwtDecode(token)
 
     if (decoded) {
-      userId = decoded.sub // ดึง user_id จาก sub ใน token
-      user.value.Prefix = decoded.prefix
-      user.value.FirstName = decoded.firstName
-      user.value.LastName = decoded.lastName
-      user.value.Role = decoded.offer_position
-      user.value.Faculty = decoded.faculty
-      user.value.Department = decoded.department
-      user.value.Tel = decoded.tel
-      user.value.Email = decoded.email
-      user.value.User = userId // เก็บ user_id ที่ดึงมา
+      console.log('Decoded Token:', decoded) // ตรวจสอบค่าที่ decode ออกมา
+      userId = decoded.sub
+
+      // ตรวจสอบ role แล้วเลือกข้อมูลให้ถูกต้อง
+      let userData = {}
+
+      switch (decoded.role) {
+        case 'Student':
+          userData = decoded.student || {}
+          break
+        case 'Admin':
+          userData = decoded.admin || {}
+          break
+        case 'Teacher':
+          userData = decoded.teacher || {}
+          break
+        case 'StaffLibrary':
+          userData = decoded.staffLibrary || {}
+          break
+        case 'Executive':
+          userData = decoded.executive || {}
+          break
+        case 'StaffFaculty':
+          userData = decoded.staffFaculty || {}
+          break
+        default:
+          console.warn('Unknown role:', decoded.role)
+      }
+
+      // กำหนดค่าให้ user.value
+      user.value = {
+        Prefix: userData.user_prefix || '-',
+        FirstName: userData.user_firstName || '-',
+        LastName: userData.user_lastName || '-',
+        Role: userData.duty_name || '-',
+        Faculty: userData.faculty_name || '-',
+        Department: userData.department_name || '-',
+        Tel: decoded.tel || '-',
+        Email: decoded.email || '-',
+        User: userId,
+      }
     }
 
-    // ตั้งค่าอื่น ๆ ให้กับ book
-    book.value.Prefix = user.value.Prefix
-    book.value.FirstName = user.value.FirstName
-    book.value.LastName = user.value.LastName
-    book.value.Role = user.value.Role
-    book.value.Faculty = user.value.Faculty
-    book.value.Department = user.value.Department
-    book.value.Tel = user.value.Tel
-    book.value.Email = user.value.Email
-    book.value.User = user.value.User
+    console.log('User Data:', user.value) // Debug ดูว่าข้อมูลมีค่าอะไรบ้าง
+
+    if (!user.value.Role) {
+      console.error('Error: Role is empty. Check token payload.')
+      return
+    }
+
+    // ตั้งค่า book จาก user
+    Object.assign(book.value, user.value)
+
+    // ตรวจสอบว่ามี API สำหรับ role นั้น ๆ หรือไม่
+    const apiEndpoints: Record<string, string> = {
+      Admin: 'http://bookfair.buu.in.th:8044/admin',
+      Student: 'http://bookfair.buu.in.th:8044/student',
+      Teacher: 'http://bookfair.buu.in.th:8044/teacher',
+      StaffLibrary: 'http://bookfair.buu.in.th:8044/staff',
+      Executive: 'http://bookfair.buu.in.th:8044/executive',
+      StaffFaculty: 'http://bookfair.buu.in.th:8044/staffFaculty',
+    }
+
+    const apiUrl = apiEndpoints[decoded.role]
+
+    if (apiUrl) {
+      await fetchRoleData(apiUrl)
+    } else {
+      console.warn('No API defined for role:', decoded.role)
+    }
 
     isReadonly.value = true
   } catch (error) {
     console.error('Token decoding error:', error)
+  }
+}
+
+// ✅ ฟังก์ชันดึงข้อมูลจาก API ตาม Role
+const fetchRoleData = async (role: string) => {
+  try {
+    if (!role) {
+      console.error('Role is empty, skipping API call.')
+      return
+    }
+
+    let apiUrl = ''
+
+    switch (role) {
+      case 'Admin':
+        apiUrl = 'http://bookfair.buu.in.th:8044/admin'
+        break
+      case 'Teacher':
+        apiUrl = 'http://bookfair.buu.in.th:8044/teacher'
+        break
+      case 'Student':
+        apiUrl = 'http://bookfair.buu.in.th:8044/student'
+        break
+      case 'Executive':
+        apiUrl = 'http://bookfair.buu.in.th:8044/executive'
+        break
+      case 'StaffLibrary':
+        apiUrl = 'http://bookfair.buu.in.th:8044/staffLibrary'
+        break
+      case 'StaffFaculty':
+        apiUrl = 'http://bookfair.buu.in.th:8044/staffFaculty'
+        break
+
+      default:
+        console.error(`Unknown role: ${role}`)
+        return
+    }
+
+    const response = await axios.get(apiUrl)
+    console.log(`Data for ${role}:`, response.data)
+
+    if (response.data) {
+      book.value.Faculty = response.data.faculty_name || ''
+      book.value.Department = response.data.department_name || ''
+      book.value.Role = role
+    }
+  } catch (error) {
+    console.error(`Error fetching data for role ${role}:`, error)
   }
 }
 
@@ -485,7 +624,7 @@ const submitForm = async () => {
 // ฟังก์ชันตรวจสอบ ISBN ซ้ำ
 const checkDuplicateISBN = async (isbn) => {
   try {
-    const response = await axios.get(`http://bookfair.buu.in.th:8041/offer-form?isbn=${isbn}`)
+    const response = await axios.get(`http://bookfair.buu.in.th:8044/offer-form?isbn=${isbn}`)
     console.log('API Response:', response.data)
 
     // ตรวจสอบว่า response.data เป็น array และไม่ว่าง
@@ -528,10 +667,10 @@ const confirmForm = async (bookForm: any) => {
     const bookQuantity = book.value.Count ? Number(book.value.Count) : 1
 
     // ตรวจสอบค่า book.Price และตั้งค่าเป็น 0 ถ้าค่ามันว่าง
-    // const bookPrice = book.value.Price ? Number(book.value.Price) : 0
+    const bookPrice = book.value.Price ? Number(book.value.Price) : 0
 
-    // ตั้งค่า store_id เป็น null
-    // const storeId = book.value.Store ? stores.value.indexOf(book.value.Store) + 1 : 0
+    // ถ้าไม่มีการกรอก Store ให้ store_id เป็น null หรือ 0
+    const storeId = book.value.Store ? stores.value.indexOf(book.value.Store) + 1 : 0
 
     const formData = {
       user_fullname: `${book.value.Prefix} ${book.value.FirstName} ${book.value.LastName}`,
@@ -541,23 +680,31 @@ const confirmForm = async (bookForm: any) => {
       user_tel: book.value.Tel,
       faculty_id: Number(book.value.Faculty),
       department_id: book.value.Department,
-      // store_id: storeId,
+      store_id: storeId,
       book_title: book.value.Title,
       book_author: book.value.Author,
       book_subject: book.value.Subject,
-      book_category: 'เสนอหนังสือออนไลน์',
+      book_category: 'เสนอหนังสือทั่วไป',
       published_year: Number(book.value.Year),
       ISBN: book.value.isbn,
-      // book_price: bookPrice,
+      book_price: bookPrice,
       book_quantity: bookQuantity,
       user_id: userId,
       coupon_used: book.value.Coupon,
     }
 
-    const response = await axios.post('http://bookfair.buu.in.th:8041/offer-form', formData, {
+    console.log('Form Data:', formData) // Debug ตรวจสอบข้อมูลก่อนส่ง
+
+    // ตรวจสอบว่า token ยังใช้งานได้หรือไม่
+    const token = localStorage.getItem('token')
+    if (!token) {
+      throw new Error('Token ไม่ถูกต้องหรือหมดอายุ')
+    }
+
+    const response = await axios.post('http://bookfair.buu.in.th:8044/offer-form', formData, {
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
+        Authorization: `Bearer ${token}`, // ตรวจสอบให้แน่ใจว่า token ถูกส่งไปใน header
       },
     })
 
@@ -568,8 +715,9 @@ const confirmForm = async (bookForm: any) => {
   } catch (error) {
     console.error('Error submitting form:', error)
     if (error.response && error.response.data) {
-      console.log('User ID:', book.value.User)
       console.error('API Error:', error.response.data.message)
+    } else {
+      alert('เกิดข้อผิดพลาดในการส่งข้อมูล')
     }
   }
 }
@@ -612,21 +760,25 @@ const resetForm = (bookForm: any) => {
   submitted.value = false // รีเซ็ตสถานะการส่งฟอร์ม
 }
 
-const fetchStores = async () => {
-  try {
-    const response = await axios.get('http://bookfair.buu.in.th:8041/store')
-    console.log('Response data:', response.data) // ตรวจสอบข้อมูลที่ส่งกลับมา
-    stores.value = response.data.map((store: any) => store.store_name) // ปรับตามโครงสร้างข้อมูล
-  } catch (error) {
-    console.error('Error fetching stores:', error)
-  }
-}
+// const fetchStores = async () => {
+//   try {
+//     const response = await axios.get('http://bookfair.buu.in.th:8043/store')
+//     console.log('Response data:', response.data) // ตรวจสอบข้อมูลที่ส่งกลับมา
+//     stores.value = response.data.map((store: any) => store.store_name) // ปรับตามโครงสร้างข้อมูล
+//   } catch (error) {
+//     console.error('Error fetching stores:', error)
+//   }
+// }
 
 const fetchFaculties = async () => {
   try {
-    const response = await axios.get('http://bookfair.buu.in.th:8041/faculty')
+    const response = await axios.get('http://bookfair.buu.in.th:8044/faculty')
     console.log('Response data:', response.data) // ตรวจสอบข้อมูลที่ส่งกลับมา
-    faculties.value = response.data.map((faculty: any) => faculty.faculty_name)
+    if (response.data && Array.isArray(response.data)) {
+      faculties.value = response.data.map((faculty: any) => faculty.faculty_name)
+    } else {
+      console.error('Data format is incorrect')
+    }
   } catch (error) {
     console.error('Error fetching faculties:', error)
   }
@@ -634,9 +786,13 @@ const fetchFaculties = async () => {
 
 const fetchDepartments = async () => {
   try {
-    const response = await axios.get('http://bookfair.buu.in.th:8041/department')
+    const response = await axios.get('http://bookfair.buu.in.th:8044/department')
     console.log('Response data:', response.data) // ตรวจสอบข้อมูลที่ส่งกลับมา
-    departments.value = response.data.map((department: any) => department.department_name)
+    if (response.data && Array.isArray(response.data)) {
+      departments.value = response.data.map((department: any) => department.department_name)
+    } else {
+      console.error('Data format is incorrect')
+    }
   } catch (error) {
     console.error('Error fetching departments:', error)
   }
@@ -652,7 +808,9 @@ const refreshToken = async () => {
   const refreshToken = localStorage.getItem('refresh_token')
   if (refreshToken) {
     try {
-      const response = await axios.post('http://bookfair.buu.in.th:8041/auth/refresh', { refreshToken })
+      const response = await axios.post('http://bookfair.buu.in.th:8044/auth/refresh', {
+        refreshToken,
+      })
       const { access_token, refresh_token } = response.data
       // เก็บ Access Token และ Refresh Token ใหม่
       localStorage.setItem('token', access_token)
@@ -672,9 +830,9 @@ const refreshToken = async () => {
 
 onMounted(async () => {
   await fetchUserData()
-  console.log('Component mounted')
+  console.log('Component mounted', book.value)
   await Promise.all([
-    fetchStores(),
+    //fetchStores(),
     // fetchRoles(),
     fetchFaculties(),
     fetchDepartments(),

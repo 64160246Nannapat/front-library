@@ -86,7 +86,7 @@ const refreshToken = async () => {
   const refreshToken = localStorage.getItem('refresh_token')
   if (refreshToken) {
     try {
-      const response = await axios.post('http://bookfair.buu.in.th:8041/auth/refresh', {
+      const response = await axios.post('http://bookfair.buu.in.th:8044/auth/refresh', {
         refreshToken,
       })
       const { access_token, refresh_token } = response.data
@@ -115,16 +115,16 @@ const fetchUserData = async () => {
   }
 
   const getUserName = (decoded: any) => {
-    if (decoded.role === 'StaffLibrary' && decoded.StaffLibrary) {
-      return `${decoded.StaffLibrary.user_prefix || ''} ${decoded.StaffLibrary.user_firstName || ''} ${decoded.StaffLibrary.user_lastName || ''}`.trim()
+    if (decoded.role === 'StaffLibrary' && decoded.staffLibrary) {
+      return `${decoded.staffLibrary.user_prefix || ''} ${decoded.staffLibrary.user_firstName || ''} ${decoded.staffLibrary.user_lastName || ''}`.trim()
     } else {
       return decoded.username || 'ไม่ทราบชื่อ'
     }
   }
 
   const getUserRole = (decoded: any) => {
-    if (decoded.role === 'StaffLibrary' && decoded.StaffLibrary) {
-      return `${decoded.StaffLibrary.duty_name || ''} ${decoded.StaffLibrary.faculty_name || ''}`.trim()
+    if (decoded.role === 'StaffLibrary' && decoded.staffLibrary) {
+      return `${decoded.staffLibrary.duty_name || ''} ${decoded.staffLibrary.faculty_name || ''}`.trim()
     } else {
       return decoded.role || 'ไม่ทราบตำแหน่ง'
     }
@@ -168,9 +168,9 @@ const items = [
 // Logout function
 const handleLogout = async () => {
   try {
-    console.log('Attempting to logout...') // ตรวจสอบว่าฟังก์ชันทำงาน
+    console.log('Attempting to logout...')
     const response = await axios.post(
-      'http://bookfair.buu.in.th:8041/auth/logout',
+      'http://bookfair.buu.in.th:8044/auth/logout',
       {},
       {
         headers: {
@@ -178,11 +178,11 @@ const handleLogout = async () => {
         },
       },
     )
-    console.log(response.data) // ตรวจสอบ response จาก API
-    localStorage.clear() // ลบข้อมูลจาก LocalStorage
-    window.location.href = '/' // เปลี่ยนเส้นทางไปยังหน้า login
+    console.log(response.data)
+    localStorage.clear()
+    window.location.href = '/'
   } catch (error) {
-    console.error('Logout error:', error) // ดู error ใน console
+    console.error('Logout error:', error)
     alert('การออกจากระบบล้มเหลว กรุณาลองใหม่')
   }
 }

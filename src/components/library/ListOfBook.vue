@@ -1,6 +1,6 @@
 <template>
   <v-main style="height: 500px; margin-top: 20px">
-    <v-container>
+    <v-container fluid>
       <div class="header">
         <img class="header-image" src="@/assets/list.png" alt="Library Image" />
         <h1>รายชื่อผู้เสนอหนังสือ</h1>
@@ -10,13 +10,21 @@
         <v-col cols="auto" class="d-flex align-center">
           <h3 style="margin-right: 20px; margin-top: -20px">คณะ:</h3>
           <v-select
-            :items="['ทั้งหมด', 'วิทยาการสารสนเทศ', 'บริหาร', 'วิทยาศาสตร์', 'วิศวกรรมศาสตร์']"
+            :items="['ทั้งหมด', 'วิทยาการสารสนเทศ', 'วิศวกรรมศาสตร์', 'วิทยาศาสตร์', 'บริหาร']"
             v-model="searchFaculty"
-            class="select-book"
+            class="select-faculty"
             variant="outlined"
             rounded="lg"
-            @input="onSearch"
-          ></v-select>
+            multiple
+            clearable
+            @update:modelValue="onSearch"
+          >
+            <template v-slot:selection="{ item, index }">
+              <v-chip closable @click:close="removeItem(index)">
+                {{ item.title }}
+              </v-chip>
+            </template>
+          </v-select>
         </v-col>
 
         <v-col cols="auto" class="ml-auto d-flex align-center">
@@ -103,7 +111,7 @@ import { useRouter } from 'vue-router'
 
 // วันที่
 const selectedDate = ref(new Date())
-const searchFaculty = ref('ทั้งหมด')
+const searchFaculty = ref<string[]>(['ทั้งหมด'])
 const searchText = ref('')
 const loading = ref(false)
 const serverItems = ref([])
@@ -119,6 +127,10 @@ const headers = [
   { title: 'สถานะ', key: 'status' },
   { title: 'จำนวน', key: 'quantity' },
 ]
+
+const removeItem = (index: number) => {
+  searchFaculty.value.splice(index, 1)
+}
 
 // API ปลอมเพื่อเลียนแบบการดึงข้อมูล
 const FakeAPI = {
@@ -213,12 +225,12 @@ const onSearch = () => {
   FakeAPI.fetch({ page: 1, itemsPerPage: 10 }).then((items: any[]) => {
     let filteredItems = items
 
-    // กรองข้อมูลตามคณะที่เลือก (ถ้ามีการเลือกคณะ)
-    if (searchFaculty.value && searchFaculty.value !== 'ทั้งหมด') {
-      filteredItems = filteredItems.filter((item) => item.faculty === searchFaculty.value)
+    // ✅ กรองข้อมูลตามคณะที่เลือก (รองรับ multiple select)
+    if (searchFaculty.value.length > 0 && !searchFaculty.value.includes('ทั้งหมด')) {
+      filteredItems = filteredItems.filter((item) => searchFaculty.value.includes(item.faculty))
     }
 
-    // กรองข้อมูลตามชื่อ (ถ้ามีการพิมพ์)
+    // ✅ กรองข้อมูลตามชื่อ (ถ้ามีการพิมพ์)
     if (searchText.value) {
       const searchValue = searchText.value.toLowerCase()
       filteredItems = filteredItems.filter((item) => item.name.toLowerCase().includes(searchValue))
@@ -384,6 +396,10 @@ td {
 }
 
 .select-book {
+  width: 400px;
+}
+
+.select-faculty {
   width: 400px;
 }
 </style>

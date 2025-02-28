@@ -64,27 +64,23 @@ import { jwtDecode } from 'jwt-decode'
 
 const drawer = ref(false)
 
-// User data
 const user = ref({
   name: '',
   role: '',
 })
 
-// Decode JWT and check expiration
 const isTokenExpired = (token: string) => {
   const decoded: any = jwtDecode(token)
-  const currentTime = Date.now() / 1000 // Convert to seconds
-  return decoded.exp < currentTime // Compare expiration time
+  const currentTime = Date.now() / 1000
+  return decoded.exp < currentTime
 }
 
-// Refresh Token สำหรับการขอใหม่จาก Backend
 const refreshToken = async () => {
   const refreshToken = localStorage.getItem('refresh_token')
   if (refreshToken) {
     try {
-      const response = await axios.post('http://localhost:3000/auth/refresh', { refreshToken })
+      const response = await axios.post('http://bookfair.buu.in.th:8044/auth/refresh', { refreshToken })
       const { access_token, refresh_token } = response.data
-      // เก็บ Access Token และ Refresh Token ใหม่
       localStorage.setItem('token', access_token)
       localStorage.setItem('refresh_token', refresh_token)
       return access_token // คืนค่าใหม่ของ access_token
@@ -109,27 +105,34 @@ const fetchUserData = async () => {
     return
   }
 
+  const getUserName = (decoded: any) => {
+    if (decoded.role === 'Teacher' && decoded.teacher) {
+      return `${decoded.teacher.user_prefix || ''} ${decoded.teacher.user_firstName || ''} ${decoded.teacher.user_lastName || ''}`.trim()
+    } else {
+      return decoded.username || 'ไม่ทราบชื่อ'
+    }
+  }
+
+  const getUserRole = (decoded: any) => {
+    if (decoded.role === 'Teacher' && decoded.teacher) {
+      return `${decoded.teacher.duty_name || ''} ${decoded.teacher.faculty_name || ''}`.trim()
+    } else {
+      return decoded.role || 'ไม่ทราบตำแหน่ง'
+    }
+  }
+
   if (isTokenExpired(token)) {
-    // ถ้า Token หมดอายุ ให้รีเฟรชด้วย Refresh Token
     const newAccessToken = await refreshToken()
     if (newAccessToken) {
-      // หลังจากรีเฟรช Token ใหม่แล้ว ให้ทำการดึงข้อมูลผู้ใช้
       const decoded: any = jwtDecode(newAccessToken)
-      user.value.name =
-        `${decoded.prefix || ''} ${decoded.firstName || ''} ${decoded.lastName || ''}`.trim() ||
-        'ไม่ทราบชื่อ'
-      user.value.role =
-        decoded.management_position_name || decoded.position_name || 'ไม่ทราบตำแหน่ง'
+      user.value.name = getUserName(decoded)
+      user.value.role = getUserRole(decoded)
     }
   } else {
-    // Token ยังไม่หมดอายุ
     try {
       const decoded: any = jwtDecode(token)
-      user.value.name =
-        `${decoded.prefix || ''} ${decoded.firstName || ''} ${decoded.lastName || ''}`.trim() ||
-        'ไม่ทราบชื่อ'
-      user.value.role =
-        decoded.management_position_name || decoded.position_name || 'ไม่ทราบตำแหน่ง'
+      user.value.name = getUserName(decoded)
+      user.value.role = getUserRole(decoded)
     } catch (error) {
       console.error('Token decoding error:', error)
     }
@@ -151,9 +154,9 @@ const items = [
 // Logout function
 const handleLogout = async () => {
   try {
-    console.log('Attempting to logout...') // ตรวจสอบว่าฟังก์ชันทำงาน
+    console.log('Attempting to logout...')
     const response = await axios.post(
-      'http://localhost:3000/auth/logout',
+      'http://bookfair.buu.in.th:8044/auth/logout',
       {},
       {
         headers: {
@@ -161,11 +164,11 @@ const handleLogout = async () => {
         },
       },
     )
-    console.log(response.data) // ตรวจสอบ response จาก API
-    localStorage.clear() // ลบข้อมูลจาก LocalStorage
-    window.location.href = '/' // เปลี่ยนเส้นทางไปยังหน้า login
+    console.log(response.data)
+    localStorage.clear()
+    window.location.href = '/'
   } catch (error) {
-    console.error('Logout error:', error) // ดู error ใน console
+    console.error('Logout error:', error)
     alert('การออกจากระบบล้มเหลว กรุณาลองใหม่')
   }
 }

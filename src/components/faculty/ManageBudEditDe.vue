@@ -1,6 +1,6 @@
 <template>
   <v-main style="height: 500px; margin-top: 20px">
-    <v-container class="budget-summary-container">
+    <v-container class="budget-summary-container" fluid>
       <!-- Header -->
       <v-row align="center" justify="space-between">
         <v-col cols="12" md="6">

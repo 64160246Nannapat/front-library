@@ -1,6 +1,6 @@
 <template>
   <v-main style="height: 500px; margin-top: 20px">
-    <v-container>
+    <v-container fluid>
       <!-- Header -->
       <div class="header">
         <img class="header-image" src="@/assets/dashboard (1).png" alt="Library Image" />

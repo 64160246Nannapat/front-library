@@ -1,6 +1,6 @@
 <template>
   <v-main style="height: 500px; margin-top: 20px">
-    <v-container>
+    <v-container fluid>
       <div class="header">
         <img class="header-image" src="@/assets/salary (1).png" alt="Library Image" />
         <h1>สรุปงบประมาณ</h1>
@@ -58,11 +58,19 @@
               'สายสนับสนุนวิชาการ',
             ]"
             v-model="searchFaculty"
-            class="select-book"
+            class="select-faculty"
             variant="outlined"
             rounded="lg"
-            @input="onSearch"
-          ></v-select>
+            multiple
+            clearable
+            @update:modelValue="onSearch"
+          >
+            <template v-slot:selection="{ item, index }">
+              <v-chip closable @click:close="removeItem(index)">
+                {{ item.title }}
+              </v-chip>
+            </template>
+          </v-select>
         </v-col>
       </v-row>
 
@@ -113,7 +121,7 @@ import { useRouter } from 'vue-router'
 // วันที่
 const selectedDate = ref(new Date())
 const menuDate = ref(false)
-const searchFaculty = ref('ทั้งหมด')
+const searchFaculty = ref<string[]>(['ทั้งหมด'])
 const loading = ref(false)
 const serverItems = ref([])
 const router = useRouter()
@@ -126,6 +134,10 @@ const headers = [
   { title: 'คงเหลือ', key: 'remain' },
   { title: 'รายละเอียด', key: 'description' },
 ]
+
+const removeItem = (index: number) => {
+  searchFaculty.value.splice(index, 1)
+}
 
 // ฟอร์แมตวันที่
 const formattedDate = computed(() => {
@@ -450,6 +462,10 @@ td {
 }
 
 .select-book {
+  width: 400px;
+}
+
+.select-faculty {
   width: 400px;
 }
 </style>

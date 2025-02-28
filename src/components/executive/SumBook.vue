@@ -1,6 +1,6 @@
 <template>
   <v-main style="height: 500px; margin-top: 20px">
-    <v-container>
+    <v-container fluid>
       <div class="header">
         <img class="header-image" src="@/assets/sumbook.png" alt="Library Image" />
         <h1>สรุปการซื้อหนังสือ</h1>
@@ -11,29 +11,26 @@
               v-model="menuDate"
               :close-on-content-click="false"
               transition="scale-transition"
-              offset-y
             >
               <template v-slot:activator="{ on, props }">
                 <v-text-field
                   v-bind="props"
-                  v-model="formattedDateRange"
-                  placeholder="เลือกช่วงวันที่"
+                  v-on="on"
+                  v-model="formattedDate"
+                  placeholder="dd/mm/yyyy"
                   class="custom-date-picker"
                   hide-details
                   rounded="lg"
                   readonly
                   flat
                   solo
-                  prepend-inner-icon="mdi-calendar"
+                  prepend-inner-icon="$calendar"
+                  suffix-icon="mdi-calendar"
                   variant="outlined"
                 />
               </template>
-              <v-date-picker
-                v-model="selectedDateRange"
-                locale="th"
-                range
-                @update:model-value="onDateSelected"
-              />
+
+              <v-date-picker v-model="selectedDate" locale="th" @input="onSearch" />
             </v-menu>
           </v-col>
         </v-row>
@@ -57,8 +54,16 @@
               class="select-faculty"
               variant="outlined"
               rounded="lg"
-              @change="onSearch"
-            ></v-select>
+              multiple
+              clearable
+              @update:modelValue="onSearch"
+            >
+              <template v-slot:selection="{ item, index }">
+                <v-chip closable @click:close="removeItem(index)">
+                  {{ item.title }}
+                </v-chip>
+              </template>
+            </v-select>
           </div>
         </v-col>
 
@@ -114,7 +119,7 @@ const menuDate = ref(false)
 const loading = ref(false)
 const allItems = ref([]) // ข้อมูลต้นฉบับ
 const serverItems = ref([]) // ข้อมูลที่จะแสดงในตาราง
-const searchFaculty = ref('ทั้งหมด')
+const searchFaculty = ref<string[]>(['ทั้งหมด'])
 const searchCoupon = ref('ทั้งหมด')
 const total = ref({
   price: 0,
@@ -133,34 +138,8 @@ const headers = [
   { title: 'คณะ', key: 'faculty' },
 ]
 
-const formattedDateRange = computed(() => {
-  if (!Array.isArray(selectedDateRange.value) || selectedDateRange.value.length < 2) {
-    return ''
-  }
-
-  const [start, end] = selectedDateRange.value.map((date) => new Date(date)) // แปลงเป็น Date Object
-  return `${formatDate(start)} - ${formatDate(end)}`
-})
-
-const formatDate = (date) => {
-  if (!date || isNaN(date.getTime())) return '' // ตรวจสอบค่าวันที่
-  const day = String(date.getDate()).padStart(2, '0')
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const year = date.getFullYear() + 543
-  return `${day}/${month}/${year}`
-}
-
-// ✅ ตรวจสอบให้แน่ใจว่า selectedDateRange เป็น Array ที่มีค่าถูกต้อง
-const onDateSelected = (dates) => {
-  console.log('ค่าที่เลือกจาก date-picker:', dates) // Debug ค่า
-
-  if (!dates || !Array.isArray(dates) || dates.length < 2) {
-    selectedDateRange.value = []
-    return
-  }
-
-  // ✅ ใช้ [...dates] เพื่อแน่ใจว่า Vue อัปเดตค่า
-  selectedDateRange.value = [...dates]
+const removeItem = (index: number) => {
+  searchFaculty.value.splice(index, 1)
 }
 
 const formattedDate = computed(() => {

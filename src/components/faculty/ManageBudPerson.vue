@@ -1,7 +1,23 @@
 <template>
   <v-main style="height: 500px; margin-top: 20px">
-    <v-container class="budget-summary-container">
+    <v-container class="budget-summary-container" fluid>
       <!-- Header -->
+      <v-row>
+        <!-- ปุ่มย้อนกลับ -->
+        <v-col cols="auto">
+          <v-btn
+            color="#fcdc94"
+            text-color="black"
+            @click="goBack"
+            class="custom-back"
+            style="height: 40px"
+            rounded="lg"
+          >
+            <v-icon class="font-weight-bold" left>mdi-arrow-left</v-icon>
+            <span class="font-weight-bold">BACK</span>
+          </v-btn>
+        </v-col>
+      </v-row>
       <v-row align="center" justify="space-between">
         <v-col cols="12" md="6">
           <v-row>
@@ -644,6 +660,10 @@ const updateRemainingBudget = () => {
 const onSearch = () => {
   // เพียงแค่ทำการล้างช่องค้นหาหลังจากการค้นหาเสร็จ
   searchText.value = searchText.value.trim() // กรองช่องค้นหาก่อน
+}
+
+const goBack = () => {
+  window.history.back() // กลับไปหน้าก่อนหน้า
 }
 
 // const usedBudget = computed(() => {

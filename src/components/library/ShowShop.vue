@@ -1,6 +1,6 @@
 <template>
   <v-main style="height: 500px; margin-top: 20px">
-    <v-container>
+    <v-container fluid>
       <div class="header">
         <img class="header-image" src="@/assets/store (2).png" alt="Library Image" />
         <h1>ร้านค้า</h1>
@@ -24,7 +24,16 @@
               class="select-faculty"
               variant="outlined"
               rounded="lg"
-            ></v-select>
+              multiple
+              clearable
+              @update:modelValue="onSearch"
+            >
+              <template v-slot:selection="{ item, index }">
+                <v-chip closable @click:close="removeItem(index)">
+                  {{ item.title }}
+                </v-chip>
+              </template>
+            </v-select>
           </div>
         </v-col>
 
@@ -75,7 +84,7 @@ const selectedDate = ref(new Date())
 const menuDate = ref(false)
 const loading = ref(false)
 const serverItems = ref([])
-const searchShop = ref('ทั้งหมด')
+const searchShop = ref<string[]>(['ทั้งหมด'])
 const total = ref({
   price: 0,
   quantity: 0,
@@ -90,6 +99,10 @@ const headers = [
   { title: 'จำนวน', key: 'quantity' },
   { title: 'ราคาสุทธิ', key: 'price' },
 ]
+
+const removeItem = (index: number) => {
+  searchShop.value.splice(index, 1)
+}
 
 // ฟอร์แมตวันที่
 const formattedDate = computed(() => {
@@ -373,5 +386,9 @@ td {
 
 .select-coupon {
   width: 200px;
+}
+
+.select-faculty {
+  width: 400px;
 }
 </style>

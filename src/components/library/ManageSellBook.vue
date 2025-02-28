@@ -106,7 +106,7 @@
         <v-col cols="12" md="6" lg="4" class="ml-auto d-flex justify-end align-center">
           <h3 style="margin-right: 20px; margin-top: -20px">ประเภท:</h3>
           <v-select
-            :items="['เสนอหนังสือออนไลน์', 'เสนอหนังสืองานหนังสือ']"
+            :items="['เสนอหนังสือทั่วไป', 'เสนอหนังสืองานหนังสือ']"
             v-model="searchBook"
             class="select-book"
             variant="outlined"
@@ -730,7 +730,7 @@ import axios from 'axios'
 const selectedDate = ref(new Date())
 const menuDate = ref(false)
 const dialogSuccess = ref(false)
-const searchBook = ref('เสนอหนังสือออนไลน์')
+const searchBook = ref('เสนอหนังสือทั่วไป')
 const selectedTab = ref('กำลังดำเนินการ')
 const loading = ref(false)
 const dialog = ref(false)
@@ -781,13 +781,13 @@ interface BookItem {
 const NoImageHeaders = [
   { title: 'ลำดับ', key: 'rowIndex', width: '50px', align: 'start' },
   { title: 'ข้อมูลผู้คัดเลือก', key: 'user_fullname', width: '150px' },
-  { title: 'ร้านค้า', key: 'store.store_name', width: '120px' },
+  //{ title: 'ร้านค้า', key: 'store.store_name', width: '120px' },
   { title: 'ชื่อหนังสือ', key: 'book_title', width: '200px' },
   { title: 'ผู้แต่ง', key: 'book_author', width: '100px' },
   { title: 'ปีพิมพ์', key: 'published_year', width: '60px' },
   { title: 'ISBN', key: 'ISBN', width: '100px' },
-  { title: 'ราคาสุทธิ', key: 'book_price', width: '60px' },
-  { title: 'จำนวน', key: 'book_quantity', width: '60px' },
+  //{ title: 'ราคาสุทธิ', key: 'book_price', width: '60px' },
+  //{ title: 'จำนวน', key: 'book_quantity', width: '60px' },
   { title: 'ตรวจหนังสือ', key: 'check', width: '120px' },
   { title: 'ดำเนินการ', key: 'view', width: '120px' },
   { title: 'E-mail', key: 'email', width: '120px' },
@@ -795,12 +795,12 @@ const NoImageHeaders = [
 
 const subHeaders = [
   { title: 'ข้อมูลผู้คัดเลือก', key: 'user_fullname', width: '120px' },
-  { title: 'ร้านค้า', key: 'store.store_name', width: '100px' },
+  //{ title: 'ร้านค้า', key: 'store.store_name', width: '100px' },
   { title: 'ชื่อหนังสือ', key: 'book_title', width: '180px' },
   { title: 'ผู้แต่ง', key: 'book_author', width: '80px' },
   { title: 'ปีพิมพ์', key: 'published_year', width: '60px' },
   { title: 'ISBN', key: 'ISBN', width: '80px' },
-  { title: 'ราคาสุทธิ', key: 'book_price', width: '50px' },
+  //{ title: 'ราคาสุทธิ', key: 'book_price', width: '50px' },
   { title: 'รายการซ้ำ', key: 'duplicate_status', width: '60px' },
   { title: 'ดำเนินการ', key: 'view', width: '60px' },
   { title: 'E-mail', key: 'email', width: '120px' },
@@ -850,7 +850,7 @@ const compareHeaders = ref([
 
 // คำนวณ headers ตามค่า searchBook
 const headers = computed(() => {
-  const baseHeaders = searchBook.value === 'เสนอหนังสือออนไลน์' ? NoImageHeaders : ImageHeaders
+  const baseHeaders = searchBook.value === 'เสนอหนังสือทั่วไป' ? NoImageHeaders : ImageHeaders
 
   if (selectedTab.value === 'ไม่อนุมัติการซื้อ' || selectedTab.value === 'อนุมัติการซื้อ') {
     return baseHeaders.map((header) =>

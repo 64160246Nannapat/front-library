@@ -1,6 +1,6 @@
 <template>
   <v-main style="height: 500px; margin-top: 20px">
-    <v-container>
+    <v-container fluid>
       <div class="header">
         <img class="header-image" src="@/assets/sumbook.png" alt="Library Image" />
         <h1>ประเมินงบการสั่งซื้อหนังสือ</h1>
@@ -54,8 +54,16 @@
               class="select-faculty"
               variant="outlined"
               rounded="lg"
-              @change="onSearch"
-            ></v-select>
+              multiple
+              clearable
+              @update:modelValue="onSearch"
+            >
+              <template v-slot:selection="{ item, index }">
+                <v-chip closable @click:close="removeItem(index)">
+                  {{ item.title }}
+                </v-chip>
+              </template>
+            </v-select>
           </div>
         </v-col>
 
@@ -110,12 +118,16 @@ const menuDate = ref(false)
 const loading = ref(false)
 const allItems = ref([]) // ข้อมูลต้นฉบับ
 const serverItems = ref([]) // ข้อมูลที่จะแสดงในตาราง
-const searchFaculty = ref('ทั้งหมด')
+const searchFaculty = ref<string[]>(['ทั้งหมด'])
 const searchCoupon = ref('ทั้งหมด')
 const total = ref({
   price: 0,
   quantity: 0,
 })
+
+const removeItem = (index: number) => {
+  searchFaculty.value.splice(index, 1)
+}
 
 // Headers สำหรับ v-data-table
 const headers = [
