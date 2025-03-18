@@ -12,7 +12,7 @@
       <v-toolbar-items class="d-flex align-center">
         <div class="d-flex flex-column align-end" style="margin-right: 20px">
           <span class="name" style="font-size: 16px">{{ user.name }}</span>
-          <span class="position" style="margin-top: 5px; font-size: 14px">{{ user.role }}</span>
+          <span class="position" style="margin-top: 5px; font-size: 14px"> ร้านค้า </span>
         </div>
       </v-toolbar-items>
     </v-app-bar>
@@ -22,26 +22,49 @@
       v-model="drawer"
       temporary
       app
-      fixed
-      :style="drawer ? 'width: 300px;' : 'width: 80px;'"
       class="custom-sidebar"
+      :class="{ 'hidden-sidebar': !drawer }"
     >
       <v-list>
-        <v-list-item v-for="item in items" :key="item.title">
-          <v-list-item-icon>
-            <!-- Horizontal Layout for Icon and Title -->
-            <v-row align="center" no-gutters>
-              <v-col class="d-flex justify-center" cols="auto">
-                <v-img :src="item.icon" height="30px" width="30px" />
-              </v-col>
-              <v-col class="ml-2">
-                <router-link v-if="!item.action" :to="item.link" class="custom-link">{{
-                  item.title
-                }}</router-link>
-                <span v-else class="custom-link" @click="handleLogout">{{ item.title }}</span>
-              </v-col>
-            </v-row>
-          </v-list-item-icon>
+        <v-subheader style="font-weight: bold; font-size: 18px">เมนูหลัก</v-subheader>
+        <v-list-item
+          v-for="item in menuItems"
+          :key="item.title"
+          :to="item.link"
+          @click="closeDrawer"
+        >
+          <template v-slot:prepend>
+            <v-img :src="item.icon" height="25px" width="25px" style="margin-right: 16px" />
+          </template>
+          <v-list-item-title>{{ item.title }}</v-list-item-title>
+        </v-list-item>
+      </v-list>
+
+      <v-divider></v-divider>
+
+      <v-list>
+        <v-subheader style="font-weight: bold; font-size: 18px">การจัดการหนังสือ</v-subheader>
+        <v-list-item
+          v-for="item in booksItems"
+          :key="item.title"
+          :to="item.link"
+          @click="closeDrawer"
+        >
+          <template v-slot:prepend>
+            <v-img :src="item.icon" height="25px" width="25px" style="margin-right: 16px" />
+          </template>
+          <v-list-item-title v-if="drawer">{{ item.title }}</v-list-item-title>
+        </v-list-item>
+      </v-list>
+
+      <v-divider></v-divider>
+
+      <v-list class="logout-container">
+        <v-list-item @click="handleLogout" style="margin-top: auto">
+          <template v-slot:prepend>
+            <v-img :src="logout" height="25px" width="25px" style="margin-right: 16px" />
+          </template>
+          <v-list-item-title>LOGOUT</v-list-item-title>
         </v-list-item>
       </v-list>
     </v-navigation-drawer>
@@ -53,7 +76,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, nextTick } from 'vue'
 import book from '@/assets/book-shop.png'
 import file from '@/assets/file-shop.png'
 import market from '@/assets/market.png'
@@ -72,18 +95,18 @@ const user = ref({
 // Decode JWT and check expiration
 const isTokenExpired = (token: string) => {
   const decoded: any = jwtDecode(token)
-  const currentTime = Date.now() / 1000 // Convert to seconds
-  return decoded.exp < currentTime // Compare expiration time
+  const currentTime = Date.now() / 1000
+  return decoded.exp < currentTime
 }
 
-// Refresh Token สำหรับการขอใหม่จาก Backend
 const refreshToken = async () => {
   const refreshToken = localStorage.getItem('refresh_token')
   if (refreshToken) {
     try {
-      const response = await axios.post('http://localhost:3000/auth/refresh', { refreshToken })
+      const response = await axios.post('http://bookfair.buu.in.th:8043/auth/refresh', {
+        refreshToken,
+      })
       const { access_token, refresh_token } = response.data
-      // เก็บ Access Token และ Refresh Token ใหม่
       localStorage.setItem('token', access_token)
       localStorage.setItem('refresh_token', refresh_token)
       return access_token // คืนค่าใหม่ของ access_token
@@ -108,27 +131,34 @@ const fetchUserData = async () => {
     return
   }
 
+  const getUserName = (decoded: any) => {
+    if (decoded.role === 'Store' && decoded.store) {
+      return `${decoded.store.store_name || ''}`.trim()
+    } else {
+      return decoded.username || 'ไม่ทราบชื่อ'
+    }
+  }
+
+  // const getUserRole = (decoded: any) => {
+  //   if (decoded.role === 'Store' && decoded.store) {
+  //     return `${decoded.store.duty_name || ''} ${decoded.store.faculty_name || ''}`.trim()
+  //   } else {
+  //     return decoded.role || 'ไม่ทราบตำแหน่ง'
+  //   }
+  // }
+
   if (isTokenExpired(token)) {
-    // ถ้า Token หมดอายุ ให้รีเฟรชด้วย Refresh Token
     const newAccessToken = await refreshToken()
     if (newAccessToken) {
-      // หลังจากรีเฟรช Token ใหม่แล้ว ให้ทำการดึงข้อมูลผู้ใช้
       const decoded: any = jwtDecode(newAccessToken)
-      user.value.name =
-        `${decoded.prefix || ''} ${decoded.firstName || ''} ${decoded.lastName || ''}`.trim() ||
-        'ไม่ทราบชื่อ'
-      user.value.role =
-        decoded.management_position_name || decoded.position_name || 'ไม่ทราบตำแหน่ง'
+      user.value.name = getUserName(decoded)
+      //user.value.role = getUserRole(decoded)
     }
   } else {
-    // Token ยังไม่หมดอายุ
     try {
       const decoded: any = jwtDecode(token)
-      user.value.name =
-        `${decoded.prefix || ''} ${decoded.firstName || ''} ${decoded.lastName || ''}`.trim() ||
-        'ไม่ทราบชื่อ'
-      user.value.role =
-        decoded.management_position_name || decoded.position_name || 'ไม่ทราบตำแหน่ง'
+      user.value.name = getUserName(decoded)
+      //user.value.role = getUserRole(decoded)
     } catch (error) {
       console.error('Token decoding error:', error)
     }
@@ -139,19 +169,26 @@ onMounted(() => {
   fetchUserData()
 })
 
-const items = [
-  { title: 'Dashboad', icon: market, link: '/home-shop/dash-board' },
+const menuItems = [{ title: 'Dashboad', icon: market, link: '/home-shop/dash-board' }]
+
+const booksItems = [
   { title: 'จัดการหนังสือ', icon: book, link: '/home-shop/manage-book' },
   { title: 'ประวัติการขาย', icon: file, link: '/home-shop/history-sell' },
-  { title: 'LOGOUT', icon: logout, action: 'logout' },
 ]
+
+// const items = [
+//   { title: 'Dashboad', icon: market, link: '/home-shop/dash-board' },
+//   { title: 'จัดการหนังสือ', icon: book, link: '/home-shop/manage-book' },
+//   { title: 'ประวัติการขาย', icon: file, link: '/home-shop/history-sell' },
+//   { title: 'LOGOUT', icon: logout, action: 'logout' },
+// ]
 
 // Logout function
 const handleLogout = async () => {
   try {
-    console.log('Attempting to logout...') // ตรวจสอบว่าฟังก์ชันทำงาน
+    console.log('Attempting to logout...')
     const response = await axios.post(
-      'http://localhost:3000/auth/logout',
+      'http://bookfair.buu.in.th:8043/auth/logout',
       {},
       {
         headers: {
@@ -159,13 +196,20 @@ const handleLogout = async () => {
         },
       },
     )
-    console.log(response.data) // ตรวจสอบ response จาก API
-    localStorage.clear() // ลบข้อมูลจาก LocalStorage
-    window.location.href = '/' // เปลี่ยนเส้นทางไปยังหน้า login
+    console.log(response.data)
+    localStorage.clear()
+    window.location.href = '/'
   } catch (error) {
-    console.error('Logout error:', error) // ดู error ใน console
+    console.error('Logout error:', error)
     alert('การออกจากระบบล้มเหลว กรุณาลองใหม่')
   }
+}
+
+const closeDrawer = async () => {
+  await nextTick()
+  setTimeout(() => {
+    drawer.value = false
+  }, 300) // เพิ่มเวลาเล็กน้อยให้ UI โหลดก่อนปิด sidebar
 }
 </script>
 
@@ -192,11 +236,15 @@ const handleLogout = async () => {
 .custom-sidebar {
   position: fixed;
   top: 96px;
-  height: calc(100vh - 96px); /* ปรับความสูงให้อยู่ในกรอบหน้าจอ */
+  left: 0; /* ตั้งค่าตำแหน่งของ Sidebar ให้เริ่มที่ด้านซ้าย */
+  height: calc(100vh - 96px);
   overflow-y: auto;
   background-color: #f5e4e5;
-  max-width: 300px !important;
-  transition: width 0.3s ease;
+  width: 300px !important; /* ความกว้างของ Sidebar */
+  padding-top: 20px;
+  padding-left: 20px;
+  transition: width 0.3s ease-in-out;
+  z-index: 100; /* ทำให้ Sidebar อยู่เหนือ Main Content */
 }
 
 .custom-link {
@@ -224,5 +272,14 @@ const handleLogout = async () => {
 .position {
   font-size: 14px;
   color: gray;
+}
+
+.hidden-sidebar {
+  display: none !important;
+}
+
+.logout-container {
+  position: absolute;
+  bottom: 0;
 }
 </style>

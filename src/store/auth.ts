@@ -38,7 +38,7 @@ export default new Vuex.Store({
       }
 
       try {
-        const response = await axios.post('http://localhost:3000/auth/refresh', { refreshToken })
+        const response = await axios.post('http://bookfair.buu.in.th:8043/auth/refresh', { refreshToken })
         const { access_token, role } = response.data
         commit('SET_AUTH', { access_token, refresh_token: refreshToken, role })
       } catch (error) {

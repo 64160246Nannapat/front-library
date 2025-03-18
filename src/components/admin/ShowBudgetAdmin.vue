@@ -71,7 +71,7 @@
 
       <v-btn
         variant="text"
-        @click="goToSumBudExecutive"
+        @click="goToSumBudAdmin"
         style="
           background-color: #4682b4; /* พื้นหลัง Steel Blue */
           border-radius: 8px;
@@ -406,8 +406,8 @@ const onSearch = () => {
   FakeAPI()
 }
 
-const goToSumBudExecutive = () => {
-  router.push({ name: 'sumBudgetExecutive' })
+const goToSumBudAdmin = () => {
+  router.push({ name: 'sumBudgetAdmin' })
 }
 
 watch(searchFaculty, () => {

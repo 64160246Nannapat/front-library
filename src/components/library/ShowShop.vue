@@ -1,6 +1,6 @@
 <template>
   <v-main style="height: 500px; margin-top: 20px">
-    <v-container>
+    <v-container fluid>
       <div class="header">
         <img class="header-image" src="@/assets/store (2).png" alt="Library Image" />
         <h1>ร้านค้า</h1>
@@ -24,7 +24,16 @@
               class="select-faculty"
               variant="outlined"
               rounded="lg"
-            ></v-select>
+              multiple
+              clearable
+              @update:modelValue="onSearch"
+            >
+              <template v-slot:selection="{ item, index }">
+                <v-chip closable @click:close="removeItem(index)">
+                  {{ item.title }}
+                </v-chip>
+              </template>
+            </v-select>
           </div>
         </v-col>
 
@@ -48,7 +57,7 @@
               />
             </template>
 
-            <v-date-picker v-model="selectedDate" @input="menuDate = false" locale="th" />
+            <v-date-picker v-model="selectedDate" @input="onSearch" locale="th" />
           </v-menu>
         </v-col>
       </v-row>
@@ -75,7 +84,7 @@ const selectedDate = ref(new Date())
 const menuDate = ref(false)
 const loading = ref(false)
 const serverItems = ref([])
-const searchShop = ref('ทั้งหมด')
+const searchShop = ref<string[]>(['ทั้งหมด'])
 const total = ref({
   price: 0,
   quantity: 0,
@@ -90,6 +99,10 @@ const headers = [
   { title: 'จำนวน', key: 'quantity' },
   { title: 'ราคาสุทธิ', key: 'price' },
 ]
+
+const removeItem = (index: number) => {
+  searchShop.value.splice(index, 1)
+}
 
 // ฟอร์แมตวันที่
 const formattedDate = computed(() => {
@@ -150,7 +163,7 @@ const FakeAPI = {
             shop: 'KP Book',
             quantity: 1,
             price: 250,
-            date: '06/02/2568',
+            date: '14/03/2568',
           },
           {
             id: 2,
@@ -159,7 +172,7 @@ const FakeAPI = {
             shop: 'KP Book',
             quantity: 1,
             price: 250,
-            date: '06/02/2568',
+            date: '14/03/2568',
           },
           {
             id: 3,
@@ -168,7 +181,7 @@ const FakeAPI = {
             shop: 'แจ่มใส',
             quantity: 1,
             price: 250,
-            date: '06/02/2568',
+            date: '14/03/2568',
           },
           {
             id: 4,
@@ -177,7 +190,7 @@ const FakeAPI = {
             shop: 'นายอินทร์',
             quantity: 1,
             price: 250,
-            date: '06/02/2568',
+            date: '14/03/2568',
           },
           {
             id: 5,
@@ -186,7 +199,7 @@ const FakeAPI = {
             shop: 'Book & Print',
             quantity: 1,
             price: 250,
-            date: '06/02/2568',
+            date: '14/03/2568',
           },
         ]
         resolve(data)
@@ -195,8 +208,7 @@ const FakeAPI = {
   },
 }
 
-// ฟังก์ชันโหลดข้อมูล
-const loadItems = () => {
+const onSearch = () => {
   loading.value = true
   FakeAPI.fetch()
     .then((items: any[]) => {
@@ -204,12 +216,24 @@ const loadItems = () => {
 
       // กรองตามวันที่
       if (formattedDate.value) {
-        filteredItems = filteredItems.filter((item) => item.date === formattedDate.value)
+        filteredItems = filteredItems.filter((item) => {
+          // แยกวันที่จาก item.date (รูปแบบ dd/mm/yyyy)
+          const itemDateParts = item.date.split('/') // แยกวัน/เดือน/ปี
+          const itemDay = itemDateParts[0]
+          const itemMonth = itemDateParts[1]
+          const itemYear = itemDateParts[2] // ปี พ.ศ. จากข้อมูล API
+
+          // เปลี่ยนปีจาก พ.ศ. เป็น ค.ศ.
+          const itemDate = `${itemDay}/${itemMonth}/${parseInt(itemYear, 10) - 543}` // แปลงปีให้เป็น ค.ศ.
+
+          // เปรียบเทียบวันที่ในรูปแบบเดียวกัน
+          return itemDate === formattedDate.value
+        })
       }
 
       // กรองตามร้านค้า
-      if (searchShop.value !== 'ทั้งหมด') {
-        filteredItems = filteredItems.filter((item) => item.shop === searchShop.value)
+      if (searchShop.value.length > 0 && !searchShop.value.includes('ทั้งหมด')) {
+        filteredItems = filteredItems.filter((item) => searchShop.value.includes(item.shop))
       }
 
       serverItems.value = filteredItems
@@ -231,14 +255,14 @@ const loadItems = () => {
 onMounted(() => {
   const today = new Date()
   selectedDate.value = today
-  loadItems() // เรียกฟังก์ชันค้นหาทันทีเมื่อเริ่มต้น
+  onSearch() // เรียกฟังก์ชันค้นหาทันทีเมื่อเริ่มต้น
 })
 
 // เฝ้าดูการเปลี่ยนแปลงตัวกรอง
-watch([selectedDate, searchShop], loadItems)
+watch([selectedDate, searchShop], onSearch)
 
 // โหลดข้อมูลครั้งแรก
-loadItems()
+onSearch()
 </script>
 
 <style scoped>
@@ -373,5 +397,9 @@ td {
 
 .select-coupon {
   width: 200px;
+}
+
+.select-faculty {
+  width: 400px;
 }
 </style>

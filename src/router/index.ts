@@ -40,6 +40,10 @@ import ManageEditBudDe from '@/components/faculty/ManageBudEditDe.vue'
 import BookFormShop from '@/components/shop/BookFormShop.vue'
 import Dashboard from '@/components/shop/Dashboard.vue'
 import Qr from '@/views/QRCode.vue'
+import LoginMobile from '@/views/LoginMobile.vue'
+import ShowBookExecutiv from '@/components/executive/ShowBookExecutive.vue'
+import ShowBudgetAdmin from '@/components/admin/ShowBudgetAdmin.vue'
+import ShowBookAdmin from '@/components/admin/ShowBookAdmin.vue'
 // import LoginView2 from '@/views/LoginView2.vue'
 
 const routes = [
@@ -47,6 +51,21 @@ const routes = [
     path: '/',
     name: 'login',
     component: Login,
+  },
+  {
+    path: '/mobile',
+    name: 'loginShop',
+    component: LoginMobile,
+  },
+  {
+    path: '/book-form',
+    name: 'bookForm',
+    component: BookForm,
+  },
+  {
+    path: '/book-status',
+    name: 'bookstatus',
+    component: BookStatus,
   },
   {
     path: '/home-student',
@@ -65,16 +84,6 @@ const routes = [
       },
     ],
     meta: { requiresAuth: true, role: 'student' },
-  },
-  {
-    path: '/book-form',
-    name: 'bookForm',
-    component: BookForm,
-  },
-  {
-    path: '/book-status',
-    name: 'bookstatus',
-    component: BookStatus,
   },
   {
     path: '/home-teacher',
@@ -301,7 +310,7 @@ const routes = [
       {
         path: '/show-book/:itemId',
         name: 'showBookExecutive',
-        component: ShowBook
+        component: ShowBookExecutiv
       },
       {
         path: 'sum-budget',
@@ -359,7 +368,7 @@ const routes = [
       {
         path: '/show-budget/:itemId',
         name: 'showBudgetAdmin',
-        component: ShowBudget
+        component: ShowBudgetAdmin
       },
       {
         path: 'manage-sell-book',
@@ -374,7 +383,7 @@ const routes = [
       {
         path: '/show-book/:itemId',
         name: 'showBookAdmin',
-        component: ShowBook
+        component: ShowBookAdmin
       },
       {
         path: 'sum-book',
@@ -400,11 +409,6 @@ const routes = [
         path: 'manage-budget',
         name: 'manageBudgetAdmin',
         component: ManageBudget,
-      },
-      {
-        path: 'manage-budget-edit',
-        name: 'manageBudgetEditAdmin',
-        component: ManageBudgetEdit,
       },
     ],
     meta: { requiresAuth: true, role: 'admin' },

@@ -22,24 +22,85 @@
       v-model="drawer"
       temporary
       app
-      :style="drawer ? 'width: 300px;' : 'width: 80px;'"
       class="custom-sidebar"
+      :class="{ 'hidden-sidebar': !drawer }"
     >
       <v-list>
-        <v-list-item v-for="item in items" :key="item.title">
-          <v-list-item-icon :key="item.icon">
-            <v-row align="center" no-gutters>
-              <v-col class="d-flex justify-center" cols="auto">
-                <v-img :src="item.icon" height="30px" width="30px" />
-              </v-col>
-              <v-col class="ml-2">
-                <router-link v-if="!item.action" :to="item.link" class="custom-link">{{
-                  item.title
-                }}</router-link>
-                <span v-else class="custom-link" @click="handleLogout">{{ item.title }}</span>
-              </v-col>
-            </v-row>
-          </v-list-item-icon>
+        <v-subheader style="font-weight: bold; font-size: 18px">การเสนอหนังสือ</v-subheader>
+        <v-list-item
+          v-for="item in menuItems"
+          :key="item.title"
+          :to="item.link"
+          @click="closeDrawer"
+        >
+          <template v-slot:prepend>
+            <v-img :src="item.icon" height="25px" width="25px" style="margin-right: 16px" />
+          </template>
+          <v-list-item-title>{{ item.title }}</v-list-item-title>
+        </v-list-item>
+      </v-list>
+
+      <v-divider></v-divider>
+
+      <v-list>
+        <v-subheader style="font-weight: bold; font-size: 18px"
+          >การจัดการเสนอซื้อหนังสือ</v-subheader
+        >
+        <v-list-item
+          v-for="item in bookItems"
+          :key="item.title"
+          :to="item.link"
+          @click="closeDrawer"
+        >
+          <template v-slot:prepend>
+            <v-img :src="item.icon" height="25px" width="25px" style="margin-right: 16px" />
+          </template>
+          <v-list-item-title v-if="drawer">{{ item.title }}</v-list-item-title>
+        </v-list-item>
+      </v-list>
+
+      <v-divider></v-divider>
+
+      <v-list>
+        <v-subheader style="font-weight: bold; font-size: 18px">การจัดการงบประมาณ</v-subheader>
+        <v-list-item
+          v-for="item in moneyItems"
+          :key="item.title"
+          :to="item.link"
+          @click="closeDrawer"
+        >
+          <template v-slot:prepend>
+            <v-img :src="item.icon" height="25px" width="25px" style="margin-right: 16px" />
+          </template>
+          <v-list-item-title v-if="drawer">{{ item.title }}</v-list-item-title>
+        </v-list-item>
+      </v-list>
+
+      <v-divider></v-divider>
+
+      <v-list>
+        <v-subheader style="font-weight: bold; font-size: 18px">การจัดการร้านค้า</v-subheader>
+        <v-list-item
+          v-for="item in shopItems"
+          :key="item.title"
+          :to="item.link"
+          @click="closeDrawer"
+        >
+          <template v-slot:prepend>
+            <v-img :src="item.icon" height="25px" width="25px" style="margin-right: 16px" />
+          </template>
+          <v-list-item-title v-if="drawer">{{ item.title }}</v-list-item-title>
+        </v-list-item>
+      </v-list>
+
+      <v-divider></v-divider>
+
+      <v-list class="logout-container">
+        <v-list-item @click="handleLogout" style="margin-top: auto">
+          <template v-slot:prepend>
+            <v-img :src="logout" height="25px" width="25px" style="margin-right: 16px" />
+          </template>
+          <v-list-item-title>LOGOUT</v-list-item-title>
         </v-list-item>
       </v-list>
     </v-navigation-drawer>
@@ -92,7 +153,9 @@ const refreshToken = async () => {
   const refreshToken = localStorage.getItem('refresh_token')
   if (refreshToken) {
     try {
-      const response = await axios.post('http://bookfair.buu.in.th:8041/auth/refresh', { refreshToken })
+      const response = await axios.post('http://bookfair.buu.in.th:8043/auth/refresh', {
+        refreshToken,
+      })
       const { access_token, refresh_token } = response.data
       // เก็บ Access Token และ Refresh Token ใหม่
       localStorage.setItem('token', access_token)
@@ -158,20 +221,29 @@ onMounted(() => {
 })
 
 // Sidebar items
-const items = [
-  { title: 'จัดการเสนอซื้อหนังสือ', icon: confirmBook, link: '/home-admin/manage-sell-book' },
-  { title: 'ตรวจสอบหนังสือ', icon: checkbook, link: '/home-admin/check-book' },
+const menuItems = [
   { title: 'แบบฟอร์มการเสนอหนังสือ', icon: libraryImage, link: '/home-admin/book-form' },
   { title: 'สถานะการเสนอซื้อหนังสือ', icon: checklist, link: '/home-admin/book-status' },
-  { title: 'จัดการงบประมาณ', icon: pieChart, link: '/home-admin/manage-budget' },
-  { title: 'สรุปงบประมาณ', icon: salary, link: '/home-admin/sum-budget' },
-  { title: 'ประมาณงบการซื้อหนังสือ', icon: budget, link: '/home-admin/purchase-budget' },
+]
+
+const bookItems = [
+  { title: 'จัดการเสนอซื้อหนังสือ', icon: confirmBook, link: '/home-admin/manage-sell-book' },
+  //{ title: 'ตรวจสอบหนังสือ', icon: checkbook, link: '/home-admin/check-book' },
+  { title: 'บันทึกคำขอซื้อหนังสือ', icon: libraryImage, link: '/home-admin/book-form' },
   { title: 'รายชื่อผู้เสนอหนังสือ', icon: list, link: '/home-admin/list-book-presenters' },
   { title: 'สรุปการซื้อหนังสือ', icon: sumBook, link: '/home-admin/sum-book' },
+]
+
+const moneyItems = [
+  { title: 'จัดการงบประมาณ', icon: pieChart, link: '/home-admin/manage-budget' },
+  { title: 'สรุปงบประมาณ', icon: salary, link: '/home-admin/sum-budget' },
+  { title: 'ประเมินงบการซื้อหนังสือ', icon: budget, link: '/home-admin/purchase-budget' },
+]
+
+const shopItems = [
   { title: 'จัดการร้านค้า', icon: addShop, link: '/home-admin/add-shop' },
   { title: 'ร้านค้า', icon: store, link: '/home-admin/show-shop' },
   { title: 'สรุปร้านค้า', icon: shop, link: '/home-admin/sum-shop' },
-  { title: 'LOGOUT', icon: logout, action: 'logout' },
 ]
 
 // Logout function
@@ -179,22 +251,29 @@ const handleLogout = async () => {
   try {
     console.log('Attempting to logout...') // ตรวจสอบว่าฟังก์ชันทำงาน
     const response = await axios.post(
-      'http://bookfair.buu.in.th:8041/auth/logout',
+      'http://bookfair.buu.in.th:8043/auth/logout',
       {},
       {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
       },
-    );
-    console.log(response.data); // ตรวจสอบ response จาก API
-    localStorage.clear(); // ลบข้อมูลจาก LocalStorage
-    window.location.href = '/'; // เปลี่ยนเส้นทางไปยังหน้า login
+    )
+    console.log(response.data) // ตรวจสอบ response จาก API
+    localStorage.clear() // ลบข้อมูลจาก LocalStorage
+    window.location.href = '/' // เปลี่ยนเส้นทางไปยังหน้า login
   } catch (error) {
-    console.error('Logout error:', error); // ดู error ใน console
-    alert('การออกจากระบบล้มเหลว กรุณาลองใหม่');
+    console.error('Logout error:', error) // ดู error ใน console
+    alert('การออกจากระบบล้มเหลว กรุณาลองใหม่')
   }
-};
+}
+
+const closeDrawer = async () => {
+  await nextTick()
+  setTimeout(() => {
+    drawer.value = false
+  }, 300) // เพิ่มเวลาเล็กน้อยให้ UI โหลดก่อนปิด sidebar
+}
 </script>
 
 <style scoped>
@@ -220,11 +299,24 @@ const handleLogout = async () => {
 .custom-sidebar {
   position: fixed;
   top: 96px;
+  left: 0; /* ตั้งค่าตำแหน่งของ Sidebar ให้เริ่มที่ด้านซ้าย */
   height: calc(100vh - 96px);
   overflow-y: auto;
   background-color: #f5e4e5;
-  max-width: 300px !important;
-  transition: width 0.3s ease;
+  width: 330px !important; /* ความกว้างของ Sidebar */
+  padding-top: 20px;
+  padding-left: 20px;
+  transition: width 0.3s ease-in-out;
+  z-index: 100; /* ทำให้ Sidebar อยู่เหนือ Main Content */
+}
+
+.hidden-sidebar {
+  display: none !important;
+}
+
+.logout-container {
+  position: relative; /* กำหนดให้ตำแหน่งของ Logout อยู่ที่ตำแหน่งนี้ */
+  margin-top: auto; /* ทำให้ Logout อยู่ล่างสุด */
 }
 
 .custom-link {

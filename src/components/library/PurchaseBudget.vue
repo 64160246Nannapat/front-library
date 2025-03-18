@@ -1,6 +1,6 @@
 <template>
   <v-main style="height: 500px; margin-top: 20px">
-    <v-container>
+    <v-container fluid>
       <div class="header">
         <img class="header-image" src="@/assets/sumbook.png" alt="Library Image" />
         <h1>ประเมินงบการสั่งซื้อหนังสือ</h1>
@@ -30,7 +30,17 @@
                 />
               </template>
 
-              <v-date-picker v-model="selectedDate" locale="th" @input="onSearch" />
+              <v-date-picker
+                v-model="selectedDate"
+                locale="th"
+                @update:modelValue="
+                  (value) => {
+                    selectedDate = value
+                    menuDate = false
+                    onSearch()
+                  }
+                "
+              />
             </v-menu>
           </v-col>
         </v-row>
@@ -54,8 +64,16 @@
               class="select-faculty"
               variant="outlined"
               rounded="lg"
-              @change="onSearch"
-            ></v-select>
+              multiple
+              clearable
+              @update:modelValue="onSearch"
+            >
+              <template v-slot:selection="{ item, index }">
+                <v-chip closable @click:close="removeItem(index)">
+                  {{ item.title }}
+                </v-chip>
+              </template>
+            </v-select>
           </div>
         </v-col>
 
@@ -110,12 +128,16 @@ const menuDate = ref(false)
 const loading = ref(false)
 const allItems = ref([]) // ข้อมูลต้นฉบับ
 const serverItems = ref([]) // ข้อมูลที่จะแสดงในตาราง
-const searchFaculty = ref('ทั้งหมด')
+const searchFaculty = ref<string[]>(['ทั้งหมด'])
 const searchCoupon = ref('ทั้งหมด')
 const total = ref({
   price: 0,
   quantity: 0,
 })
+
+const removeItem = (index: number) => {
+  searchFaculty.value.splice(index, 1)
+}
 
 // Headers สำหรับ v-data-table
 const headers = [
@@ -191,7 +213,7 @@ const FakeAPI = {
             price: 250,
             quantity: 1,
             status: 'มีคูปอง',
-            date: '06/02/2568',
+            date: '14/03/2568',
           },
           {
             id: 2,
@@ -203,7 +225,7 @@ const FakeAPI = {
             price: 250,
             quantity: 1,
             status: 'ไม่มีคูปอง',
-            date: '06/02/2568',
+            date: '14/03/2568',
           },
           {
             id: 3,
@@ -215,7 +237,7 @@ const FakeAPI = {
             price: 250,
             quantity: 1,
             status: 'ไม่มีคูปอง',
-            date: '06/02/2568',
+            date: '14/03/2568',
           },
           {
             id: 4,
@@ -227,7 +249,7 @@ const FakeAPI = {
             price: 250,
             quantity: 1,
             status: 'มีคูปอง',
-            date: '06/02/2568',
+            date: '14/03/2568',
           },
           {
             id: 5,
@@ -239,7 +261,7 @@ const FakeAPI = {
             price: 250,
             quantity: 2,
             status: 'มีคูปอง',
-            date: '06/02/2568',
+            date: '14/03/2568',
           },
         ]
 
@@ -250,48 +272,51 @@ const FakeAPI = {
 }
 
 // ฟังก์ชันกรองข้อมูลตามวันที่, คณะ, และคูปอง
-const onSearch = () => {
+const onSearch = async () => {
   loading.value = true
-  FakeAPI.fetch({ page: 1, itemsPerPage: 10 }).then((items) => {
-    let filteredItems = items
+  const items = await FakeAPI.fetch({ page: 1, itemsPerPage: 5 })
 
-    // กรองข้อมูลตามวันที่
-    if (selectedDate.value) {
-      const selectedFormattedDate = formattedDate.value
-      filteredItems = filteredItems.filter((item) => item.date === selectedFormattedDate)
+  // แปลง selectedDate ให้เป็น dd/mm/yyyy
+  const selectedDateFormatted = selectedDate.value
+    ? `${String(selectedDate.value.getDate()).padStart(2, '0')}/` +
+      `${String(selectedDate.value.getMonth() + 1).padStart(2, '0')}/` +
+      `${selectedDate.value.getFullYear() + 543}`
+    : ''
+
+  console.log('Selected Date (Formatted):', selectedDateFormatted)
+
+  const filteredItems = items.filter((item) => {
+    // เปรียบเทียบวันที่ในรูปแบบ dd/mm/yyyy
+    if (item.date !== selectedDateFormatted) return false
+
+    if (
+      searchFaculty.value.length > 0 &&
+      !searchFaculty.value.includes('ทั้งหมด') &&
+      !searchFaculty.value.includes(item.faculty)
+    ) {
+      return false
     }
 
-    // กรองข้อมูลตามคณะ
-    if (searchFaculty.value !== 'ทั้งหมด') {
-      filteredItems = filteredItems.filter((item) => item.faculty === searchFaculty.value)
+    if (searchCoupon.value !== 'ทั้งหมด' && item.status !== searchCoupon.value) {
+      return false
     }
 
-    // กรองข้อมูลตามประเภทคูปอง
-    if (searchCoupon.value !== 'ทั้งหมด') {
-      filteredItems = filteredItems.filter((item) => item.status === searchCoupon.value)
-    }
-
-    // คำนวณราคาสุทธิและจำนวนรวม
-    total.value.price = filteredItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
-    total.value.quantity = filteredItems.reduce((sum, item) => sum + item.quantity, 0)
-
-    // อัปเดตข้อมูลตาราง
-    serverItems.value = filteredItems
-
-    // หากไม่มีข้อมูลให้เตือนใน console
-    if (filteredItems.length === 0) {
-      console.warn('No data found with the selected criteria.')
-    }
-
-    loading.value = false
-    menuDate.value = false
+    return true
   })
+
+  console.log('Filtered Items:', filteredItems)
+
+  total.value.price = filteredItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
+  total.value.quantity = filteredItems.reduce((sum, item) => sum + item.quantity, 0)
+
+  serverItems.value = filteredItems
+  loading.value = false
 }
 
-onMounted(() => {
-  const today = new Date()
-  selectedDate.value = today
-  onSearch() // เรียกฟังก์ชันค้นหาทันทีเมื่อเริ่มต้น
+onMounted(async () => {
+  await nextTick()
+  selectedDate.value = new Date()
+  onSearch()
 })
 
 watch([selectedDate, searchFaculty, searchCoupon], () => {

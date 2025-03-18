@@ -58,23 +58,40 @@
 
         <!-- ปุ่มยืนยัน -->
         <div class="form-row justify-end">
-          <v-btn :disabled="!valid" elevation="8" class="confirm-btn" @click="submitForm">
+          <v-btn :disabled="!valid" elevation="8" class="confirm-btn" @click="openDialog">
             ยืนยัน
           </v-btn>
         </div>
       </v-form>
 
       <!-- Dialog ยืนยันการส่งข้อมูล -->
-      <v-dialog v-model="dialog" max-width="400px">
-        <v-card style="background-color: #eed3d9">
-          <v-card-title class="text-center" style="font-weight: bold; font-size: 22px">
-            🎉 ส่งข้อมูลสำเร็จ!
+      <v-dialog v-model="dialog" max-width="500px">
+        <v-card style="background-color: #ede8dc">
+          <v-card-title
+            class="text-left"
+            style="
+              font-weight: bold;
+              font-size: 18px;
+              background-color: #c39898;
+              color: black;
+              padding: 16px;
+              border-bottom-left-radius: 16px;
+              border-bottom-right-radius: 16px;
+            "
+          >
+            ยืนยันข้อมูลร้านค้า
           </v-card-title>
-          <v-card-text class="text-center" style="font-size: 18px">
-            ข้อมูลของคุณถูกส่งเรียบร้อยแล้ว
+
+          <v-card-text class="text-left" style="font-size: 14px; color: gray">
+            <p><strong>ชื่อร้านค้า:</strong> {{ book.Shop }}</p>
+            <p><strong>ชื่อผู้ติดต่อ:</strong> {{ book.Name || '-' }}</p>
+            <p><strong>เบอร์โทรศัพท์:</strong> {{ book.Phone || '-' }}</p>
+            <p><strong>อีเมล:</strong> {{ book.Email || '-' }}</p>
           </v-card-text>
-          <v-card-actions justify-center>
-            <v-btn class="btn-dialog" @click="confirmReset"> ตกลง </v-btn>
+
+          <v-card-actions class="justify-right">
+            <v-btn class="btn-cancel" @click="dialog = false"> ยกเลิก </v-btn>
+            <v-btn class="btn-confirm" @click="submitForm"> ยืนยัน </v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -106,49 +123,27 @@ export default {
       phone: (value: string) => /^[0-9]{10}$/.test(value) || 'หมายเลขโทรศัพท์ต้องมี 10 หลัก',
     }
 
-    const submitForm = async () => {
-      if (bookForm.value) {
-        const isValid = await bookForm.value.validate()
-        if (isValid) {
-          try {
-            // await axios.post('http://localhost:3000/', book.value)
-            dialog.value = true // แสดง Dialog
-          } catch (error) {
-            console.error('Error submitting data:', error)
-          }
-        } else {
-          console.error('Validation Failed')
-        }
-      }
+    const openDialog = async () => {
+      const isValid = await bookForm.value?.validate()
+      if (isValid) dialog.value = true
     }
 
-    const confirmReset = () => {
-      dialog.value = false // ปิด Dialog
-      resetForm()
+    const submitForm = async () => {
+      try {
+        // await axios.post('http://localhost:3000/', book.value)
+        dialog.value = false
+        resetForm()
+      } catch (error) {
+        console.error('Error submitting data:', error)
+      }
     }
 
     const resetForm = () => {
-      book.value = {
-        Shop: '',
-        Name: '',
-        Phone: '',
-        Email: '',
-      }
-
-      if (bookForm.value) {
-        bookForm.value.reset() // รีเซ็ตฟอร์ม
-      }
+      book.value = { Shop: '', Name: '', Phone: '', Email: '' }
+      bookForm.value?.reset()
     }
 
-    return {
-      bookForm,
-      valid,
-      dialog,
-      book,
-      rules,
-      submitForm,
-      confirmReset,
-    }
+    return { bookForm, valid, dialog, book, rules, openDialog, submitForm }
   },
 }
 </script>
@@ -195,18 +190,22 @@ h1 {
   min-height: 50px;
 }
 
-.v-text-field,
-.v-select {
-  flex-grow: 1;
+.btn-cancel {
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 25px;
+  background-color: #ffaaaa;
+  color: black;
+  margin-right: end;
 }
 
-.btn-dialog {
+.btn-confirm {
   font-size: 16px;
-  font-weight: bold; /* ตัวหนา */
-  border-radius: 25px; /* ขอบมน */
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3); /* เงา */
-  background-color: #e0e6f0; /* สีพื้นหลังปุ่ม */
-  color: black; /* สีตัวอักษร */
+  font-weight: bold;
+  border-radius: 25px;
+  background-color: #aaf0aa;
+  color: black;
+  margin-right: end;
 }
 
 .required-asterisk {

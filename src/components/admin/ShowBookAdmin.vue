@@ -120,7 +120,7 @@ import { useRouter } from 'vue-router'
 const router = useRouter() // เพิ่มตัวแปร router
 
 const goToListBook = () => {
-  router.push({ name: 'listBookLibrary' })
+  router.push({ name: 'listBookAdmin' })
 }
 </script>
 

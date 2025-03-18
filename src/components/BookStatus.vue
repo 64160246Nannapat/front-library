@@ -1,6 +1,6 @@
 <template>
   <v-main style="height: 500px; margin-top: 20px">
-    <v-container>
+    <v-container fluid>
       <div class="header">
         <img class="header-image" src="@/assets/check-list (1).png" alt="Library Image" />
         <h1>สถานะการเสนอซื้อหนังสือ</h1>
@@ -30,7 +30,11 @@
                 />
               </template>
 
-              <v-date-picker v-model="selectedDate" @input="menuDate = false" locale="th" />
+              <v-date-picker
+                v-model="selectedDate"
+                @update:modelValue="menuDate = false"
+                locale="th"
+              />
             </v-menu>
           </v-col>
         </v-row>
@@ -68,12 +72,25 @@
             ไม่อนุมัติการซื้อ
           </v-tab>
         </v-tabs>
+
+        <!-- เลือกประเภท -->
+        <v-col cols="12" md="6" lg="4" class="ml-auto d-flex justify-end align-center">
+          <h3 style="margin-right: 20px; margin-top: -20px">ประเภท:</h3>
+          <v-select
+            :items="['เสนอหนังสือทั่วไป', 'เสนอหนังสืองานหนังสือ']"
+            v-model="selectedCategory"
+            class="select-book"
+            variant="outlined"
+            rounded="lg"
+            @update:modelValue="onSearch"
+          ></v-select>
+        </v-col>
       </v-row>
 
-      <!-- ตารางข้อมูล -->
+      <!-- Data Table -->
       <v-data-table-server
         v-model:items-per-page="itemsPerPage"
-        :headers="headers"
+        :headers="computedHeaders"
         :items="serverItems"
         :items-length="totalItems"
         :loading="loading"
@@ -81,6 +98,22 @@
         show-items-per-page="false"
         :hide-default-footer="true"
       >
+        <!-- ตำแหน่งการแสดงข้อมูล -->
+        <template v-slot:item.rowIndex="{ item }">
+          <span>{{ item.rowIndex }}</span>
+        </template>
+        <template v-slot:item.book_title="{ item }">
+          <span>{{ item.book_title }}</span>
+        </template>
+        <template v-slot:item.book_author="{ item }">
+          <span>{{ item.book_author }}</span>
+        </template>
+        <template v-slot:item.ISBN="{ item }">
+          <span>{{ item.ISBN }}</span>
+        </template>
+        <template v-slot:item.price="{ item }">
+          <span>{{ item.price }}</span>
+        </template>
         <template v-slot:item.form_status="{ item }">
           <span :class="getStatusClass(item.form_status)">
             {{ item.form_status }}
@@ -102,66 +135,60 @@ interface BookItem {
   book_price: number
   book_quantity: number
   form_status: string
+  created_at?: string
+  user_id?: string
 }
 
-// วันที่
+const selectedCategory = ref('เสนอหนังสือทั่วไป')
 const selectedDate = ref(new Date())
 const menuDate = ref(false)
-const itemsPerPage = ref(1000000)
+const itemsPerPage = ref(10)
 const loading = ref(false)
 const totalItems = ref(0)
 const serverItems = ref<BookItem[]>([])
 const selectedTab = ref('กำลังดำเนินการ')
+const token = localStorage.getItem('token')
+const loggedInUserId = ref(getUserIdFromToken(token))
 
-const getStatusClass = (status: string) => {
-  switch (status) {
-    case 'กำลังดำเนินการ':
-      return 'text-warning' // สีเหลือง
-    case 'อนุมัติการซื้อ':
-      return 'text-success' // สีเขียว
-    case 'ไม่อนุมัติการซื้อ':
-      return 'text-error' // สีแดง
-    default:
-      return ''
-  }
-}
+console.log('🔹 Token:', token)
+console.log('🔹 User ID from Token:', loggedInUserId.value)
 
-// Headers สำหรับ v-data-table
-const headers = [
-  { title: 'ลำดับ', key: 'rowIndex', align: 'start' },
-  { title: 'ชื่อหนังสือ', key: 'book_title' },
-  { title: 'ISBN', key: 'ISBN' },
-  { title: 'ราคาสุทธิ', key: 'book_price' },
-  { title: 'จำนวน', key: 'book_quantity' },
-  { title: 'สถานะ', key: 'form_status' },
+const computedHeaders = computed(() => {
+  return selectedCategory.value === 'เสนอหนังสือทั่วไป' ? headerOnl : headerOfl
+}) //ฟังก์ชั่นเปลี่ยนตารางตามประเภท
+
+const headerOnl = [
+  { title: 'ลำดับ', key: 'rowIndex', width: '50px', align: 'start' },
+  { title: 'ชื่อหนังสือ', key: 'book_title', width: '200px' },
+  { title: 'ผู้แต่ง', key: 'book_author', width: '100px' },
+  { title: 'ISBN', key: 'ISBN', width: '100px' },
+  { title: 'ราคา', key: 'price', width: '100px' },
+  //{ title: 'รายละเอียด', key: 'form_description', width: '150px' },
+  { title: 'สถานะ', key: 'form_status', width: '150px' },
 ]
 
-// ดึง Token จาก Local Storage
-const token = localStorage.getItem('token')
+const headerOfl = [
+  { title: 'ลำดับ', key: 'rowIndex', width: '50px', align: 'start' },
+  { title: 'ชื่อหนังสือ', key: 'book_title', width: '200px' },
+  { title: 'ผู้แต่ง', key: 'book_author', width: '100px' },
+  { title: 'ISBN', key: 'ISBN', width: '100px' },
+  { title: 'ราคา', key: 'price', width: '100px' },
+  { title: 'ร้านค้า', key: 'store', width: '100px' },
+  { title: 'รูปภาพ', key: 'image', width: '100px' },
+  //{ title: 'รายละเอียด', key: 'form_description', width: '150px' },
+  { title: 'สถานะ', key: 'form_status', width: '150px' },
+]
 
-// ฟอร์แมตวันที่
 const formattedDate = computed(() => {
   if (!selectedDate.value) return ''
-  const date = new Date(selectedDate.value)
-  const day = String(date.getDate()).padStart(2, '0')
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const year = date.getFullYear() + 543
-  return `${day}/${month}/${year}`
+  const date = selectedDate.value
+  return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear() + 543}`
 })
 
 const fullFormattedDate = computed(() => {
   if (!selectedDate.value) return ''
-  const date = new Date(selectedDate.value)
-
-  const days = [
-    'วันอาทิตย์',
-    'วันจันทร์',
-    'วันอังคาร',
-    'วันพุธ',
-    'วันพฤหัสบดี',
-    'วันศุกร์',
-    'วันเสาร์',
-  ]
+  const date = selectedDate.value
+  const days = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัส', 'ศุกร์', 'เสาร์']
   const months = [
     'มกราคม',
     'กุมภาพันธ์',
@@ -176,96 +203,133 @@ const fullFormattedDate = computed(() => {
     'พฤศจิกายน',
     'ธันวาคม',
   ]
-
-  const dayName = days[date.getDay()]
-  const day = date.getDate()
-  const monthName = months[date.getMonth()]
-  const year = date.getFullYear() + 543
-
-  return `${dayName} ที่ ${day} ${monthName} พ.ศ. ${year}`
+  return `วัน${days[date.getDay()]} ที่ ${date.getDate()} ${months[date.getMonth()]} พ.ศ. ${date.getFullYear() + 543}`
 })
 
-// ฟังก์ชันกรองข้อมูลตามวันที่
-const filterDataByDateAndStatus = (data: any[], selectedDate: Date, selectedTab: string) => {
-  const startOfDay = new Date(selectedDate)
-  startOfDay.setHours(0, 0, 0, 0)
-
-  const endOfDay = new Date(selectedDate)
-  endOfDay.setHours(23, 59, 59, 999)
-
-  return data
-    .filter((item) => {
-      const createdAt = new Date(item.createdAt)
-      return createdAt >= startOfDay && createdAt <= endOfDay
-    })
-    .filter((item) => item.form_status === selectedTab) // กรองตามสถานะ
-    .map((item, index) => ({
-      ...item,
-      rowIndex: index + 1, // เพิ่มลำดับแถว
-    }))
-}
-
-// API ดึงข้อมูลจากเซิร์ฟเวอร์
-const fetchDataFromAPI = async ({
-  page,
-  itemsPerPage,
-  token,
-}: {
-  page: number
-  itemsPerPage: number
-  token: string
-}) => {
+function getUserIdFromToken(token: string | null) {
+  if (!token) return null
   try {
-    const response = await axios.get('http://localhost:3000/offer-form/user', {
-      params: {
-        page,
-        itemsPerPage,
-      },
-      headers: {
-        Authorization: `Bearer ${token}`, // ใช้ token เพื่อระบุผู้ใช้
-      },
-    })
-
-    const data = response.data
-    return {
-      items: data.map((item: any) => ({
-        ...item,
-        createdAt: item.createdAt, // เก็บ `createdAt` ไว้กรองใน frontend
-      })),
-      total: data.length,
-    }
+    const base64Payload = token.split('.')[1]
+    const decodedPayload = atob(base64Payload.replace(/-/g, '+').replace(/_/g, '/'))
+    const payload = JSON.parse(decodedPayload)
+    console.log('🔸 Decoded Token:', payload) // ลองดูข้อมูลทั้งหมด
+    return payload.sub || payload.user_id || null
   } catch (error) {
-    console.error('Error fetching data:', error)
-    return { items: [], total: 0 }
+    console.error('Error decoding token:', error)
+    return null
   }
 }
 
-// Watch วันที่
-watch(
-  [selectedDate, selectedTab],
-  async () => {
-    if (!token) {
-      console.error('User not authenticated')
-      return
+const fetchUserData = async () => {
+  if (!token) return
+
+  try {
+    const response = await axios.get('URL_API_ดึงข้อมูลผู้ใช้', {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    console.log('📌 User Data:', response.data)
+    if (response.data && response.data.user_id) {
+      loggedInUserId.value = response.data.user_id
     }
+  } catch (error) {
+    console.error('Error fetching user data:', error)
+  }
+}
 
-    loading.value = true
+fetchUserData()
 
-    // ดึงข้อมูลทั้งหมดจาก API
-    const { items } = await fetchDataFromAPI({
-      page: 1,
-      itemsPerPage: itemsPerPage.value,
-      token,
+const loadItems = async () => {
+  loading.value = true
+  try {
+    const urls = [
+      { url: 'http://bookfair.buu.in.th:8043/offer-forms-onl', category: 'เสนอหนังสือทั่วไป' },
+      { url: 'http://bookfair.buu.in.th:8043/offer-forms-ofl', category: 'เสนอหนังสืองานหนังสือ' },
+    ]
+
+    const responses = await Promise.all(urls.map(({ url }) => axios.get(url)))
+
+    const rawItems = responses.flatMap((response, index) => {
+      const data = Array.isArray(response.data) ? response.data : []
+      return data.map((item) => ({
+        offer_form_id: item.offerForms_onl_id || item.offerForms_ofl_id || '-',
+        ISBN: item.ISBN?.trim() || '-',
+        book_title: item.book_title || '-',
+        book_author: item.book_author || '-',
+        price: item.price ?? '-',
+        form_status: item.status || '-',
+        createdAt: item.createdAt || '',
+        user_id: item.user_id ?? item.user?.id ?? null,
+        book_category: urls[index].category,
+      }))
     })
 
-    // กรองข้อมูลและเพิ่ม `rowIndex`
-    const filteredItems = filterDataByDateAndStatus(items, selectedDate.value, selectedTab.value)
+    console.log('✅ Raw Data:', rawItems)
 
-    // อัปเดต `serverItems` ให้มีลำดับ
-    serverItems.value = filteredItems
-    totalItems.value = filteredItems.length
+    serverItems.value = filterDataByDateAndStatus(rawItems)
 
+    console.log('🎯 Processed Data:', serverItems.value)
+    totalItems.value = serverItems.value.length // อัปเดตจำนวนรายการทั้งหมด
+  } catch (error) {
+    console.error('🚨 ดึงข้อมูลล้มเหลว:', error)
+  } finally {
     loading.value = false
+  }
+}
+
+const getStatusClass = (status: string) => {
+  switch (status) {
+    case 'กำลังดำเนินการ':
+      return 'status-pending'
+    case 'อนุมัติการซื้อ':
+      return 'status-approved'
+    case 'ไม่อนุมัติการซื้อ':
+      return 'status-rejected'
+    default:
+      return ''
+  }
+}
+
+// ฟังก์ชันกรองข้อมูลตามวันที่, สถานะ และประเภท
+const filterDataByDateAndStatus = (data: BookItem[]) => {
+  if (!loggedInUserId.value) return [] // ถ้าไม่มี user_id ของผู้ใช้งานที่ล็อกอิน ไม่แสดงข้อมูล
+
+  const selectedDateString = selectedDate.value.toLocaleDateString('th-TH') // เปลี่ยนจาก toISOString มาเป็น toLocaleDateString
+
+  return data
+    .filter((item) => {
+      if (!item.createdAt) return false
+      const createdAtDate = new Date(item.createdAt)
+      const createdAtString = createdAtDate.toLocaleDateString('th-TH') // เปลี่ยนจาก toISOString มาเป็น toLocaleDateString
+      return createdAtString === selectedDateString
+    })
+    .filter((item) => item.form_status?.trim() === selectedTab.value?.trim())
+    .filter((item) => item.book_category === selectedCategory.value)
+    .filter((item) => {
+      // ตรวจสอบว่ามีการกรองข้อมูลตาม user_id
+      if (item.user_id === null) {
+        return true // แสดงข้อมูลที่ไม่มี user_id หรือกรณีที่ user_id เป็น null
+      }
+      return String(item.user_id) === String(loggedInUserId.value) // กรองข้อมูลตาม user_id ของผู้ใช้งานที่ล็อกอิน
+    })
+    .map((item, index) => ({
+      ...item,
+      rowIndex: index + 1,
+    }))
+}
+
+watch(loggedInUserId, (newVal) => {
+  if (newVal) {
+    console.log('🚀 User ID เปลี่ยน โหลดข้อมูลใหม่:', newVal)
+    loadItems()
+  }
+})
+
+watch(
+  [selectedDate, selectedTab, selectedCategory, loggedInUserId],
+  () => {
+    if (loggedInUserId.value) {
+      loadItems()
+    }
   },
   { immediate: true },
 )
@@ -406,5 +470,24 @@ th {
 
 .text-error {
   color: #b11f2e !important; /* สีแดง */
+}
+
+.select-book {
+  max-width: 350px;
+}
+
+.status-pending {
+  color: #ff9800; /* สีเหลือง */
+  font-weight: bold;
+}
+
+.status-approved {
+  color: #4caf50; /* สีเขียว */
+  font-weight: bold;
+}
+
+.status-rejected {
+  color: #f44336; /* สีแดง */
+  font-weight: bold;
 }
 </style>

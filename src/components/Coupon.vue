@@ -12,9 +12,7 @@
         <v-col>
           <v-card class="mx-auto card-money justify-end">
             <v-card-title class="card-money-title">E-coupon คงเหลือ</v-card-title>
-            <v-card-subtitle class="card-money-subtitle">
-              {{ user.e_coupon_balance }} บาท
-            </v-card-subtitle>
+            <v-card-subtitle class="card-money-subtitle"> {{ user.e_coupon }} บาท </v-card-subtitle>
           </v-card>
         </v-col>
       </v-row>
@@ -22,20 +20,14 @@
       <!-- Coupon Section -->
       <v-row justify="center" class="mt-10">
         <v-card class="mx-auto text-white coupon-card" color="#EF9595">
-          <template v-slot:prepend>
-            <v-avatar
-              color="grey-darken-3"
-              size="x-large"
-              image="https://avataaars.io/?avatarStyle=Transparent&topType=ShortHairShortCurly&accessoriesType=Prescription02&hairColor=Black&facialHairType=Blank&clotheType=Hoodie&clotheColor=White&eyeType=Default&eyebrowType=DefaultNatural&mouthType=Default&skinColor=Light"
-            ></v-avatar>
-          </template>
-
-          <v-card-text class="text-h5 py-2">
+          <v-card-text
+            class="text-h5 py-2 d-flex justify-start align-center"
+            style="padding-left: 10px"
+          >
             <!-- เรียกใช้งาน QRCode Component -->
-            <QRCode
-              :text="'E-Coupon คงเหลือ: ' + user.e_coupon_balance + ' บาท'"
-              @click="goToBookForm"
-            />
+            <div class="qrcode-container">
+              <QRCode :user="user" />
+            </div>
           </v-card-text>
 
           <v-card-actions>
@@ -49,10 +41,14 @@
               <v-list-item-subtitle class="text-card-sub text-magin">
                 {{ user.department_name || 'ไม่ทราบภาควิชา' }}
               </v-list-item-subtitle>
-              <v-list-item-title class="text-card">{{ user.e_coupon_balance }}</v-list-item-title>
+              <v-list-item-title class="text-card">
+                {{ user.e_coupon }}
+              </v-list-item-title>
               <v-list-item-title class="text-card">บาท</v-list-item-title>
             </v-list-item>
           </v-card-actions>
+
+          <div class="dashed-separator"></div>
         </v-card>
       </v-row>
     </v-container>
@@ -61,68 +57,127 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import QRCode from '@/views/QRCode.vue' // แก้พาธให้ถูกต้อง
+import QRCode from '@/views/QRCode.vue'
 import { useRouter } from 'vue-router'
+import { jwtDecode } from 'jwt-decode'
 import axios from 'axios'
 
-const router = useRouter()
+const isReadonly = ref(false)
+const loading = ref(true) // สถานะการโหลดข้อมูล
+const errorMessage = ref('') // เก็บข้อความ Error ถ้าโหลดไม่ได้
 
-// เก็บข้อมูลของ User
 const user = ref({
-  id: '',
   prefix: '',
   firstname: '',
   lastname: '',
+  role_offer: '',
+  tel: '',
+  email: '',
+  faculty_id: '',
+  department_id: '',
   faculty_name: '',
   department_name: '',
-  e_coupon_balance: 0,
+  e_coupon: 0, // เพิ่ม e_coupon ที่จะใช้งาน
 })
 
-const loading = ref(true) // ใช้แสดงระหว่างโหลดข้อมูล
-const errorMessage = ref('') // เก็บข้อความ Error ถ้าโหลดไม่ได้
+const router = useRouter()
 
 // ฟังก์ชันดึงข้อมูลผู้ใช้
 const fetchUserData = async () => {
+  const token = localStorage.getItem('token')
+
+  if (!token) {
+    alert('ไม่พบ Token กรุณาเข้าสู่ระบบใหม่')
+    window.location.href = '/'
+    return
+  }
+
   try {
-    const token = localStorage.getItem('token')
-    if (!token) {
-      errorMessage.value = 'Token ไม่พบ กรุณาล็อกอินใหม่'
-      return
-    }
+    let userId = null
+    const decoded: any = isTokenExpired(token) ? await refreshAndDecodeToken() : jwtDecode(token)
 
-    console.log('🔹 กำลังดึงข้อมูลผู้ใช้...')
+    if (decoded) {
+      console.log('Decoded Token:', decoded) // ตรวจสอบค่าที่ decode ออกมา
+      userId = decoded.sub
 
-    const userResponse = await axios.get('http://localhost:3000/user', {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-
-    if (userResponse.status === 200 && userResponse.data) {
-      user.value = userResponse.data
-
-      // ✅ ดึง E-Coupon เฉพาะของผู้ใช้ที่ล็อกอินอยู่
-      const couponResponse = await axios.get('http://localhost:3000/e-coupon/me', {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-
-      if (couponResponse.status === 200 && couponResponse.data) {
-        user.value.e_coupon_balance = couponResponse.data.balance
-      } else {
-        user.value.e_coupon_balance = 0
+      // ตรวจสอบ role แล้วเลือกข้อมูลให้ถูกต้อง
+      let userData = {}
+      switch (decoded.role) {
+        case 'Teacher':
+          userData = decoded.teacher || {}
+          break
+        default:
+          console.warn('Unknown role:', decoded.role)
       }
-    } else {
-      errorMessage.value = 'ไม่สามารถดึงข้อมูลผู้ใช้ได้'
+      console.log('User Data:', userData) // ดูข้อมูลใน userData ที่ดึงมา
+
+      // กำหนดค่าให้ user.value รวมถึง tel และ email
+      user.value = {
+        prefix: userData.user_prefix || '-',
+        firstname: userData.user_firstName || '-',
+        lastname: userData.user_lastName || '-',
+        role_offer: userData.role_offer || '-',
+        tel: decoded.tel || '-', // ดึง tel จาก decoded
+        email: decoded.email || '-', // ดึง email จาก decoded
+        faculty_id: decoded.faculty_id || '-',
+        department_id: decoded.department_id || '-',
+        faculty_name: userData.faculty_name || 'ไม่ระบุคณะ',
+        department_name: userData.department_name || 'ไม่ระบุสาขาวิชา',
+        e_coupon: userData.e_coupon || 0, // ให้ e_coupon มีค่า
+      }
     }
+
+    if (!user.value.prefix) {
+      console.error('Error: User data is incomplete.')
+    }
+
+    loading.value = false // เมื่อโหลดข้อมูลเสร็จ
+    isReadonly.value = true
   } catch (error) {
-    console.error('❌ ดึงข้อมูลไม่สำเร็จ:', error)
-    errorMessage.value = 'เกิดข้อผิดพลาดในการดึงข้อมูล'
-  } finally {
+    console.error('Token decoding error:', error)
+    errorMessage.value = 'เกิดข้อผิดพลาดในการโหลดข้อมูลผู้ใช้'
     loading.value = false
   }
 }
 
-// ฟังก์ชันกดไปยังหน้าจองคูปอง
-const goToBookForm = () => {
-  router.push('/book-form-shop')
+const refreshAndDecodeToken = async () => {
+  try {
+    const newAccessToken = await refreshToken()
+    return jwtDecode(newAccessToken)
+  } catch (error) {
+    console.error('Error refreshing token:', error)
+    return null
+  }
+}
+
+const isTokenExpired = (token: string) => {
+  const decoded: any = jwtDecode(token)
+  const currentTime = Date.now() / 1000 // Convert to seconds
+  return decoded.exp < currentTime // Compare expiration time
+}
+
+const refreshToken = async () => {
+  const refreshToken = localStorage.getItem('refresh_token')
+  if (refreshToken) {
+    try {
+      const response = await axios.post('http://bookfair.buu.in.th:8044/auth/refresh', {
+        refreshToken,
+      })
+      const { access_token, refresh_token } = response.data
+      // เก็บ Access Token และ Refresh Token ใหม่
+      localStorage.setItem('token', access_token)
+      localStorage.setItem('refresh_token', refresh_token)
+      return access_token // คืนค่าใหม่ของ access_token
+    } catch (error) {
+      console.error('ไม่สามารถรีเฟรช token ได้:', error)
+      localStorage.removeItem('token')
+      localStorage.removeItem('refresh_token')
+      window.location.href = '/'
+    }
+  } else {
+    alert('ไม่พบ Refresh Token')
+    window.location.href = '/'
+  }
 }
 
 onMounted(fetchUserData)
@@ -148,11 +203,44 @@ onMounted(fetchUserData)
 
 .coupon-card {
   background-color: #ef9595;
-  border-radius: 16px;
   width: 400px;
-  height: 630px;
+  height: 650px;
   padding: 20px;
   text-align: center;
+  position: relative;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* กึ่งกลางแนวตั้ง */
+}
+
+/* สร้างรอยเว้า */
+.coupon-card::before,
+.coupon-card::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 40px;
+  background:
+    radial-gradient(circle at 20px 20px, white 20px, transparent 21px),
+    radial-gradient(circle at 80px 20px, white 20px, transparent 21px),
+    radial-gradient(circle at 140px 20px, white 20px, transparent 21px),
+    radial-gradient(circle at 200px 20px, white 20px, transparent 21px),
+    radial-gradient(circle at 260px 20px, white 20px, transparent 21px);
+  background-size: 60px 60px;
+  background-repeat: repeat-x;
+}
+
+/* รอยเว้าด้านบน */
+.coupon-card::before {
+  top: -20px;
+}
+
+/* รอยเว้าด้านล่าง */
+.coupon-card::after {
+  bottom: -20px;
+  transform: rotate(180deg);
 }
 
 .card-money {
@@ -192,5 +280,57 @@ onMounted(fetchUserData)
 
 .text-magin {
   margin-bottom: 60px;
+}
+
+.dashed-separator {
+  width: 95%;
+  height: 2px;
+  border-bottom: 5px dashed white;
+  border-image: repeating-linear-gradient(
+      to right,
+      white 0%,
+      white 50px,
+      /* ความยาวของแต่ละจุด */ transparent 50px,
+      transparent 60px /* ระยะห่างระหว่างจุด */
+    )
+    10;
+  margin: 20px auto;
+}
+
+.v-list-item {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* กึ่งกลางแนวตั้ง */
+  align-items: center; /* กึ่งกลางแนวนอน */
+}
+
+.text-card,
+.text-card-sub {
+  text-align: center; /* กึ่งกลางข้อความ */
+}
+
+.qrcode-container {
+  display: flex;
+  justify-content: flex-start; /* จัดชิดซ้าย */
+  align-items: center;
+  width: 100%;
+  margin: 10px 0;
+  margin-left: -20px;
+}
+
+.qrcode-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: auto;
+}
+
+.qrcode {
+  width: 230px;
+  height: 230px;
+  border-radius: 10px;
+  padding: 5px;
 }
 </style>

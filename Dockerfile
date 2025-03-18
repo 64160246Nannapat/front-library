@@ -1,26 +1,39 @@
-# ใช้ base image ของ Node.js สำหรับการติดตั้ง dependencies
+# ใช้ base image ของ Node.js
 FROM node:18-buster AS build-stage
 
 # กำหนด working directory
 WORKDIR /app
 
-# คัดลอก package.json และ package-lock.json เพื่อ cache dependencies
-COPY package*.json ./
+# รับค่า ENV_MODE เป็น argument
+ARG ENV_MODE=development
+ENV NODE_ENV=$ENV_MODE
 
-# ติดตั้ง dependencies
+# คัดลอก package.json และติดตั้ง dependencies
+COPY package*.json ./ 
 RUN npm install
 
 # คัดลอกโค้ดทั้งหมดเข้า container
 COPY . .
 
-# สั่งให้ใช้โหมด development (คุณสามารถใช้คำสั่งนี้ในการตั้งค่าโหมด development ในตัวแปรสภาพแวดล้อม)
-ENV NODE_ENV=development
+# ถ้าเป็น development ให้ติดตั้ง Vue CLI
+RUN if [ "$NODE_ENV" = "development" ]; then npm install -g @vue/cli; fi
 
-# รันคำสั่งให้ติดตั้งเครื่องมือที่ใช้ในการพัฒนา (เช่น Vue CLI, Webpack, หรือ tools อื่น ๆ)
-RUN npm install -g @vue/cli
+# ถ้าเป็น production ให้ build แอป
+RUN if [ "$NODE_ENV" = "production" ]; then npm run build; fi
 
-# รันเซิร์ฟเวอร์ในโหมด development พร้อมกำหนด host และ port
-CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "8080"]
+# ใช้ base image เบากว่าสำหรับ production
+FROM node:18-alpine AS production-stage
+WORKDIR /app
 
-# เปิดพอร์ตที่ใช้สำหรับ development (โดยปกติจะเป็น 8080 สำหรับ Vue.js)
+# รับค่า ENV_MODE เป็น argument
+ARG ENV_MODE=development
+ENV NODE_ENV=$ENV_MODE
+
+# คัดลอกไฟล์จาก build-stage
+COPY --from=build-stage /app /app
+
+# เปิดพอร์ต 8080
 EXPOSE 8080
+
+# รันแอปตามโหมด
+CMD sh -c "if [ \"$NODE_ENV\" = \"development\" ]; then npm run dev -- --host 0.0.0.0 --port 8080; else npm run preview; fi"

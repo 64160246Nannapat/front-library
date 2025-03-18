@@ -1,6 +1,6 @@
 <template>
   <v-main style="height: 500px; margin-top: 20px">
-    <v-container class="budget-summary-container">
+    <v-container class="budget-summary-container" fluid>
       <!-- Header -->
       <v-row align="center" justify="space-between">
         <v-col cols="12" md="6">
@@ -40,8 +40,12 @@
             class="select-book"
             variant="outlined"
             rounded="lg"
-            @input="onSearch"
-          ></v-select>
+            multiple
+            chips
+            closable-chips
+            clearable
+            @update:modelValue="onSearch"
+          />
         </v-col>
       </v-row>
 
@@ -55,20 +59,18 @@
         class="table"
         :items-per-page="-1"
       >
+        <template v-slot:body.append>
+          <tr class="font-weight-bold">
+            <td colspan="3" class="text-right">รวม</td>
+            <td class="text-center">{{ totalBudget }}</td>
+            <td class="text-center">{{ totalUsed }}</td>
+            <td class="text-center">{{ totalRemain }}</td>
+          </tr>
+        </template>
       </v-data-table>
 
-      <v-divider></v-divider>
-
-      <!-- Summary Row -->
-      <v-row class="summary-row">
-        <v-col cols="12">
-          <div class="summary-total">
-            <span>รวม</span>
-            <span style="margin-left: 430px">{{ totalBudget }} </span>
-            <span style="margin-right: -5px">{{ totalUsed }}</span>
-            <span style="margin-right: 70px">{{ totalRemain }}</span>
-          </div>
-        </v-col>
+      <v-row justify="start" class="mt-4">
+        <v-btn @click="goTosumBudFaculty" color="#A67B5B">BACK</v-btn>
       </v-row>
     </v-container>
   </v-main>
@@ -76,8 +78,10 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 
-const searchFaculty = ref('ทั้งหมด')
+const router = useRouter()
+const searchFaculty = ref(['ทั้งหมด'])
 const loading = ref(false)
 const serverItems = ref([])
 
@@ -85,9 +89,9 @@ const headers = [
   { title: 'ลำดับ', key: 'id', align: 'start' },
   { title: 'รายชื่อ', key: 'name' },
   { title: 'สาขา', key: 'faculty' },
-  { title: 'งบประมาณที่ให้', key: 'budget' },
-  { title: 'งบประมาณที่ใช้', key: 'usebudget' },
-  { title: 'คงเหลือ', key: 'remain' },
+  { title: 'งบประมาณที่ให้', key: 'budget', align: 'center' },
+  { title: 'งบประมาณที่ใช้', key: 'usebudget', align: 'center' },
+  { title: 'คงเหลือ', key: 'remain', align: 'center' },
 ]
 
 const totalBudget = computed(() => {
@@ -108,6 +112,10 @@ const totalRemain = computed(() => {
     .toLocaleString()
 })
 
+const goTosumBudFaculty = () => {
+  router.push({ name: 'sumBudFaculty' })
+}
+
 const FakeAPI = () => {
   loading.value = true
   setTimeout(() => {
@@ -123,7 +131,7 @@ const FakeAPI = () => {
       {
         id: 2,
         name: 'ผศ.ดร.พิเชษ วะยะลุน',
-        faculty: 'เทคโนโลยีสารสนเทศ',
+        faculty: 'เทคโนโลยีสารสนเทศเพื่ออุตสาหกรรมดิจิทัล',
         budget: '50,000',
         usebudget: '20,000',
         remain: '30,000',
@@ -131,7 +139,7 @@ const FakeAPI = () => {
       {
         id: 3,
         name: 'ผศ.เบญจภรณ์ จันทรกองกุล',
-        faculty: 'วิทยาการข้อมูล',
+        faculty: 'วิทยาการช้อมูล',
         budget: '50,000',
         usebudget: '20,000',
         remain: '30,000',
@@ -147,7 +155,7 @@ const FakeAPI = () => {
       {
         id: 5,
         name: 'ผศ.จรรยา อ้นปันส์',
-        faculty: 'เทคโนโลยีสารสนเทศ',
+        faculty: 'เทคโนโลยีสารสนเทศเพื่ออุตสาหกรรมดิจิทัล',
         budget: '50,000',
         usebudget: '20,000',
         remain: '30,000',
@@ -155,7 +163,7 @@ const FakeAPI = () => {
       {
         id: 6,
         name: 'ผศ.ดร.โกเมศ อัมพวัน',
-        faculty: 'วิทยาการข้อมูล',
+        faculty: 'วิทยาการช้อมูล',
         budget: '50,000',
         usebudget: '20,000',
         remain: '30,000',
@@ -163,18 +171,18 @@ const FakeAPI = () => {
       {
         id: 7,
         name: 'ดร.วรัณรัชญ์ วิริยะวิทย์',
-        faculty: 'วิทยาการข้อมูล',
+        faculty: 'วิทยาการช้อมูล',
         budget: '50,000',
         usebudget: '20,000',
         remain: '30,000',
       },
     ]
 
-    // กรองข้อมูลตามคณะที่เลือก
-    if (searchFaculty.value !== 'ทั้งหมด') {
-      serverItems.value = data.filter((item) => item.faculty === searchFaculty.value)
-    } else {
+    // กรองตามรายการที่เลือก
+    if (searchFaculty.value.includes('ทั้งหมด') || searchFaculty.value.length === 0) {
       serverItems.value = data
+    } else {
+      serverItems.value = data.filter((item) => searchFaculty.value.includes(item.faculty))
     }
 
     loading.value = false

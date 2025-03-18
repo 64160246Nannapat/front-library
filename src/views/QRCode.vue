@@ -11,33 +11,51 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import QRCode from 'qrcode'
+import LZString from 'lz-string'
 
-// ลิงก์เริ่มต้น
-const text = ref('https://www.google.com')
+// ตัวแปรเก็บข้อมูลผู้ใช้และ QR Code
 const qrCodeDataUrl = ref('')
+const userData = ref<any>(null)
 
-// ฟังก์ชันสำหรับสร้าง QR Code
+// รับข้อมูลจาก props
+const props = defineProps({
+  user: {
+    type: Object,
+    required: true,
+  }
+})
+
+// ฟังก์ชันสร้าง QR Code
 const generateQRCode = async () => {
   try {
-    // กำหนดตัวเลือกการสร้าง QR Code
-    qrCodeDataUrl.value = await QRCode.toDataURL(text.value, {
-      color: {
-        dark: '#000000', // สีของตัว QR Code
-        light: '#ffffff', // สีพื้นหลัง
-      },
-      width: 300, // ขนาดของ QR Code (ปรับขนาดตามต้องการ)
-      margin: 2, // ระยะขอบ
+    let qrText = 'http://bookfair.buu.in.th:8041/mobile'
+
+    if (props.user) {
+      // ✅ บีบอัดข้อมูลก่อน encode
+      const compressedData = LZString.compressToEncodedURIComponent(JSON.stringify(props.user))
+      qrText = `http://bookfair.buu.in.th:8041/mobile?data=${compressedData}`
+      console.log('User Data QR Text:', qrText)
+    }
+
+    qrCodeDataUrl.value = await QRCode.toDataURL(qrText, {
+      color: { dark: '#000000', light: '#ffffff' },
+      width: 400,
+      margin: 2,
+      errorCorrectionLevel: 'L',
     })
   } catch (error) {
     console.error('เกิดข้อผิดพลาดในการสร้าง QR Code:', error)
   }
 }
 
-// สร้าง QR Code ทันทีเมื่อโหลดหน้าเว็บ
-generateQRCode()
+onMounted(generateQRCode)
+
+// ตรวจจับการเปลี่ยนแปลงของ userData และอัปเดต QR Code อัตโนมัติ
+watch(() => props.user, generateQRCode, { deep: true })
 </script>
+
 
 <style scoped>
 img {

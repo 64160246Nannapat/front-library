@@ -1,6 +1,6 @@
 <template>
   <v-main style="height: 500px; margin-top: 20px">
-    <v-container>
+    <v-container fluid>
       <div class="header">
         <img class="header-image" src="@/assets/salary (1).png" alt="Library Image" />
         <h1>สรุปงบประมาณ</h1>
@@ -11,7 +11,7 @@
         <v-col cols="auto" class="d-flex align-center">
           <h3 style="margin-right: 20px; margin-top: -20px">คณะ:</h3>
           <v-select
-            :items="['ทั้งหมด', 'วิทยาการสารสนเทศ', 'บริหาร', 'วิทยาศาสตร์', 'วิศวกรรมศาสตร์']"
+            :items="faculties"
             v-model="searchFaculty"
             class="select-book"
             variant="outlined"
@@ -54,9 +54,8 @@
         :items="serverItems"
         :loading="loading"
         item-key="id"
-        :hide-default-footer="true"
         class="table-centered"
-        :items-per-page="-1"
+        :items-per-page="10"
       >
         <!-- Slot สำหรับคอลัมน์ "จำนวน" -->
         <template #item.description="{ item }">
@@ -92,22 +91,26 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import axios from 'axios'
 
 // วันที่
 const selectedDate = ref(new Date())
 const menuDate = ref(false)
-const searchFaculty = ref('ทั้งหมด')
+const searchFaculty = ref<string[]>(['ทั้งหมด'])
 const loading = ref(false)
 const serverItems = ref([])
 const router = useRouter()
+const facultyList = ref<string[]>(['ทั้งหมด'])
+const faculties = ref<string[]>(['ทั้งหมด'])
+
 // Headers สำหรับ v-data-table
 const headers = [
   { title: 'ลำดับ', key: 'id', align: 'start' },
   { title: 'คณะ', key: 'faculty' },
-  { title: 'งบประมาณที่ให้', key: 'budget' },
+  { title: 'งบประมาณที่ให้', key: 'e_coupon' },
   { title: 'งบประมาณที่ใช้', key: 'usebudget' },
   { title: 'คงเหลือ', key: 'remain' },
-  { title: 'รายละเอียด', key: 'description' },
+  { title: 'รายละเอียด', key: 'description', align: 'center' },
 ]
 
 // ฟอร์แมตวันที่
@@ -121,83 +124,83 @@ const formattedDate = computed(() => {
 })
 
 // API ปลอมเพื่อเลียนแบบการดึงข้อมูล
-const FakeAPI = {
-  async fetch({
-    faculty,
-    name,
-  }: {
-    page: number
-    itemsPerPage: number
-    faculty?: string
-    name?: string
-  }) {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        let data = [
-          {
-            id: 1,
-            faculty: 'วิทยาการสารสนเทศ',
-            budget: '200,000',
-            usebudget: '158,700',
-            remain: '41,300',
-            date: '06/02/2568',
-          },
-          {
-            id: 2,
-            faculty: 'วิทยาศาสตร์',
-            budget: '200,000',
-            usebudget: '158,700',
-            remain: '41,300',
-            date: '06/02/2568',
-          },
-          {
-            id: 3,
-            faculty: 'บริหาร',
-            budget: '200,000',
-            usebudget: '158,700',
-            remain: '41,300',
-            date: '06/02/2568',
-          },
-          {
-            id: 4,
-            faculty: 'วิศวกรรมศาสตร์',
-            budget: '200,000',
-            usebudget: '158,700',
-            remain: '41,300',
-            date: '06/02/2568',
-          },
-          {
-            id: 5,
-            faculty: 'เภสัชศาสตร์',
-            budget: '200,000',
-            usebudget: '158,700',
-            remain: '41,300',
-            date: '06/02/2568',
-          },
-          {
-            id: 6,
-            faculty: 'ครุศาสตร์',
-            budget: '200,000',
-            usebudget: '158,700',
-            remain: '41,300',
-            date: '06/02/2568',
-          },
-        ]
+// const FakeAPI = {
+//   async fetch({
+//     faculty,
+//     name,
+//   }: {
+//     page: number
+//     itemsPerPage: number
+//     faculty?: string
+//     name?: string
+//   }) {
+//     return new Promise((resolve) => {
+//       setTimeout(() => {
+//         let data = [
+//           {
+//             id: 1,
+//             faculty: 'วิทยาการสารสนเทศ',
+//             budget: '200,000',
+//             usebudget: '158,700',
+//             remain: '41,300',
+//             date: '04/03/2568',
+//           },
+//           {
+//             id: 2,
+//             faculty: 'วิทยาศาสตร์',
+//             budget: '200,000',
+//             usebudget: '158,700',
+//             remain: '41,300',
+//             date: '04/03/2568',
+//           },
+//           {
+//             id: 3,
+//             faculty: 'บริหาร',
+//             budget: '200,000',
+//             usebudget: '158,700',
+//             remain: '41,300',
+//             date: '04/03/2568',
+//           },
+//           {
+//             id: 4,
+//             faculty: 'วิศวกรรมศาสตร์',
+//             budget: '200,000',
+//             usebudget: '158,700',
+//             remain: '41,300',
+//             date: '04/03/2568',
+//           },
+//           {
+//             id: 5,
+//             faculty: 'เภสัชศาสตร์',
+//             budget: '200,000',
+//             usebudget: '158,700',
+//             remain: '41,300',
+//             date: '04/03/2568',
+//           },
+//           {
+//             id: 6,
+//             faculty: 'ครุศาสตร์',
+//             budget: '200,000',
+//             usebudget: '158,700',
+//             remain: '41,300',
+//             date: '04/03/2568',
+//           },
+//         ]
 
-        // กรองข้อมูลใน API
-        if (faculty && faculty !== 'ทั้งหมด') {
-          data = data.filter((item) => item.faculty === faculty)
-        }
+//         // กรองข้อมูลใน API
+//         if (faculty && faculty !== 'ทั้งหมด') {
+//           data = data.filter((item) => item.faculty === faculty)
+//         }
 
-        if (name) {
-          const lowerName = name.toLowerCase()
-          data = data.filter((item) => item.name.toLowerCase().includes(lowerName))
-        }
-        resolve(data)
-      }, 500)
-    })
-  },
-}
+//         if (name) {
+//           const lowerName = name.toLowerCase()
+//           data = data.filter((item) => item.name.toLowerCase().includes(lowerName))
+//         }
+//         resolve(data)
+//       }, 500)
+//     })
+//   },
+// }
 
 const onSearch = () => {
   loading.value = true
@@ -205,20 +208,34 @@ const onSearch = () => {
   FakeAPI.fetch({ page: 1, itemsPerPage: 10 }).then((items: any[]) => {
     let filteredItems = items
 
-    // ฟอร์แมตวันที่ที่เลือกเป็นรูปแบบ "dd/mm/yyyy" เพื่อใช้ในการกรอง
+    // ฟอร์แมตวันที่ให้ตรงกับข้อมูลใน API
     const selectedFormattedDate = formattedDate.value
 
     if (selectedDate.value && selectedFormattedDate) {
-      filteredItems = filteredItems.filter((item) => item.date === selectedFormattedDate)
+      // แปลงปี ค.ศ. เป็น พ.ศ. ก่อนกรอง
+      filteredItems = filteredItems.filter((item) => {
+        const itemDateParts = item.date.split('/') // แยกวันที่ใน API เช่น "04/03/2568"
+        const itemYear = parseInt(itemDateParts[2], 10) // ดึงปีจากข้อมูล
+        const expectedYear = new Date(selectedDate.value).getFullYear() + 543 // แปลงปีที่เลือกเป็น พ.ศ.
+
+        return (
+          itemDateParts[0] === selectedFormattedDate.split('/')[0] &&
+          itemDateParts[1] === selectedFormattedDate.split('/')[1] &&
+          itemYear === expectedYear
+        )
+      })
     }
 
-    // กรองข้อมูลตามคณะที่เลือก (ถ้ามีการเลือกคณะ)
-    if (searchFaculty.value && searchFaculty.value !== 'ทั้งหมด') {
-      filteredItems = filteredItems.filter((item) => item.faculty === searchFaculty.value)
+    // กรองข้อมูลตามคณะที่เลือก (รองรับหลายคณะ)
+    if (searchFaculty.value.length > 0 && !searchFaculty.value.includes('ทั้งหมด')) {
+      filteredItems = filteredItems.filter((item) => searchFaculty.value.includes(item.faculty))
     }
 
     // หากไม่มีการกรองเพิ่มเติมและไม่มีวันที่ที่เลือก ให้แสดงข้อมูลทั้งหมด
-    if (!selectedDate.value && (!searchFaculty.value || searchFaculty.value === 'ทั้งหมด')) {
+    if (
+      !selectedDate.value &&
+      (searchFaculty.value.length === 0 || searchFaculty.value.includes('ทั้งหมด'))
+    ) {
       filteredItems = items
     }
 
@@ -235,6 +252,44 @@ const onSearch = () => {
   })
 }
 
+// ฟังก์ชันดึงข้อมูลจาก API
+const fetchFaculties = async () => {
+  try {
+    const response = await axios.get('http://bookfair.buu.in.th:8043/faculties')
+    const facultiesData = response.data
+    faculties.value = ['ทั้งหมด', ...facultiesData.map((faculty: any) => faculty.faculty_name)]
+  } catch (error) {
+    console.error('Error fetching faculties:', error)
+  }
+}
+
+const fetchBudgetData = async () => {
+  loading.value = true
+  try {
+    const response = await axios.get('http://bookfair.buu.in.th:8043/faculties')
+    const faculties = response.data
+
+    let filteredItems = faculties.map((fac, index) => ({
+      id: index + 1,
+      faculty: fac.faculty_name,
+      e_coupon: fac.e_coupon,
+      usebudget: '0',
+      remain: '0',
+    }))
+
+    // กรองข้อมูลตามคณะที่เลือก
+    if (searchFaculty.value.length > 0 && !searchFaculty.value.includes('ทั้งหมด')) {
+      filteredItems = filteredItems.filter((item) => searchFaculty.value.includes(item.faculty))
+    }
+
+    serverItems.value = filteredItems
+  } catch (error) {
+    console.error('Error fetching budget data:', error)
+  }
+
+  loading.value = false
+}
+
 const onClickBook = (item) => {
   if (item && item.id) {
     router.push({ name: 'showBudgetAdmin', params: { itemId: item.id } })
@@ -243,14 +298,15 @@ const onClickBook = (item) => {
   }
 }
 
-// ติดตามการเปลี่ยนแปลงของ searchFaculty และเรียก onSearch
-watch([selectedDate, searchFaculty], () => {
-  onSearch()
+// โหลดข้อมูลครั้งแรก
+onMounted(() => {
+  fetchFaculties()
+  fetchBudgetData()
 })
 
-// เรียก onSearch ครั้งแรกเมื่อ component ถูกโหลด
-onMounted(() => {
-  onSearch()
+// อัปเดตข้อมูลเมื่อเปลี่ยนค่า
+watch([searchFaculty, selectedDate], () => {
+  fetchBudgetData()
 })
 </script>
 

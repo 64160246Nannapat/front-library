@@ -1,6 +1,6 @@
 <template>
   <v-main style="height: 500px; margin-top: 20px">
-    <v-container class="budget-summary-container">
+    <v-container class="budget-summary-container" fluid>
       <!-- Header -->
       <v-row align="center" justify="space-between">
         <v-col cols="12" md="6">
@@ -11,7 +11,7 @@
             </div>
           </v-row>
           <v-row>
-            <h3 style="margin-left: 76px">คณะ วิทยาการสารสนเทศ</h3>
+            <h3 style="margin-left: 76px">{{ userFacultyName }}</h3>
           </v-row>
         </v-col>
 
@@ -127,25 +127,8 @@
         <template v-slot:body="{ items }">
           <tr v-for="item in items" :key="item.id">
             <td>{{ item.id }}</td>
-            <td>{{ item.faculty }}</td>
-            <td :style="{ textAlign: 'right', width: '50%' }">
-              <!-- ถ้า item.editing เป็น true จะมีช่องกรอก -->
-              <v-text-field
-                v-if="item.editing"
-                v-model="item.budget"
-                type="number"
-                variant="outlined"
-                dense
-                single-line
-                hide-details
-                @blur="saveBudget(item)"
-                @keydown.enter="saveBudget(item)"
-              />
-              <!-- ถ้า item.editing เป็น false จะไม่แสดงช่องกรอก แต่แสดงค่าเดิม -->
-              <span v-else>
-                {{ item.budget.toLocaleString() }}
-              </span>
-            </td>
+            <td>{{ item.department_name }}</td>
+            <td class="text-right">{{ item.e_coupon.toLocaleString() }}</td>
 
             <td class="text-right">
               <v-btn
@@ -394,12 +377,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { jsPDF } from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import WebFontLoader from 'webfontloader'
 import BuuLogo from '@/assets/Buu-logo11.png'
+import axios from 'axios'
 
 const loading = ref(false)
 const selectedYear = ref<number | null>(null)
@@ -423,72 +407,173 @@ const onEdit = (item) => {
   item.editing = !item.editing // กดสลับระหว่างเปิด-ปิด
 }
 
-const serverItems = ref([
-  { id: 1, faculty: 'วิทยาการคอมพิวเตอร์', budget: 50000, date: '13/01/2568', editing: false },
-  {
-    id: 2,
-    faculty: 'เทคโนโลยีสารสนเทศเพื่ออุตสาหกรรมดิจิทัล',
-    budget: 70000,
-    date: '13/01/2568',
-    editing: false,
-  },
-  { id: 3, faculty: 'วิศวกรรมซอฟต์แวร์', budget: 60000, date: '13/01/2568', editing: false },
-  {
-    id: 4,
-    faculty: 'ปัญญาประดิษฐ์ประยุกต์และเทคโนโลยีอัจฉริยะ',
-    budget: 50000,
-    date: '13/01/2568',
-    editing: false,
-  },
-  {
-    id: 5,
-    faculty: 'วิทยาการข้อมูล หลักสูตรวิทยาศาสตรมหาบัณฑิต',
-    budget: 70000,
-    date: '13/01/2568',
-    editing: false,
-  },
-  {
-    id: 6,
-    faculty: 'วิทยาการข้อมูล หลักสูตรปรัชญาดุษฎีบัณฑิต',
-    budget: 60000,
-    date: '13/01/2568',
-    editing: false,
-  },
-  { id: 7, faculty: 'สายสนับสนุนวิชาการ', budget: 60000, date: '13/01/2568', editing: false },
-  {
-    id: 8,
-    faculty: 'วิทยาการข้อมูล หลักสูตรวิทยาศาสตรมหาบัณฑิต',
-    budget: 70000,
-    date: '13/12/2567',
-    editing: false,
-  },
-  {
-    id: 9,
-    faculty: 'วิทยาการข้อมูล หลักสูตรปรัชญาดุษฎีบัณฑิต',
-    budget: 60000,
-    date: '13/12/2567',
-    editing: false,
-  },
-])
+const userFacultyName = ref('')
+const facultyData = ref([])
+const departmentData = ref([])
+
+// สมมติว่าได้ข้อมูล faculty_name จากผู้ใช้ที่ล็อกอิน
+const decodedUserData = JSON.parse(localStorage.getItem('userData')) || {}
+
+const fetchUserFaculty = async () => {
+  try {
+    // เช็คว่ามีข้อมูล faculty_name จาก decodedUserData หรือไม่
+    userFacultyName.value = decodedUserData.faculty_name || ''
+    console.log('Decoded Faculty Name:', userFacultyName.value)
+
+    if (!userFacultyName.value) {
+      console.error('❌ ไม่มีข้อมูล faculty_name สำหรับผู้ใช้ที่ล็อกอิน')
+      return
+    }
+
+    const response = await axios.get('http://bookfair.buu.in.th:8043/faculties')
+    console.log('📥 Faculty API Response:', response.data)
+
+    if (Array.isArray(response.data)) {
+      facultyData.value = response.data
+
+      // ค้นหา faculty_name ที่ตรงกับชื่อ faculty_name ของผู้ใช้
+      const matchedFaculty = facultyData.value.find(
+        (fac) => fac.faculty_name === userFacultyName.value,
+      )
+
+      if (matchedFaculty && matchedFaculty.faculty_name) {
+        userFacultyName.value = matchedFaculty.faculty_name.trim()
+        console.log('✅ Faculty Name Set:', userFacultyName.value)
+
+        // ถ้าเจอ faculty_name ให้ดึงข้อมูลสาขาต่อ
+        await fetchFacultyData()
+      } else {
+        console.error('⚠️ ไม่พบ faculty_name ที่ตรงกับ user')
+      }
+    } else {
+      console.error('❌ API Response ไม่ใช่ Array')
+    }
+  } catch (error) {
+    console.error('❌ Error fetching user faculty:', error)
+  }
+}
+
+const fetchFacultyData = async () => {
+  try {
+    const response = await axios.get('http://bookfair.buu.in.th:8043/departments')
+    console.log('📥 Departments API Response:', response.data)
+
+    if (Array.isArray(response.data)) {
+      // ค้นหาสาขาที่อยู่ภายใต้ faculty_name ของผู้ใช้
+      departmentData.value = response.data.filter(
+        (dept) => dept.faculty_name?.trim() === userFacultyName.value,
+      )
+
+      console.log('✅ Filtered Departments:', departmentData.value)
+    } else {
+      console.error('❌ API Response ไม่ใช่ Array')
+    }
+  } catch (error) {
+    console.error('❌ Error fetching faculty data:', error)
+  }
+}
+
+const filteredItems = computed(() => {
+  return departmentData.value.map((dept, index) => ({
+    id: index + 1,
+    department_name: dept.department_name,
+    e_coupon: dept.e_coupon,
+  }))
+})
+
+onMounted(fetchUserFaculty)
+
+// const serverItems = ref([
+//   { id: 1, faculty: 'วิทยาการคอมพิวเตอร์', budget: 50000, date: '13/01/2568', editing: false },
+//   {
+//     id: 2,
+//     faculty: 'เทคโนโลยีสารสนเทศเพื่ออุตสาหกรรมดิจิทัล',
+//     budget: 70000,
+//     date: '13/01/2568',
+//     editing: false,
+//   },
+//   { id: 3, faculty: 'วิศวกรรมซอฟต์แวร์', budget: 60000, date: '13/01/2568', editing: false },
+//   {
+//     id: 4,
+//     faculty: 'ปัญญาประดิษฐ์ประยุกต์และเทคโนโลยีอัจฉริยะ',
+//     budget: 50000,
+//     date: '13/01/2568',
+//     editing: false,
+//   },
+//   {
+//     id: 5,
+//     faculty: 'วิทยาการข้อมูล หลักสูตรวิทยาศาสตรมหาบัณฑิต',
+//     budget: 70000,
+//     date: '13/01/2568',
+//     editing: false,
+//   },
+//   {
+//     id: 6,
+//     faculty: 'วิทยาการข้อมูล หลักสูตรปรัชญาดุษฎีบัณฑิต',
+//     budget: 60000,
+//     date: '13/01/2568',
+//     editing: false,
+//   },
+//   { id: 7, faculty: 'สายสนับสนุนวิชาการ', budget: 60000, date: '13/01/2568', editing: false },
+//   {
+//     id: 8,
+//     faculty: 'วิทยาการข้อมูล หลักสูตรวิทยาศาสตรมหาบัณฑิต',
+//     budget: 70000,
+//     date: '13/12/2567',
+//     editing: false,
+//   },
+//   {
+//     id: 9,
+//     faculty: 'วิทยาการข้อมูล หลักสูตรปรัชญาดุษฎีบัณฑิต',
+//     budget: 60000,
+//     date: '13/12/2567',
+//     editing: false,
+//   },
+// ])
 
 const headers = [
-  { title: 'ID', key: 'id', align: 'start' },
-  { title: 'สาขา', key: 'faculty' },
-  { title: 'งบประมาณ', key: 'budget', align: 'end' },
+  { title: 'ลำดับ', key: 'id', align: 'start' },
+  { title: 'สาขา', key: 'department_name' },
+  { title: 'งบประมาณ', key: 'e_coupon', align: 'end' },
   { title: '', key: 'actions', align: 'end' },
   { title: '', key: 'actions', align: 'end' },
   { title: '', key: 'actions', align: 'end' },
 ]
 
-const filteredItems = computed(() => {
-  if (selectedYear.value) {
-    return serverItems.value.filter((item) => {
-      const itemYear = parseInt(item.date.split('/')[2]) // แยกปีจากวันที่
-      return itemYear === selectedYear.value
+const onClickAdd = () => {
+  dialogAdd.value = true // แสดง Dialog เมื่อคลิก Add
+}
+
+const onSaveNewItem = () => {
+  if (newFaculty.value && newTotal.value > 0) {
+    // เพิ่มรายการใหม่ไปยัง facultyData
+    facultyData.value.push({
+      id: facultyData.value.length + 1,
+      faculty_name: newFaculty.value,
+      budget: newTotal.value,
+      date: new Date().toLocaleDateString('th-TH'),
+      editing: false,
     })
+    newFaculty.value = ''
+    newTotal.value = 0
+    dialogAdd.value = false
+  } else {
+    alert('กรุณากรอกข้อมูลให้ครบถ้วน')
   }
-  return serverItems.value // ถ้ายังไม่ได้เลือกปี, ให้แสดงข้อมูลทั้งหมด
-})
+}
+
+const onClickDelete = (item) => {
+  selectedItem.value = item // เก็บข้อมูลรายการที่เลือก
+  dialogDelete.value = true // แสดง dialog
+}
+
+const deleteItem = () => {
+  const index = facultyData.value.findIndex((i) => i.id === selectedItem.value.id)
+  if (index !== -1) {
+    facultyData.value.splice(index, 1) // ลบรายการ
+  }
+  dialogDelete.value = false // ซ่อน dialog
+}
 
 const onClickPerson = () => {
   router.push({ name: 'manageBudPerFaculty' })
@@ -498,55 +583,10 @@ const onClickDepartment = () => {
   router.push({ name: 'ManageBudDeFaculty' })
 }
 
-const onClickAdd = () => {
-  dialogAdd.value = true // แสดง Dialog เมื่อคลิก Add
-}
-
-const onSaveNewItem = () => {
-  if (newFaculty.value && newTotal.value > 0) {
-    // เพิ่มรายการใหม่ไปยัง serverItems
-    serverItems.value.push({
-      id: serverItems.value.length + 1,
-      faculty: newFaculty.value,
-      budget: newTotal.value,
-      date: new Date().toLocaleDateString('th-TH'),
-      editing: false,
-    })
-
-    // คำนวณงบประมาณที่เหลือ
-    updateRemainingBudget()
-
-    // รีเซ็ตค่าของฟอร์ม
-    newFaculty.value = ''
-    newTotal.value = 0
-
-    // ปิด dialog
-    dialogAdd.value = false
-  } else {
-    alert('กรุณากรอกข้อมูลให้ครบถ้วน')
-  }
-}
-
 const clearNewTotal = () => {
   if (newTotal.value === 0) {
     newTotal.value = '' // เปลี่ยนค่าเป็นค่าว่างเมื่อคลิกที่ช่องกรอก
   }
-}
-
-// ฟังก์ชันที่ถูกเรียกเมื่อคลิกปุ่มลบ
-const onClickDelete = (item) => {
-  selectedItem.value = item // เก็บข้อมูลรายการที่เลือก
-  dialogDelete.value = true // แสดง dialog
-}
-
-// ฟังก์ชันลบรายการ
-const deleteItem = () => {
-  // ค้นหาดัชนีของรายการที่ต้องการลบ
-  const index = serverItems.value.findIndex((i) => i.id === selectedItem.value.id)
-  if (index !== -1) {
-    serverItems.value.splice(index, 1) // ลบรายการ
-  }
-  dialogDelete.value = false // ซ่อน dialog
 }
 
 const onYearChange = (year: number | null) => {

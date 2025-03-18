@@ -1,6 +1,6 @@
 <template>
   <v-main style="height: 500px; margin-top: 20px">
-    <v-container>
+    <v-container fluid>
       <div class="header">
         <img class="header-image" src="@/assets/salary (1).png" alt="Library Image" />
         <h1>สรุปงบประมาณ</h1>
@@ -58,11 +58,19 @@
               'สายสนับสนุนวิชาการ',
             ]"
             v-model="searchFaculty"
-            class="select-book"
+            class="select-faculty"
             variant="outlined"
             rounded="lg"
-            @input="onSearch"
-          ></v-select>
+            multiple
+            clearable
+            @update:modelValue="onSearch"
+          >
+            <template v-slot:selection="{ item, index }">
+              <v-chip closable @click:close="removeItem(index)">
+                {{ item.title }}
+              </v-chip>
+            </template>
+          </v-select>
         </v-col>
       </v-row>
 
@@ -113,10 +121,12 @@ import { useRouter } from 'vue-router'
 // วันที่
 const selectedDate = ref(new Date())
 const menuDate = ref(false)
-const searchFaculty = ref('ทั้งหมด')
+const searchFaculty = ref<string[]>(['ทั้งหมด'])
 const loading = ref(false)
 const serverItems = ref([])
 const router = useRouter()
+const facultyId = ref<number | null>(null)
+
 // Headers สำหรับ v-data-table
 const headers = [
   { title: 'ลำดับ', key: 'id', align: 'start' },
@@ -124,8 +134,12 @@ const headers = [
   { title: 'งบประมาณที่ให้', key: 'budget' },
   { title: 'งบประมาณที่ใช้', key: 'usebudget' },
   { title: 'คงเหลือ', key: 'remain' },
-  { title: 'รายละเอียด', key: 'description' },
+  { title: 'รายละเอียด', key: 'description', align: 'center' },
 ]
+
+const removeItem = (index: number) => {
+  searchFaculty.value.splice(index, 1)
+}
 
 // ฟอร์แมตวันที่
 const formattedDate = computed(() => {
@@ -193,7 +207,7 @@ const FakeAPI = {
             budget: '200,000',
             usebudget: '158,700',
             remain: '41,300',
-            date: '06/02/2568',
+            date: '14/03/2568',
           },
           {
             id: 2,
@@ -201,7 +215,7 @@ const FakeAPI = {
             budget: '200,000',
             usebudget: '158,700',
             remain: '41,300',
-            date: '06/02/2568',
+            date: '14/03/2568',
           },
           {
             id: 3,
@@ -209,7 +223,7 @@ const FakeAPI = {
             budget: '200,000',
             usebudget: '158,700',
             remain: '41,300',
-            date: '06/02/2568',
+            date: '14/03/2568',
           },
           {
             id: 4,
@@ -217,7 +231,7 @@ const FakeAPI = {
             budget: '200,000',
             usebudget: '158,700',
             remain: '41,300',
-            date: '06/02/2568',
+            date: '14/03/2568',
           },
           {
             id: 5,
@@ -225,7 +239,7 @@ const FakeAPI = {
             budget: '200,000',
             usebudget: '158,700',
             remain: '41,300',
-            date: '06/02/2568',
+            date: '14/03/2568',
           },
           {
             id: 6,
@@ -233,7 +247,7 @@ const FakeAPI = {
             budget: '200,000',
             usebudget: '158,700',
             remain: '41,300',
-            date: '06/02/2568',
+            date: '14/03/2568',
           },
           {
             id: 7,
@@ -241,7 +255,7 @@ const FakeAPI = {
             budget: '200,000',
             usebudget: '158,700',
             remain: '41,300',
-            date: '06/02/2568',
+            date: '14/03/2568',
           },
           {
             id: 8,
@@ -249,7 +263,7 @@ const FakeAPI = {
             budget: '200,000',
             usebudget: '158,700',
             remain: '41,300',
-            date: '06/02/2568',
+            date: '14/03/2568',
           },
         ]
 
@@ -278,17 +292,18 @@ const onSearch = () => {
     const selectedFormattedDate = formattedDate.value
 
     if (selectedDate.value && selectedFormattedDate) {
-      filteredItems = filteredItems.filter((item) => item.date === selectedFormattedDate)
+      // ฟอร์แมตวันที่ใน items ให้เหมือนกับ selectedDate
+      filteredItems = filteredItems.filter((item) => {
+        const itemDate = item.date.split('/')
+        const formattedItemDate = `${String(itemDate[0]).padStart(2, '0')}/${String(itemDate[1]).padStart(2, '0')}/${itemDate[2]}`
+
+        return formattedItemDate === selectedFormattedDate
+      })
     }
 
     // กรองข้อมูลตามคณะที่เลือก (ถ้ามีการเลือกคณะ)
-    if (searchFaculty.value && searchFaculty.value !== 'ทั้งหมด') {
-      filteredItems = filteredItems.filter((item) => item.faculty === searchFaculty.value)
-    }
-
-    // หากไม่มีการกรองเพิ่มเติมและไม่มีวันที่ที่เลือก ให้แสดงข้อมูลทั้งหมด
-    if (!selectedDate.value && (!searchFaculty.value || searchFaculty.value === 'ทั้งหมด')) {
-      filteredItems = items
+    if (searchFaculty.value && searchFaculty.value[0] !== 'ทั้งหมด') {
+      filteredItems = filteredItems.filter((item) => searchFaculty.value.includes(item.faculty))
     }
 
     // อัปเดตข้อมูลในตาราง
@@ -315,6 +330,10 @@ const onClickBook = (item) => {
 // ติดตามการเปลี่ยนแปลงของ searchFaculty และเรียก onSearch
 watch([selectedDate, searchFaculty], () => {
   onSearch()
+})
+
+onMounted(() => {
+  facultyId.value = localStorage.getItem('faculty_id') || null
 })
 
 // เรียก onSearch ครั้งแรกเมื่อ component ถูกโหลด
@@ -450,6 +469,10 @@ td {
 }
 
 .select-book {
+  width: 400px;
+}
+
+.select-faculty {
   width: 400px;
 }
 </style>

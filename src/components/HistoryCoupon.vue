@@ -1,6 +1,6 @@
 <template>
   <v-main style="height: 500px; margin-top: 20px">
-    <v-container>
+    <v-container fluid>
       <div class="header">
         <img class="header-image" src="@/assets/history-coupon (1).png" alt="Library Image" />
         <h1>ประวัติการใช้คูปอง</h1>
@@ -89,7 +89,6 @@ const headers = [
   { title: 'ISBN', key: 'isbn' },
   { title: 'ร้านค้า', key: 'shop' },
   { title: 'ราคาสุทธิ', key: 'price' },
-  { title: 'จำนวน', key: 'quantity' },
 ]
 
 // ฟอร์แมตวันที่
@@ -147,16 +146,16 @@ const FakeAPI = {
           {
             id: 1,
             title: 'ความรู้สึกของเราสำคัญที่สุด',
-            date: '06/02/2568',
+            date: '14/03/2568',
             isbn: '9786161857707',
             shop: 'แจ่มใส',
             price: 250,
-            quantity: 2,
+            quantity: 1,
           },
           {
             id: 2,
             title: 'วิทยาศาสตร์ของการใช้ชีวิต = The science of living',
-            date: '06/02/2568',
+            date: '14/03/2568',
             isbn: '9786162875434',
             shop: 'แจ่มใส',
             price: 350,
@@ -166,16 +165,16 @@ const FakeAPI = {
             id: 3,
             title:
               'คุณคางคกไปพบนักจิตบำบัด : การผจญภัยทางจิตวิทยา = Counselling for toads : a psychological adventure',
-            date: '06/02/2568',
+            date: '14/03/2568',
             isbn: '9786160459049',
             shop: 'แจ่มใส',
             price: 500,
-            quantity: 3,
+            quantity: 1,
           },
           {
             id: 4,
             title: 'ร่างกายไม่เคยโกหก = What every body is saying',
-            date: '06/02/2568',
+            date: '14/03/2568',
             isbn: '9786162875687',
             shop: 'แจ่มใส',
             price: 500,
@@ -184,7 +183,7 @@ const FakeAPI = {
           {
             id: 5,
             title: 'ภาวะลื่นไหล ทำอะไรก็ง่ายหมด = Productivity flow',
-            date: '06/02/2568',
+            date: '14/03/2568',
             isbn: '9786169373964',
             shop: 'แจ่มใส',
             price: 500,
@@ -193,7 +192,7 @@ const FakeAPI = {
           {
             id: 6,
             title: 'หัวไม่ดีก็มีวิธีสอบผ่าน',
-            date: '06/02/2568',
+            date: '14/03/2568',
             isbn: '9786165786195',
             shop: 'แจ่มใส',
             price: 500,

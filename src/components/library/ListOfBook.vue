@@ -1,6 +1,6 @@
 <template>
   <v-main style="height: 500px; margin-top: 20px">
-    <v-container>
+    <v-container fluid>
       <div class="header">
         <img class="header-image" src="@/assets/list.png" alt="Library Image" />
         <h1>รายชื่อผู้เสนอหนังสือ</h1>
@@ -10,13 +10,28 @@
         <v-col cols="auto" class="d-flex align-center">
           <h3 style="margin-right: 20px; margin-top: -20px">คณะ:</h3>
           <v-select
-            :items="['ทั้งหมด', 'วิทยาการสารสนเทศ', 'บริหาร', 'วิทยาศาสตร์', 'วิศวกรรมศาสตร์']"
+            :items="[
+              'ทั้งหมด',
+              'คณะดนตรีและการแสดง',
+              'วิทยาการสารสนเทศ',
+              'วิศวกรรมศาสตร์',
+              'วิทยาศาสตร์',
+              'บริหาร',
+            ]"
             v-model="searchFaculty"
-            class="select-book"
+            class="select-faculty"
             variant="outlined"
             rounded="lg"
-            @input="onSearch"
-          ></v-select>
+            multiple
+            clearable
+            @update:modelValue="onSearch"
+          >
+            <template v-slot:selection="{ item, index }">
+              <v-chip closable @click:close="removeItem(index)">
+                {{ item.title }}
+              </v-chip>
+            </template>
+          </v-select>
         </v-col>
 
         <v-col cols="auto" class="ml-auto d-flex align-center">
@@ -57,9 +72,11 @@
           <div
             style="
               display: flex;
-              justify-content: center;
-              align-items: center;
-              height: 100%;
+              justify-content: center; /* จัดให้อยู่ตรงกลางแนวนอน */
+              align-items: center; /* จัดให้อยู่ตรงกลางแนวตั้ง */
+              width: 100%; /* ให้ div เต็มความกว้างของเซลล์ */
+              text-align: center; /* จัด text ให้อยู่ตรงกลาง */
+              gap: 8px; /* เพิ่มระยะห่างระหว่างปุ่ม */
               flex-direction: column;
             "
           >
@@ -70,7 +87,7 @@
                 height: 25px;
                 font-size: 14px;
                 line-height: 1;
-                margin-top: 8px;
+                margin-top: 4px;
               "
               @click="onClickBook(item)"
             >
@@ -83,8 +100,7 @@
                 height: 25px;
                 font-size: 14px;
                 line-height: 1;
-                margin-top: 8px;
-                margin-bottom: 8px;
+                margin-bottom: 4px;
               "
               @click="onClickForm(item)"
             >
@@ -100,134 +116,71 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import axios from 'axios'
 
 // วันที่
 const selectedDate = ref(new Date())
-const searchFaculty = ref('ทั้งหมด')
+const searchFaculty = ref<string[]>(['ทั้งหมด'])
 const searchText = ref('')
 const loading = ref(false)
 const serverItems = ref([])
 const router = useRouter()
+const faculties = ref<string[]>([])
 // Headers สำหรับ v-data-table
 const headers = [
   { title: 'ลำดับ', key: 'id', align: 'start' },
   { title: 'ข้อมูลผู้คัดเลือก', key: 'name' },
-  { title: 'คณะ', key: 'faculty' },
-  { title: 'หน่วยงาน/สาขา', key: 'department' },
-  { title: 'E-mail', key: 'email' },
-  { title: 'เบอร์โทรศัพท์', key: 'phone' },
-  { title: 'สถานะ', key: 'status' },
-  { title: 'จำนวน', key: 'quantity' },
+  { title: 'คณะ', key: 'faculty_name' },
+  { title: 'หน่วยงาน/สาขา', key: 'department_name' },
+  { title: 'E-mail', key: 'user_email' },
+  { title: 'เบอร์โทรศัพท์', key: 'user_tel' },
+  { title: 'จำนวน', key: 'quantity', align: 'center' },
 ]
 
-// API ปลอมเพื่อเลียนแบบการดึงข้อมูล
-const FakeAPI = {
-  async fetch({
-    page,
-    itemsPerPage,
-    faculty,
-    name,
-  }: {
-    page: number
-    itemsPerPage: number
-    faculty?: string
-    name?: string
-  }) {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        let data = [
-          {
-            id: 1,
-            name: 'นันท์ณภัทร สอนสุภาพ',
-            faculty: 'วิทยาการสารสนเทศ',
-            department: 'วิทยาการคอมพิวเตอร์',
-            email: 'nan@mail.com',
-            phone: '0999999999',
-            status: 'อาจายร์',
-          },
-          {
-            id: 2,
-            name: 'นวพรรณ สีหบุตร',
-            faculty: 'วิทยาการสารสนเทศ',
-            department: 'วิทยาการคอมพิวเตอร์',
-            email: 'nan@mail.com',
-            phone: '0999999999',
-            status: 'นิสิต',
-          },
-          {
-            id: 3,
-            name: 'สมศรี ดีใจ',
-            faculty: 'บริหาร',
-            department: 'บัญชีบัณฑิต',
-            email: 'nan@mail.com',
-            phone: '0999999999',
-            status: 'อาจายร์',
-          },
-          {
-            id: 4,
-            name: 'สมหมาย ใจดี',
-            faculty: 'วิศวกรรมศาสตร์',
-            department: 'วิศวกรรมโยธา',
-            email: 'nan@mail.com',
-            phone: '0999999999',
-            status: 'นิสิต',
-          },
-          {
-            id: 5,
-            name: 'ศรีสมาย บันเทิง',
-            faculty: 'วิทยาศาสตร์',
-            department: 'เคมี',
-            email: 'nan@mail.com',
-            phone: '0999999999',
-            status: 'อาจายร์',
-          },
-          {
-            id: 6,
-            name: 'ใส่ใจ ใส่ไข่',
-            faculty: 'วิทยาศาสตร์',
-            department: 'คณิตศาตร์',
-            email: 'nan@mail.com',
-            phone: '0999999999',
-            status: 'นิสิต',
-          },
-        ]
-
-        // กรองข้อมูลใน API
-        if (faculty && faculty !== 'ทั้งหมด') {
-          data = data.filter((item) => item.faculty === faculty)
-        }
-
-        if (name) {
-          const lowerName = name.toLowerCase()
-          data = data.filter((item) => item.name.toLowerCase().includes(lowerName))
-        }
-        resolve(data)
-      }, 500)
-    })
-  },
+const removeItem = (index: number) => {
+  searchFaculty.value.splice(index, 1)
 }
 
-const onSearch = () => {
+const fetchTeachersData = async () => {
   loading.value = true
 
-  FakeAPI.fetch({ page: 1, itemsPerPage: 10 }).then((items: any[]) => {
-    let filteredItems = items
+  try {
+    const response = await axios.get('http://bookfair.buu.in.th:8043/teachers')
+    let data = response.data
 
-    // กรองข้อมูลตามคณะที่เลือก (ถ้ามีการเลือกคณะ)
-    if (searchFaculty.value && searchFaculty.value !== 'ทั้งหมด') {
-      filteredItems = filteredItems.filter((item) => item.faculty === searchFaculty.value)
+    // ดึงรายชื่อคณะจากข้อมูล API
+    faculties.value = [...new Set(data.map((item) => item.faculty_name))]
+
+    // กรองข้อมูลตามคณะที่เลือก (รองรับ multiple select)
+    if (searchFaculty.value.length > 0 && !searchFaculty.value.includes('ทั้งหมด')) {
+      data = data.filter((item) => searchFaculty.value.includes(item.faculty_name))
     }
 
     // กรองข้อมูลตามชื่อ (ถ้ามีการพิมพ์)
     if (searchText.value) {
       const searchValue = searchText.value.toLowerCase()
-      filteredItems = filteredItems.filter((item) => item.name.toLowerCase().includes(searchValue))
+      data = data.filter((item) =>
+        `${item.user_prefix}${item.user_firstName}${item.user_lastName}`
+          .toLowerCase()
+          .includes(searchValue),
+      )
     }
 
-    // อัปเดตข้อมูลในตาราง
-    serverItems.value = filteredItems
+    // การแปลงข้อมูลให้ตรงกับ headers
+    serverItems.value = data.map((item) => ({
+      id: item.teacher_id,
+      name: `${item.user_prefix} ${item.user_firstName} ${item.user_lastName}`,
+      faculty_name: item.faculty_name,
+      department_name: item.department_name,
+      user_email: item.user.user_email,
+      user_tel: item.user.user_tel,
+      quantity: item.e_coupon,
+    }))
+  } catch (error) {
+    console.error('Error fetching teachers data:', error)
+  } finally {
     loading.value = false
-  })
+  }
 }
 
 const onClickBook = (item) => {
@@ -248,12 +201,12 @@ const onClickForm = (item) => {
 
 // ติดตามการเปลี่ยนแปลงของ searchFaculty และเรียก onSearch
 watch(searchFaculty, () => {
-  onSearch()
+  fetchTeachersData()
 })
 
-// เรียก onSearch ครั้งแรกเมื่อ component ถูกโหลด
+// เรียก fetchTeachersData ครั้งแรกเมื่อ component ถูกโหลด
 onMounted(() => {
-  onSearch()
+  fetchTeachersData()
 })
 </script>
 
@@ -384,6 +337,10 @@ td {
 }
 
 .select-book {
+  width: 400px;
+}
+
+.select-faculty {
   width: 400px;
 }
 </style>

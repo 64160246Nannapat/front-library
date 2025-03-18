@@ -22,25 +22,32 @@
       v-model="drawer"
       temporary
       app
-      fixed
-      :width="drawer ? 300 : 80"
       class="custom-sidebar"
+      :class="{ 'hidden-sidebar': !drawer }"
     >
       <v-list>
-        <v-list-item v-for="item in items" :key="item.title">
-          <v-list-item-icon>
-            <v-row align="center" no-gutters>
-              <v-col class="d-flex justify-center" cols="auto">
-                <v-img :src="item.icon" height="30px" width="30px" />
-              </v-col>
-              <v-col v-show="drawer" class="ml-2">
-                <router-link v-if="!item.action" :to="item.link" class="custom-link">
-                  {{ item.title }}
-                </router-link>
-                <span v-else class="custom-link" @click="handleLogout">{{ item.title }}</span>
-              </v-col>
-            </v-row>
-          </v-list-item-icon>
+        <v-subheader style="font-weight: bold; font-size: 18px">การเสนอหนังสือ</v-subheader>
+        <v-list-item
+          v-for="item in menuItems"
+          :key="item.title"
+          :to="item.link"
+          @click="closeDrawer"
+        >
+          <template v-slot:prepend>
+            <v-img :src="item.icon" height="25px" width="25px" style="margin-right: 16px" />
+          </template>
+          <v-list-item-title>{{ item.title }}</v-list-item-title>
+        </v-list-item>
+      </v-list>
+
+      <v-divider></v-divider>
+
+      <v-list class="logout-container">
+        <v-list-item @click="handleLogout" style="margin-top: auto">
+          <template v-slot:prepend>
+            <v-img :src="logout" height="25px" width="25px" style="margin-right: 16px" />
+          </template>
+          <v-list-item-title>LOGOUT</v-list-item-title>
         </v-list-item>
       </v-list>
     </v-navigation-drawer>
@@ -53,7 +60,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, nextTick } from 'vue'
 import libraryImage from '@/assets/library.png'
 import logout from '@/assets/logout.png'
 import checklist from '@/assets/check-list.png'
@@ -80,7 +87,7 @@ const refreshToken = async () => {
   const refreshToken = localStorage.getItem('refresh_token')
   if (refreshToken) {
     try {
-      const response = await axios.post('http://bookfair.buu.in.th:8041/refresh', { refreshToken })
+      const response = await axios.post('http://bookfair.buu.in.th:8043/refresh', { refreshToken })
       const { access_token, refresh_token } = response.data
       // เก็บ Access Token และ Refresh Token ใหม่
       localStorage.setItem('token', access_token)
@@ -145,18 +152,23 @@ onMounted(() => {
   fetchUserData()
 })
 
-const items = [
+const menuItems = [
   { title: 'แบบฟอร์มการเสนอหนังสือ', icon: libraryImage, link: '/home-student/book-form' },
   { title: 'สถานะการเสนอซื้อหนังสือ', icon: checklist, link: '/home-student/book-status' },
-  { title: 'LOGOUT', icon: logout, action: 'logout' },
 ]
+
+// const items = [
+//   { title: 'แบบฟอร์มการเสนอหนังสือ', icon: libraryImage, link: '/home-student/book-form' },
+//   { title: 'สถานะการเสนอซื้อหนังสือ', icon: checklist, link: '/home-student/book-status' },
+//   { title: 'LOGOUT', icon: logout, action: 'logout' },
+// ]
 
 // Logout function
 const handleLogout = async () => {
   try {
     console.log('Attempting to logout...') // ตรวจสอบว่าฟังก์ชันทำงาน
     const response = await axios.post(
-      'http://bookfair.buu.in.th:8041/auth/logout',
+      'http://bookfair.buu.in.th:8043/auth/logout',
       {},
       {
         headers: {
@@ -171,6 +183,13 @@ const handleLogout = async () => {
     console.error('Logout error:', error) // ดู error ใน console
     alert('การออกจากระบบล้มเหลว กรุณาลองใหม่')
   }
+}
+
+const closeDrawer = async () => {
+  await nextTick()
+  setTimeout(() => {
+    drawer.value = false
+  }, 300) // เพิ่มเวลาเล็กน้อยให้ UI โหลดก่อนปิด sidebar
 }
 </script>
 
@@ -197,11 +216,15 @@ const handleLogout = async () => {
 .custom-sidebar {
   position: fixed;
   top: 96px;
+  left: 0; /* ตั้งค่าตำแหน่งของ Sidebar ให้เริ่มที่ด้านซ้าย */
   height: calc(100vh - 96px);
   overflow-y: auto;
   background-color: #f5e4e5;
-  max-width: 300px !important;
-  transition: width 0.3s ease;
+  width: 300px !important; /* ความกว้างของ Sidebar */
+  padding-top: 20px;
+  padding-left: 20px;
+  transition: width 0.3s ease-in-out;
+  z-index: 100; /* ทำให้ Sidebar อยู่เหนือ Main Content */
 }
 
 .custom-link {
@@ -229,5 +252,14 @@ const handleLogout = async () => {
 .position {
   font-size: 14px;
   color: gray;
+}
+
+.hidden-sidebar {
+  display: none !important;
+}
+
+.logout-container {
+  position: absolute;
+  bottom: 0;
 }
 </style>

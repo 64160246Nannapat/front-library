@@ -1,6 +1,5 @@
 <template>
   <v-main style="height: 500px; margin-top: -90px">
-    <!-- <HomeStudent /> -->
     <v-main>
       <v-container>
         <div class="header" style="margin-bottom: 20px">
@@ -11,19 +10,18 @@
           <!-- ใช้ Grid Layout สำหรับการจัดฟอร์ม -->
           <div class="form-grid">
             <!--ข้อมูลผู้เสนอ-->
-            <v-row class="form-row" align="center" justify="center" no-gutters>
+            <v-row class="form-row pa-0 mt-n3">
               <v-col cols="12" md="6" class="mb-1">
                 <!-- ชื่อ-นามสกุล -->
                 <label for="name" style="font-size: 17px; margin-bottom: 4px">
                   ชื่อ-นามสกุล<span class="required-asterisk">*</span>
                 </label>
                 <v-text-field
-                  :model-value="fullName"
+                  v-model="fullName"
                   :rules="[rules.required]"
-                  variant="plain"
+                  variant="outlined"
                   class="text-feild-top text gray-field"
                   dense
-                  :readonly="isReadOnly"
                   style="margin-top: 0"
                 ></v-text-field>
               </v-col>
@@ -36,16 +34,15 @@
                 <v-text-field
                   v-model="book.Role"
                   :rules="[rules.required]"
-                  variant="plain"
+                  variant="outlined"
                   class="text-feild-top text gray-field"
                   dense
-                  :readonly="isReadOnly"
                   style="margin-top: 0"
                 ></v-text-field>
               </v-col>
             </v-row>
 
-            <v-row class="form-row" align="center" justify="center" no-gutters>
+            <v-row class="form-row pa-0 mt-n3">
               <v-col cols="12" md="6" class="mb-1">
                 <!-- คณะ -->
                 <label for="faculty" style="font-size: 17px; margin-bottom: 4px">
@@ -55,10 +52,9 @@
                   v-model="book.Faculty"
                   :items="faculties"
                   :rules="[rules.required]"
-                  variant="plain"
+                  variant="outlined"
                   class="text-feild-top text gray-field"
                   dense
-                  :readonly="isReadOnly"
                   style="margin-top: 0"
                 ></v-text-field>
               </v-col>
@@ -72,16 +68,15 @@
                   v-model="book.Department"
                   :items="departments"
                   :rules="[rules.required]"
-                  variant="plain"
+                  variant="outlined"
                   class="text-feild-top text gray-field"
                   dense
-                  :readonly="isReadOnly"
                   style="margin-top: 0"
                 ></v-text-field>
               </v-col>
             </v-row>
 
-            <v-row class="form-row" align="center" justify="center" no-gutters>
+            <v-row class="form-row pa-0 mt-n3">
               <v-col cols="12" md="6" class="mb-1">
                 <!-- เบอร์ -->
                 <label for="tel" style="font-size: 17px; margin-bottom: 4px">
@@ -90,10 +85,9 @@
                 <v-text-field
                   v-model="book.Tel"
                   :rules="[rules.required, rules.tel]"
-                  variant="plain"
+                  variant="outlined"
                   class="text-feild-top text gray-field"
                   dense
-                  :readonly="isReadOnly"
                   style="margin-top: 0"
                 ></v-text-field>
               </v-col>
@@ -106,10 +100,9 @@
                 <v-text-field
                   v-model="book.Email"
                   :rules="[rules.required, rules.email]"
-                  variant="plain"
+                  variant="outlined"
                   class="text-feild-top text gray-field"
                   dense
-                  :readonly="isReadOnly"
                   style="margin-top: 0"
                 ></v-text-field>
               </v-col>
@@ -117,22 +110,6 @@
 
             <!--ข้อมูลหนังสือ-->
             <v-row class="form-row align-center pa-0">
-              <!--
-              <v-col cols="12" md="6" class="mb-1">
-                <label for="store" style="font-size: 17px">
-                  ชื่อร้านค้า<span class="required-asterisk">*</span>
-                </label>
-                <v-select
-                  v-model="book.Store"
-                  :items="stores"
-                  :rules="[rules.required]"
-                  variant="outlined"
-                  class="custom-input"
-                  dense
-                ></v-select>
-              </v-col>
-            -->
-
               <v-col cols="12" md="12" class="mb-1">
                 <!-- ชื่อหนังสือ -->
                 <label for="title" style="font-size: 17px">
@@ -151,21 +128,10 @@
             <v-row class="form-row pa-0 mt-n3">
               <!-- ลดระยะห่างแถวนี้ -->
               <!-- ผู้แต่ง -->
-              <v-col cols="12" md="6" class="mb-1">
-                <label for="author" style="font-size: 17px">ผู้ชื่อแต่ง</label>
+              <v-col cols="12" md="12" class="mb-1">
+                <label for="author" style="font-size: 17px">ชื่อผู้แต่ง</label>
                 <v-text-field
                   v-model="book.Author"
-                  variant="outlined"
-                  class="text-feild-top"
-                  dense
-                ></v-text-field>
-              </v-col>
-
-              <!-- ปีพิมพ์ -->
-              <v-col cols="12" md="6" class="mb-1">
-                <label for="year" style="font-size: 17px">ปีพิมพ์</label>
-                <v-text-field
-                  v-model="book.Year"
                   variant="outlined"
                   class="text-feild-top"
                   dense
@@ -182,7 +148,7 @@
                 </label>
                 <v-text-field
                   v-model="book.isbn"
-                  :rules="[rules.required, rules.required]"
+                  :rules="[rules.required]"
                   variant="outlined"
                   class="text-feild-top"
                   dense
@@ -191,12 +157,9 @@
 
               <v-col cols="12" md="6" class="mb-1">
                 <!-- รายวิชา -->
-                <label for="subject" style="font-size: 17px">
-                  รายวิชา<span class="required-asterisk">*</span>
-                </label>
+                <label for="Course" style="font-size: 17px"> รายวิชา </label>
                 <v-text-field
-                  v-model="book.Subject"
-                  :rules="[rules.required]"
+                  v-model="book.Course"
                   variant="outlined"
                   class="text-feild-top"
                   dense
@@ -208,7 +171,7 @@
               <!-- ลดระยะห่างแถวนี้ -->
               <!-- detail -->
               <v-col cols="12" md="12" class="mb-1">
-                <label for="detail" style="font-size: 17px">รายละะเอียด</label>
+                <label for="detail" style="font-size: 17px">รายละเอียด</label>
                 <v-textarea
                   v-model="book.Details"
                   variant="outlined"
@@ -217,38 +180,13 @@
                   :style="{ width: '100%', minHeight: '100px' }"
                   rows="4"
                 ></v-textarea>
+
+                <v-card-text style="font-size: 14px; color: gray; margin-top: -5px; padding-top: 0">
+                  (ex. ผู้แปล ณัฐกฤตา เพ็ญกุล, สำนักพิมพ์ กรุงเทพฯ : วีเลิร์น, ปีพิมพ์ 2566,
+                  พิมพ์ครั้งที่ 1, 137 หน้า : ภาพประกอบ ; 21 ซม)
+                </v-card-text>
               </v-col>
             </v-row>
-
-            <!--
-            <v-row class="form-row pa-0 mt-n3">
-              <v-col cols="12" md="6" class="mb-1">
-                <label for="price" style="font-size: 17px">
-                  ราคาสุทธิ<span class="required-asterisk">*</span>
-                </label>
-                <v-text-field
-                  v-model="book.Price"
-                  :rules="[rules.required, rules.number]"
-                  variant="outlined"
-                  class="text-feild-top"
-                  dense
-                ></v-text-field>
-              </v-col>
-
-              <v-col cols="12" md="6" class="mb-1">
-                <label for="count" style="font-size: 17px">
-                  จำนวนเล่ม<span class="required-asterisk">*</span>
-                </label>
-                <v-text-field
-                  v-model="book.Count"
-                  :rules="[rules.required, rules.number]"
-                  variant="outlined"
-                  class="text-feild-top"
-                  dense
-                ></v-text-field>
-              </v-col>
-            </v-row>
-            -->
 
             <!-- ปุ่มยืนยัน -->
             <v-btn
@@ -288,8 +226,11 @@
                 <div>ตำแหน่ง: {{ book.Role }}</div>
                 <div>คณะ: {{ book.Faculty }}</div>
                 <div>ชื่อหนังสือ: {{ book.Title }}</div>
+                <div>ชื่อผู้แต่ง: {{ book.Author }}</div>
+                <div>ISBN: {{ book.isbn }}</div>
+                <div>รายวิชา: {{ book.Course || 'ไม่ระบุ' }}</div>
                 <div>จำนวน: {{ book.Count }} เล่ม</div>
-                <div>Details: {{ book.Details || '-' }}</div>
+                <div>รายละเอียด: {{ book.Details || 'ไม่มีรายละเอียด' }}</div>
               </div>
               <v-divider v-if="isDuplicate" class="my-4" style="color: black"></v-divider>
               <!-- แสดงข้อความแจ้งเตือนหากพบ ISBN ซ้ำ -->
@@ -330,6 +271,31 @@
             </v-card-actions>
           </v-card>
         </v-dialog>
+
+        <!-- dialog ยืนยันการส่งข้อมูลสำเร็จ-->
+        <v-dialog
+          v-model="successdialog"
+          max-width="300px"
+          persistent
+          center
+          @click:outside="successdialog = false"
+        >
+          <v-card class="dialog" style="background-color: #ede8dc; border-radius: 50px">
+            <v-card-text
+              class="text-center"
+              style="font-size: 24px; font-weight: bold; color: #808080; padding: 20px"
+            >
+              <img
+                src="@/assets/check.png"
+                alt="Check"
+                style="width: 80px; height: 80px; margin-bottom: 20px"
+              />
+
+              <!-- แสดงข้อความยืนยัน -->
+              <div>เสนอข้อมูลหนังสือสำเร็จ</div>
+            </v-card-text>
+          </v-card>
+        </v-dialog>
       </v-container>
     </v-main>
   </v-main>
@@ -340,19 +306,18 @@ import axios from 'axios'
 import { onMounted, ref, computed } from 'vue'
 import { jwtDecode } from 'jwt-decode'
 import type { VForm } from 'vuetify/components'
-import $ from 'jquery'
 
-const isReadonly = ref(false)
 const bookForm = ref<VForm | null>(null)
 const submitted = ref(false)
 const valid = ref(false) //ใช้กับ v-form
 const dialog = ref(false)
-const isReadOnly = ref(true)
+const successdialog = ref(false)
 const isDuplicate = ref(false)
 const disableValidation = ref(false)
 const confirmMessage = ref('')
+
 const fullName = computed(() => {
-  return `${book.value.Prefix} ${book.value.FirstName} ${book.value.LastName}`
+  return `${book.value.Prefix || ''} ${book.value.FirstName || ''} ${book.value.LastName || ''}`.trim()
 })
 
 const book = ref({
@@ -364,15 +329,11 @@ const book = ref({
   Department: '',
   Tel: '',
   Email: '',
-  Store: '',
   Title: '',
   Author: '',
   Year: '',
   isbn: '',
-  Subject: '',
-  Price: null,
-  Count: null,
-  Coupon: 'ไม่มีคูปอง',
+  Course: '',
   User: '',
   Details: '',
 })
@@ -411,7 +372,7 @@ const fetchUserData = async () => {
   const token = localStorage.getItem('token')
 
   if (!token) {
-    alert('ไม่พบ Token กรุณาเข้าสู่ระบบใหม่')
+    alert('❌ ไม่พบ Token กรุณาเข้าสู่ระบบใหม่')
     window.location.href = '/'
     return
   }
@@ -420,33 +381,139 @@ const fetchUserData = async () => {
     let userId = null
     const decoded: any = isTokenExpired(token) ? await refreshAndDecodeToken() : jwtDecode(token)
 
-    if (decoded) {
-      userId = decoded.sub // ดึง user_id จาก sub ใน token
-      user.value.Prefix = decoded.prefix
-      user.value.FirstName = decoded.firstName
-      user.value.LastName = decoded.lastName
-      user.value.Role = decoded.offer_position
-      user.value.Faculty = decoded.faculty
-      user.value.Department = decoded.department
-      user.value.Tel = decoded.tel
-      user.value.Email = decoded.email
-      user.value.User = userId // เก็บ user_id ที่ดึงมา
+    if (!decoded || !decoded.sub) {
+      console.error('❌ Token decoding failed or userId not found!')
+      alert('ไม่สามารถดึงข้อมูลผู้ใช้ได้ กรุณาเข้าสู่ระบบใหม่')
+      return
     }
 
-    // ตั้งค่าอื่น ๆ ให้กับ book
-    book.value.Prefix = user.value.Prefix
-    book.value.FirstName = user.value.FirstName
-    book.value.LastName = user.value.LastName
-    book.value.Role = user.value.Role
-    book.value.Faculty = user.value.Faculty
-    book.value.Department = user.value.Department
-    book.value.Tel = user.value.Tel
-    book.value.Email = user.value.Email
-    book.value.User = user.value.User
+    userId = decoded.sub
 
-    isReadonly.value = true
+    let userData = {}
+    switch (decoded.role) {
+      case 'Student':
+        userData = decoded.student || {}
+        break
+      case 'Admin':
+        userData = decoded.admin || {}
+        break
+      case 'Teacher':
+        userData = decoded.teacher || {}
+        break
+      case 'StaffLibrary':
+        userData = decoded.staffLibrary || {}
+        break
+      case 'Executive':
+        userData = decoded.executive || {}
+        break
+      case 'StaffFaculty':
+        userData = decoded.staffFaculty || {}
+        break
+      default:
+        console.warn('⚠️ Unknown role:', decoded.role)
+    }
+
+    if (!userData || Object.keys(userData).length === 0) {
+      console.error('❌ No user data available for the role:', decoded.role)
+      return
+    }
+
+    user.value = {
+      Prefix: userData.user_prefix || '-',
+      FirstName: userData.user_firstName || '-',
+      LastName: userData.user_lastName || '-',
+      Role: userData.duty_name || '-',
+      Faculty: userData.faculty_name || '-',
+      Department: userData.department_name || '-',
+      Tel: decoded.tel || '-',
+      Email: decoded.email || '-',
+      User: userId,
+    }
+
+    console.log('✅ User Data:', user.value)
+
+    // อัปเดต book.value จาก user.value
+    Object.assign(book.value, user.value)
+    console.log('📌 Book Updated:', book.value)
   } catch (error) {
-    console.error('Token decoding error:', error)
+    console.error('❌ Token decoding error:', error)
+  }
+}
+
+const confirmForm = async (bookForm: any) => {
+  try {
+    // ตรวจสอบว่า userId ถูกตั้งค่าถูกต้องแล้ว
+    const userId = book.value.User || user.value.User
+    if (!userId) {
+      console.error('❌ User ID is null! Cannot proceed.')
+      alert('ไม่พบข้อมูลผู้ใช้ กรุณาเข้าสู่ระบบใหม่')
+      await fetchUserData() // รีเฟรชข้อมูลผู้ใช้ใหม่
+      return
+    }
+
+    const bookQuantity = book.value.Count ? Number(book.value.Count) : 1
+    const bookPrice = book.value.Price ? Number(book.value.Price) : 0
+
+    const formData = {
+      user_name: `${book.value.Prefix} ${book.value.FirstName} ${book.value.LastName}`.trim(),
+      user_email: book.value.Email || 'ไม่พบอีเมล',
+      user_tel: book.value.Tel || 'ไม่พบเบอร์โทร',
+      book_title: book.value.Title,
+      book_author: book.value.Author,
+      book_course: book.value.Course || 'ไม่ระบุ',
+      book_category: 'เสนอหนังสือทั่วไป',
+      ISBN: book.value.isbn || '',
+      book_price: bookPrice || 0,
+      book_quantity: bookQuantity || 0,
+      user_id: userId,
+      coupon_used: book.value.Coupon || false,
+      form_description: book.value.Details || 'ไม่มีรายละเอียด',
+    }
+
+    console.log('✅ Form Data:', formData)
+
+    const token = localStorage.getItem('token')
+    if (!token) {
+      throw new Error('❌ Token ไม่ถูกต้องหรือหมดอายุ')
+    }
+
+    // ตรวจสอบข้อมูลผู้ใช้ก่อนที่จะดำเนินการ
+    const oldUserData = await axios.get(`http://bookfair.buu.in.th:8043/users/${userId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+
+    const oldUser = oldUserData.data
+
+    if (book.value.Tel !== oldUser.user_tel || book.value.Email !== oldUser.user_email) {
+      await axios.patch(
+        `http://bookfair.buu.in.th:8043/users/${userId}`,
+        {
+          user_email: book.value.Email,
+          user_tel: book.value.Tel,
+        },
+        {
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        },
+      )
+      console.log('✅ User data updated successfully')
+    }
+
+    const response = await axios.post('http://bookfair.buu.in.th:8043/offer-forms-onl', formData, {
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    })
+
+    console.log('✅ Response:', response.data)
+    submitted.value = true
+    dialog.value = false
+    successdialog.value = true
+
+    await fetchUserData() // รีเฟรชข้อมูลผู้ใช้ใหม่
+    resetForm(bookForm)
+  } catch (error) {
+    console.error('❌ Error submitting form:', error)
+    if (error.response) {
+      console.error('🚨 API Error Details:', error.response.data)
+    }
   }
 }
 
@@ -482,10 +549,9 @@ const submitForm = async () => {
   }
 }
 
-// ฟังก์ชันตรวจสอบ ISBN ซ้ำ
 const checkDuplicateISBN = async (isbn) => {
   try {
-    const response = await axios.get(`http://bookfair.buu.in.th:8041/offer-form?isbn=${isbn}`)
+    const response = await axios.get(`http://bookfair.buu.in.th:8043/offer-forms-onl?isbn=${isbn}`)
     console.log('API Response:', response.data)
 
     // ตรวจสอบว่า response.data เป็น array และไม่ว่าง
@@ -517,61 +583,6 @@ const refreshAndDecodeToken = async () => {
 
 const cancelForm = () => {
   dialog.value = false // ปิด dialog
-  resetForm(bookForm) // ล้างค่าฟอร์ม
-}
-
-const confirmForm = async (bookForm: any) => {
-  try {
-    const userId = book.value.User ? Number(book.value.User) : null
-
-    // ตั้งค่า book.Count เป็น 1 ถ้าไม่มีการกรอก
-    const bookQuantity = book.value.Count ? Number(book.value.Count) : 1
-
-    // ตรวจสอบค่า book.Price และตั้งค่าเป็น 0 ถ้าค่ามันว่าง
-    // const bookPrice = book.value.Price ? Number(book.value.Price) : 0
-
-    // ตั้งค่า store_id เป็น null
-    // const storeId = book.value.Store ? stores.value.indexOf(book.value.Store) + 1 : 0
-
-    const formData = {
-      user_fullname: `${book.value.Prefix} ${book.value.FirstName} ${book.value.LastName}`,
-      user_name: book.value.FirstName,
-      role_id: Number(book.value.Role),
-      user_email: book.value.Email,
-      user_tel: book.value.Tel,
-      faculty_id: Number(book.value.Faculty),
-      department_id: book.value.Department,
-      // store_id: storeId,
-      book_title: book.value.Title,
-      book_author: book.value.Author,
-      book_subject: book.value.Subject,
-      book_category: 'เสนอหนังสือออนไลน์',
-      published_year: Number(book.value.Year),
-      ISBN: book.value.isbn,
-      // book_price: bookPrice,
-      book_quantity: bookQuantity,
-      user_id: userId,
-      coupon_used: book.value.Coupon,
-    }
-
-    const response = await axios.post('http://bookfair.buu.in.th:8041/offer-form', formData, {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-      },
-    })
-
-    console.log('Response:', response.data)
-    submitted.value = true
-    dialog.value = false
-    resetForm(bookForm)
-  } catch (error) {
-    console.error('Error submitting form:', error)
-    if (error.response && error.response.data) {
-      console.log('User ID:', book.value.User)
-      console.error('API Error:', error.response.data.message)
-    }
-  }
 }
 
 const resetForm = (bookForm: any) => {
@@ -591,13 +602,11 @@ const resetForm = (bookForm: any) => {
     Department,
     Tel,
     Email,
-    Store: '',
     Title: '',
     Author: '',
     Year: '',
     isbn: '',
-    Subject: '',
-    Price: null,
+    Course: '',
     Count: null,
   }
 
@@ -607,39 +616,9 @@ const resetForm = (bookForm: any) => {
   }, 0)
 
   // รีเซ็ต validation (ลบข้อความ alert validation)
-  bookForm.resetValidation()
+  bookForm.resetValidation() // ใช้ bookForm ในการเรียก resetValidation
 
   submitted.value = false // รีเซ็ตสถานะการส่งฟอร์ม
-}
-
-const fetchStores = async () => {
-  try {
-    const response = await axios.get('http://bookfair.buu.in.th:8041/store')
-    console.log('Response data:', response.data) // ตรวจสอบข้อมูลที่ส่งกลับมา
-    stores.value = response.data.map((store: any) => store.store_name) // ปรับตามโครงสร้างข้อมูล
-  } catch (error) {
-    console.error('Error fetching stores:', error)
-  }
-}
-
-const fetchFaculties = async () => {
-  try {
-    const response = await axios.get('http://bookfair.buu.in.th:8041/faculty')
-    console.log('Response data:', response.data) // ตรวจสอบข้อมูลที่ส่งกลับมา
-    faculties.value = response.data.map((faculty: any) => faculty.faculty_name)
-  } catch (error) {
-    console.error('Error fetching faculties:', error)
-  }
-}
-
-const fetchDepartments = async () => {
-  try {
-    const response = await axios.get('http://bookfair.buu.in.th:8041/department')
-    console.log('Response data:', response.data) // ตรวจสอบข้อมูลที่ส่งกลับมา
-    departments.value = response.data.map((department: any) => department.department_name)
-  } catch (error) {
-    console.error('Error fetching departments:', error)
-  }
 }
 
 const isTokenExpired = (token: string) => {
@@ -652,7 +631,9 @@ const refreshToken = async () => {
   const refreshToken = localStorage.getItem('refresh_token')
   if (refreshToken) {
     try {
-      const response = await axios.post('http://bookfair.buu.in.th:8041/auth/refresh', { refreshToken })
+      const response = await axios.post('http://bookfair.buu.in.th:8044/auth/refresh', {
+        refreshToken,
+      })
       const { access_token, refresh_token } = response.data
       // เก็บ Access Token และ Refresh Token ใหม่
       localStorage.setItem('token', access_token)
@@ -672,13 +653,8 @@ const refreshToken = async () => {
 
 onMounted(async () => {
   await fetchUserData()
-  console.log('Component mounted')
-  await Promise.all([
-    fetchStores(),
-    // fetchRoles(),
-    fetchFaculties(),
-    fetchDepartments(),
-  ])
+  console.log('Component mounted', book.value)
+  // await Promise.all([fetchFaculties(), fetchDepartments()])
 })
 
 const stores = ref<string[]>([])
@@ -811,7 +787,7 @@ h1 {
 
 .gray-field {
   color: #666666; /* สีตัวอักษรเทา */
-  pointer-events: none; /* ปิดการโต้ตอบ */
+  /* pointer-events: none; ปิดการโต้ตอบ */
 }
 
 .form-wrapper {

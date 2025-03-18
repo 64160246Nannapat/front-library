@@ -8,7 +8,6 @@
 
         <div class="form-container">
           <v-row @keydown.enter="login">
-
             <!-- ช่องกรอกชื่อผู้ใช้ -->
             <v-col cols="12">
               <v-text-field
@@ -97,7 +96,7 @@ const login = async () => {
       password: password.value,
     })
 
-    const { access_token, refresh_token, role } = response.data
+    const { access_token, refresh_token, role} = response.data
 
     if (access_token && refresh_token) {
       localStorage.setItem('token', access_token)
@@ -106,22 +105,22 @@ const login = async () => {
 
     switch (role) {
       case 'Executive':
-        router.push('/home-executive/sum-book')
+        router.push('/home-executive/book-form')
         break
       case 'Admin':
-        router.push('/home-admin/manage-sell-book')
+        router.push('/home-admin/book-form')
         break
       case 'StaffLibrary':
-        router.push('/home-library/manage-sell-book')
+        router.push('/home-library/book-form')
         break
       case 'StaffFaculty':
-        router.push('/home-faculty/manage-budget')
+        router.push('/home-faculty/book-form')
         break
       case 'StaffDepartment':
-        router.push('/home-faculty/manage-budget')
+        router.push('/home-faculty/book-form')
         break
       case 'Teacher':
-        router.push('/home-teacher/coupon')
+        router.push('/home-teacher/book-form')
         break
       case 'Student':
         router.push('/home-student/book-form')
@@ -161,6 +160,7 @@ const login = async () => {
     }
   }
 }
+
 </script>
 
 <style scoped>

@@ -1,6 +1,6 @@
 <template>
   <v-main style="height: 500px; margin-top: 20px">
-    <v-container>
+    <v-container fluid>
       <div class="header">
         <img class="header-image" src="@/assets/shop (1).png" alt="Library Image" />
         <h1>สรุปร้านค้า</h1>
@@ -134,7 +134,7 @@ const FakeAPI = {
             name: 'นางสาว นวพรรษ สีหาบุตร',
             email: 'nawapat@go.buu.ac.th',
             phone: '0909999999',
-            date: '06/02/2568',
+            date: '14/03/2568',
           },
           {
             id: 2,
@@ -142,7 +142,7 @@ const FakeAPI = {
             name: 'นางสาว นันท์ณภัทร สอนสุภาพ',
             email: 'nawapat@go.buu.ac.th',
             phone: '0909999999',
-            date: '06/02/2568',
+            date: '14/03/2568',
           },
           {
             id: 3,
@@ -150,7 +150,7 @@ const FakeAPI = {
             name: 'นาย ใจดี มีมาก',
             email: 'nawapat@go.buu.ac.th',
             phone: '0909999999',
-            date: '06/02/2568',
+            date: '14/03/2568',
           },
           {
             id: 4,
@@ -158,7 +158,7 @@ const FakeAPI = {
             name: 'นาย สมศรี ใจดี',
             email: 'nawapat@go.buu.ac.th',
             phone: '0909999999',
-            date: '06/02/2568',
+            date: '14/03/2568',
           },
           {
             id: 5,
@@ -166,7 +166,7 @@ const FakeAPI = {
             name: 'นางสาว สมหมาย มีมาก',
             email: 'nawapat@go.buu.ac.th',
             phone: '0909999999',
-            date: '06/02/2568',
+            date: '14/03/2568',
           },
         ]
         resolve(data)
@@ -182,9 +182,24 @@ const loadItems = () => {
     .then((items: any[]) => {
       let filteredItems = items
 
+      // แปลงวันที่ของ selectedDate และรายการให้เป็นรูปแบบ dd/mm/yyyy
+      const selectedDateParts = formattedDate.value.split('/')
+      const formattedSelectedDate = `${selectedDateParts[0]}/${selectedDateParts[1]}/${selectedDateParts[2]}`
+
       // กรองตามวันที่
-      if (formattedDate.value) {
-        filteredItems = filteredItems.filter((item) => item.date === formattedDate.value)
+      if (formattedSelectedDate) {
+        filteredItems = filteredItems.filter((item) => {
+          // แปลงวันที่จากข้อมูลให้เป็น dd/mm/yyyy
+          const itemDateParts = item.date.split('/')
+          const itemDay = itemDateParts[0]
+          const itemMonth = itemDateParts[1]
+          const itemYear = parseInt(itemDateParts[2]) + 543 // แปลงปี ค.ศ. เป็น พ.ศ.
+
+          const itemFormattedDate = `${itemDay}/${itemMonth}/${itemYear}`
+
+          // เปรียบเทียบกับ formattedDate ที่ได้จากคอมพิวต์
+          return itemFormattedDate === formattedSelectedDate
+        })
       }
 
       // กรองตามร้านค้า

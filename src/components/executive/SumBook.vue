@@ -1,6 +1,6 @@
 <template>
   <v-main style="height: 500px; margin-top: 20px">
-    <v-container>
+    <v-container fluid>
       <div class="header">
         <img class="header-image" src="@/assets/sumbook.png" alt="Library Image" />
         <h1>สรุปการซื้อหนังสือ</h1>
@@ -11,28 +11,35 @@
               v-model="menuDate"
               :close-on-content-click="false"
               transition="scale-transition"
-              offset-y
             >
               <template v-slot:activator="{ on, props }">
                 <v-text-field
                   v-bind="props"
-                  v-model="formattedDateRange"
-                  placeholder="เลือกช่วงวันที่"
+                  v-on="on"
+                  v-model="formattedDate"
+                  placeholder="dd/mm/yyyy"
                   class="custom-date-picker"
                   hide-details
                   rounded="lg"
                   readonly
                   flat
                   solo
-                  prepend-inner-icon="mdi-calendar"
+                  prepend-inner-icon="$calendar"
+                  suffix-icon="mdi-calendar"
                   variant="outlined"
                 />
               </template>
+
               <v-date-picker
-                v-model="selectedDateRange"
+                v-model="selectedDate"
                 locale="th"
-                range
-                @update:model-value="onDateSelected"
+                @update:modelValue="
+                  (value) => {
+                    selectedDate = value
+                    menuDate = false
+                    onSearch()
+                  }
+                "
               />
             </v-menu>
           </v-col>
@@ -57,8 +64,16 @@
               class="select-faculty"
               variant="outlined"
               rounded="lg"
-              @change="onSearch"
-            ></v-select>
+              multiple
+              clearable
+              @update:modelValue="onSearch"
+            >
+              <template v-slot:selection="{ item, index }">
+                <v-chip closable @click:close="removeItem(index)">
+                  {{ item.title }}
+                </v-chip>
+              </template>
+            </v-select>
           </div>
         </v-col>
 
@@ -93,10 +108,10 @@
 
       <!-- รวมข้อมูล -->
       <v-row class="mt-4">
-        <v-col cols="6" class="text-start" style="font-weight: bold">
+        <v-col cols="6" class="text-start" style="font-weight: bold; font-size: 18px">
           รวม: <b>{{ total.price }}</b> บาท
         </v-col>
-        <v-col cols="6" class="text-end" style="font-weight: bold">
+        <v-col cols="6" class="text-end" style="font-weight: bold; font-size: 18px">
           จำนวน: <b>{{ total.quantity }}</b> เล่ม
         </v-col>
       </v-row>
@@ -114,7 +129,7 @@ const menuDate = ref(false)
 const loading = ref(false)
 const allItems = ref([]) // ข้อมูลต้นฉบับ
 const serverItems = ref([]) // ข้อมูลที่จะแสดงในตาราง
-const searchFaculty = ref('ทั้งหมด')
+const searchFaculty = ref<string[]>(['ทั้งหมด'])
 const searchCoupon = ref('ทั้งหมด')
 const total = ref({
   price: 0,
@@ -133,34 +148,8 @@ const headers = [
   { title: 'คณะ', key: 'faculty' },
 ]
 
-const formattedDateRange = computed(() => {
-  if (!Array.isArray(selectedDateRange.value) || selectedDateRange.value.length < 2) {
-    return ''
-  }
-
-  const [start, end] = selectedDateRange.value.map((date) => new Date(date)) // แปลงเป็น Date Object
-  return `${formatDate(start)} - ${formatDate(end)}`
-})
-
-const formatDate = (date) => {
-  if (!date || isNaN(date.getTime())) return '' // ตรวจสอบค่าวันที่
-  const day = String(date.getDate()).padStart(2, '0')
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const year = date.getFullYear() + 543
-  return `${day}/${month}/${year}`
-}
-
-// ✅ ตรวจสอบให้แน่ใจว่า selectedDateRange เป็น Array ที่มีค่าถูกต้อง
-const onDateSelected = (dates) => {
-  console.log('ค่าที่เลือกจาก date-picker:', dates) // Debug ค่า
-
-  if (!dates || !Array.isArray(dates) || dates.length < 2) {
-    selectedDateRange.value = []
-    return
-  }
-
-  // ✅ ใช้ [...dates] เพื่อแน่ใจว่า Vue อัปเดตค่า
-  selectedDateRange.value = [...dates]
+const removeItem = (index: number) => {
+  searchFaculty.value.splice(index, 1)
 }
 
 const formattedDate = computed(() => {
@@ -173,8 +162,7 @@ const formattedDate = computed(() => {
 })
 
 const fullFormattedDate = computed(() => {
-  if (!selectedDate.value) return ''
-  const date = new Date(selectedDate.value)
+  const now = new Date(new Date())
 
   const days = [
     'วันอาทิตย์',
@@ -200,10 +188,10 @@ const fullFormattedDate = computed(() => {
     'ธันวาคม',
   ]
 
-  const dayName = days[date.getDay()]
-  const day = date.getDate()
-  const monthName = months[date.getMonth()]
-  const year = date.getFullYear() + 543
+  const dayName = days[now.getDay()]
+  const day = now.getDate()
+  const monthName = months[now.getMonth()]
+  const year = now.getFullYear() + 543
 
   return `${dayName} ที่ ${day} ${monthName} พ.ศ. ${year}`
 })
@@ -223,7 +211,7 @@ const FakeAPI = {
             price: 250,
             quantity: 1,
             status: 'มีคูปอง',
-            date: '06/02/2568',
+            date: '14/03/2568',
           },
           {
             id: 2,
@@ -234,7 +222,7 @@ const FakeAPI = {
             price: 250,
             quantity: 1,
             status: 'ไม่มีคูปอง',
-            date: '06/02/2568',
+            date: '14/03/2568',
           },
           {
             id: 3,
@@ -246,7 +234,7 @@ const FakeAPI = {
             price: 250,
             quantity: 2,
             status: 'มีคูปอง',
-            date: '06/02/2568',
+            date: '14/03/2568',
           },
           {
             id: 4,
@@ -257,7 +245,7 @@ const FakeAPI = {
             price: 250,
             quantity: 2,
             status: 'มีคูปอง',
-            date: '06/02/2568',
+            date: '14/03/2568',
           },
           {
             id: 5,
@@ -268,7 +256,7 @@ const FakeAPI = {
             price: 250,
             quantity: 2,
             status: 'มีคูปอง',
-            date: '06/02/2568',
+            date: '14/03/2568',
           },
           {
             id: 6,
@@ -279,7 +267,7 @@ const FakeAPI = {
             price: 250,
             quantity: 2,
             status: 'มีคูปอง',
-            date: '06/02/2568',
+            date: '14/03/2568',
           },
         ]
         resolve(data)
@@ -293,18 +281,38 @@ const onSearch = async () => {
   loading.value = true
   const items = await FakeAPI.fetch()
 
+  // แปลง selectedDate ให้เป็นรูปแบบ "dd/mm/yyyy" ใน พ.ศ.
+  const selectedDateStr = formattedDate.value
+
+  // ฟังก์ชันกรองข้อมูลจาก date, faculty และ coupon
   let filteredItems = items.filter((item) => {
-    if (!selectedDateRange.value) return true
+    // ตรวจสอบวันที่ที่เลือก ตรงกับวันที่ของข้อมูลหรือไม่
+    if (item.date !== selectedDateStr) return false
 
-    const [start, end] = selectedDateRange.value
-    const itemDate = new Date(item.date.split('/').reverse().join('-')) // แปลงเป็น Date
+    // กรองข้อมูลจากคณะ
+    if (
+      searchFaculty.value.length > 0 &&
+      !searchFaculty.value.includes('ทั้งหมด') &&
+      !searchFaculty.value.includes(item.faculty)
+    ) {
+      return false
+    }
 
-    return itemDate >= start && itemDate <= end
+    // กรองข้อมูลจากสถานะ
+    if (searchCoupon.value !== 'ทั้งหมด' && item.status !== searchCoupon.value) {
+      return false
+    }
+
+    return true
   })
 
+  // คำนวณรวมยอดเงินและจำนวน
   total.value.price = filteredItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
   total.value.quantity = filteredItems.reduce((sum, item) => sum + item.quantity, 0)
+
+  // กำหนดข้อมูลที่จะแสดงในตาราง
   serverItems.value = filteredItems
+  console.log('Filtered Items:', filteredItems) // ตรวจสอบข้อมูลที่ถูกกรอง
   loading.value = false
 }
 
@@ -312,6 +320,10 @@ onMounted(() => {
   const today = new Date()
   selectedDateRange.value = [today, today] // ตั้งค่าช่วงเริ่มต้นเป็นวันนี้
   onSearch()
+})
+
+onMounted(() => {
+  selectedDate.value = new Date() // ตั้งค่าเป็นวันที่ปัจจุบันเมื่อหน้าโหลด
 })
 
 watch(selectedDateRange, (newVal) => {
