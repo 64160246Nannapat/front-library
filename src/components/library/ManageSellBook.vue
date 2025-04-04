@@ -410,9 +410,24 @@
       </v-dialog>
 
       <!-- Dialog กรอกราคา -->
-      <v-dialog v-model="priceDialog" max-width="500px">
-        <v-card>
-          <v-card-title>กำหนดราคา</v-card-title>
+      <v-dialog v-model="priceDialog" max-width="750">
+        <v-card style="background-color: #ede8dc">
+          <v-card-title
+            class="d-flex justify-space-between align-center text-start"
+            style="
+              font-weight: bold;
+              background-color: #c39898;
+              padding: 16px;
+              border-top-left-radius: 0px;
+              border-top-right-radius: 0px;
+              border-bottom-left-radius: 16px;
+              border-bottom-right-radius: 16px;
+              font-size: 20px;
+            "
+          >
+            <span>กำหนดราคา</span>
+          </v-card-title>
+
           <v-card-text>
             <v-row>
               <v-col cols="12">
@@ -432,7 +447,7 @@
               label="กรอกราคา"
               type="number"
               min="0"
-              prepend-icon="mdi-currency-btc"
+              prepend-icon="mdi-currency-thb"
             ></v-text-field>
 
             <p>
@@ -446,14 +461,35 @@
               <span v-else>⚠️ ไม่เพียงพอ</span>
             </p>
           </v-card-text>
+
           <v-card-actions>
-            <v-btn text @click="priceDialog = false">ยกเลิก</v-btn>
+            <v-spacer></v-spacer>
             <v-btn
-              color="primary"
+              color="black"
+              text
+              @click="priceDialog = false"
+              style="
+                font-weight: bold;
+                border-radius: 8px;
+                background-color: #fa8072;
+                margin-bottom: 8px;
+              "
+            >
+              ยกเลิก
+            </v-btn>
+            <v-btn
+              color="black"
+              text
               :disabled="
                 totalSelectedAmount === 0 || priceInput === 0 || totalSelectedAmount < priceInput
               "
               @click="updatePrice"
+              style="
+                font-weight: bold;
+                border-radius: 8px;
+                background-color: #58d68d;
+                margin-bottom: 8px;
+              "
             >
               ยืนยัน
             </v-btn>

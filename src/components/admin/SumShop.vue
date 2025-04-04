@@ -187,18 +187,9 @@ const loadItems = () => {
       const formattedSelectedDate = `${selectedDateParts[0]}/${selectedDateParts[1]}/${selectedDateParts[2]}`
 
       // กรองตามวันที่
-      if (formattedSelectedDate) {
+      if (formattedDate.value) {
         filteredItems = filteredItems.filter((item) => {
-          // แปลงวันที่จากข้อมูลให้เป็น dd/mm/yyyy
-          const itemDateParts = item.date.split('/')
-          const itemDay = itemDateParts[0]
-          const itemMonth = itemDateParts[1]
-          const itemYear = parseInt(itemDateParts[2]) + 543 // แปลงปี ค.ศ. เป็น พ.ศ.
-
-          const itemFormattedDate = `${itemDay}/${itemMonth}/${itemYear}`
-
-          // เปรียบเทียบกับ formattedDate ที่ได้จากคอมพิวต์
-          return itemFormattedDate === formattedSelectedDate
+          return item.date === formattedDate.value // เปรียบเทียบโดยตรงกับ พ.ศ.
         })
       }
 

@@ -68,6 +68,9 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 
+// กำหนดค่า axios ให้เชื่อมต่อไปยัง endpoint ที่ต้องการ
+const apiUrl = 'http://bookfair.buu.in.th:8043'
+
 const username = ref('')
 const password = ref('')
 const visible = ref(false)
@@ -91,18 +94,20 @@ const login = async () => {
   }
 
   try {
-    const response = await axios.post('http://bookfair.buu.in.th:8043/auth/login', {
+    // ส่งคำขอไปยัง API (ไม่ต้องสนใจ SSL)
+    const response = await axios.post(`${apiUrl}/auth/login`, {
       username: username.value,
       password: password.value,
     })
 
-    const { access_token, refresh_token, role} = response.data
+    const { access_token, refresh_token, role } = response.data
 
     if (access_token && refresh_token) {
       localStorage.setItem('token', access_token)
       localStorage.setItem('refresh_token', refresh_token)
     }
 
+    // การกระทำตามบทบาท
     switch (role) {
       case 'Executive':
         router.push('/home-executive/book-form')
@@ -136,18 +141,15 @@ const login = async () => {
         const errorData = error.response.data
         if (errorData.invalidUsername) {
           usernameError.value = 'ชื่อผู้ใช้ไม่ถูกต้อง'
-
           username.value = ''
           password.value = ''
         } else if (errorData.invalidPassword) {
           passwordError.value = 'รหัสผ่านไม่ถูกต้อง'
           usernameError.value = null
-
           password.value = ''
         } else {
           usernameError.value = 'ชื่อผู้ใช้ไม่ถูกต้อง'
           passwordError.value = 'รหัสผ่านไม่ถูกต้อง'
-
           username.value = ''
           password.value = ''
         }
@@ -160,7 +162,6 @@ const login = async () => {
     }
   }
 }
-
 </script>
 
 <style scoped>

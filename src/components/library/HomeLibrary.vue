@@ -242,7 +242,7 @@ const shopItems = [
 // Logout function
 const handleLogout = async () => {
   try {
-    console.log('Attempting to logout...') // ตรวจสอบว่าฟังก์ชันทำงาน
+    console.log('Attempting to logout...')
     const response = await axios.post(
       'http://bookfair.buu.in.th:8043/auth/logout',
       {},
@@ -252,11 +252,11 @@ const handleLogout = async () => {
         },
       },
     )
-    console.log(response.data) // ตรวจสอบ response จาก API
-    localStorage.clear() // ลบข้อมูลจาก LocalStorage
-    window.location.href = '/' // เปลี่ยนเส้นทางไปยังหน้า login
+    console.log(response.data)
+    localStorage.clear()
+    window.location.href = '/'
   } catch (error) {
-    console.error('Logout error:', error) // ดู error ใน console
+    console.error('Logout error:', error)
     alert('การออกจากระบบล้มเหลว กรุณาลองใหม่')
   }
 }

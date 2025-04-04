@@ -138,8 +138,8 @@
                 dense
                 single-line
                 hide-details
-                @blur="saveBudget(item)"
-                @keydown.enter="saveBudget(item)"
+                @blur="saveFacultyBudget(item)"
+                @keydown.enter="saveFacultyBudget(item)"
                 style="width: 150px; height: 30px; display: inline-block"
                 :style="{ width: '150px', height: '36px' }"
                 :error-messages="item.budget < item.oldBudget ? 'ไม่สามารถลดงบประมาณได้' : []"
@@ -225,6 +225,8 @@
                         dense
                         single-line
                         hide-details
+                        @blur="saveDepartmentBudget(subItem)"
+                        @keydown.enter="saveDepartmentBudget(subItem)"
                         style="width: 150px; height: 30px; display: inline-block"
                       />
                     </td>
@@ -286,6 +288,8 @@
                                 dense
                                 single-line
                                 hide-details
+                                @blur="savePersonBudget(person)"
+                        @keydown.enter="savePersonBudget(person)"
                                 style="width: 150px; height: 30px"
                               />
                             </td>
@@ -688,6 +692,13 @@ const onEditSub = (subItem) => {
   subItem.editing = !subItem.editing // สลับสถานะการแก้ไข
 }
 
+const onEditPerson = (person) => {
+  if (!person.editing) {
+    person.budget = person.budget || 0 // ตั้งค่าเริ่มต้นเป็น 0 ถ้าไม่มีค่า
+  }
+  person.editing = !person.editing // สลับสถานะการแก้ไข
+}
+
 const facultyHeaders = [
   { title: 'ลำดับ', key: 'index', align: 'start', width: '10%', minWidth: '80px' },
   { title: 'ชื่อคณะ', value: 'faculty', align: 'left', width: '40%', minWidth: '200px' },
@@ -773,29 +784,29 @@ const fetchFaculties = async () => {
   }
 }
 
-// ฟังก์ชันดึงข้อมูลสาขาจาก API
 const fetchDepartments = async (faculty) => {
   try {
     const response = await axios.get('http://bookfair.buu.in.th:8043/departments')
-    const filteredData = response.data.filter((dept) => dept.faculty_name === faculty) // ตรวจสอบให้แน่ใจว่าใช้ faculty_name ในการกรอง
+    const filteredData = response.data.filter((dept) => dept.faculty_name === faculty)
 
     expandedItems.value[faculty] = filteredData.map((dept) => ({
-      department_name: dept.department_name, // ชื่อบุคคล
-      budget: dept.e_coupon || 0, // ใช้ e_coupon แทน budget
-      editing: false, // สถานะแก้ไข
+      id: dept.department_id, // ให้แน่ใจว่าใช้ department_id แทนที่ id
+      department_name: dept.department_name,
+      budget: dept.e_coupon || 0,
+      editing: false,
     }))
   } catch (error) {
     console.error('Error fetching departments:', error)
   }
 }
 
-// ฟังก์ชันดึงข้อมูลบุคคลจาก API
 const fetchPersons = async (department) => {
   try {
     const response = await axios.get('http://bookfair.buu.in.th:8043/teachers')
     const filteredData = response.data.filter((person) => person.department_name === department)
 
     expandedItemsForPerson.value[department] = filteredData.map((person) => ({
+      id: person.teacher_id, // ให้แน่ใจว่าใช้ teacher_id แทนที่ id
       per_name: `${person.user_prefix} ${person.user_firstName} ${person.user_lastName}`, // ชื่อบุคคล
       budget: person.e_coupon || 0, // ใช้ e_coupon แทน budget
       editing: false, // สถานะแก้ไข
@@ -1019,10 +1030,10 @@ const onClickDeleteSub = (subItem) => {
   dialogDeleteSub.value = true // เปิด dialog ลบสาขา
 }
 
-const onClickDeleteSubSub = (subItem) => {
-  console.log('เลือก subSubItem ที่จะลบ:', subItem) // ตรวจสอบค่า
-  selectedSubItem.value = subItem // กำหนดค่า subItem ที่ต้องการลบ
-  dialogDeleteSubSub.value = true // เปิด dialog ลบสาขา
+const onClickDeletePerson = (person) => {
+  console.log('เลือก person ที่จะลบ:', person) // ตรวจสอบค่า
+  selectedPerson.value = person // กำหนดค่า person ที่ต้องการลบ
+  dialogDeletePerson.value = true // เปิด dialog ลบบุคคล
 }
 
 // ฟังก์ชันลบรายการ
@@ -1214,7 +1225,7 @@ const startEditing = (item) => {
   item.editing = true
 }
 
-const saveBudget = async (item) => {
+const saveFacultyBudget = async (item) => {
   try {
     const newBudget = parseFloat(item.budget) || 0
     const oldBudget = item.oldBudget || 0
@@ -1246,6 +1257,82 @@ const saveBudget = async (item) => {
   } catch (error) {
     console.error('เกิดข้อผิดพลาดในการอัปเดตงบประมาณ:', error)
     alert('ไม่สามารถอัปเดตงบประมาณได้')
+  }
+}
+
+const saveDepartmentBudget = async (item) => {
+  try {
+    if (!item.id) {
+      console.error('❌ item.id is missing:', item)
+      alert('ไม่พบ ID ของแผนก')
+      return
+    }
+
+    const newBudget = parseFloat(item.budget) || 0
+    const oldBudget = item.oldBudget || 0
+
+    // คำนวณความเปลี่ยนแปลงของงบประมาณ
+    const difference = newBudget - oldBudget
+
+    // ส่ง API ไปอัปเดตค่า e_coupon
+    const response = await axios.patch(
+      `http://bookfair.buu.in.th:8043/departments/library/${item.id}`, // ตรวจสอบให้แน่ใจว่า item.id มีค่า
+      {
+        e_coupon: newBudget,
+      },
+    )
+
+    if (response.status === 200) {
+      // อัปเดตค่าใน UI
+      item.budget = newBudget
+      item.oldBudget = newBudget
+
+      // โหลดข้อมูลใหม่จาก API เพื่อรีเฟรชหน้า
+      await fetchBudgetData()
+
+      // ปิดโหมดแก้ไข
+      item.editing = false
+    } else {
+      throw new Error('อัปเดตข้อมูลไม่สำเร็จ')
+    }
+  } catch (error) {
+    console.error('เกิดข้อผิดพลาดในการอัปเดตงบประมาณ:', error)
+    alert('ไม่สามารถอัปเดตงบประมาณได้')
+  }
+}
+
+const savePersonBudget = async (person) => {
+  try {
+    if (!person.id) {
+      console.error('❌ person.id is missing:', person)
+      alert('ไม่พบ ID ของบุคคล')
+      return
+    }
+
+    const newBudget = parseFloat(person.budget) || 0
+    const oldBudget = person.oldBudget || 0
+
+    // ส่ง API ไปอัปเดตข้อมูล
+    const response = await axios.patch(
+      `http://bookfair.buu.in.th:8043/teachers/library/${person.id}`,
+      {
+        e_coupon: newBudget,
+      },
+    )
+
+    if (response.status === 200) {
+      // อัปเดตข้อมูลใน UI
+      person.budget = newBudget
+      person.oldBudget = newBudget
+
+      // รีเฟรชข้อมูลงบประมาณจาก API ทันที
+      await fetchBudgetData() // เรียกเพื่ออัปเดตข้อมูลล่าสุดจาก API
+    } else {
+      throw new Error('อัปเดตข้อมูลไม่สำเร็จ')
+    }
+  } catch (error) {
+    console.error('เกิดข้อผิดพลาดในการอัปเดตข้อมูลบุคคล:', error)
+    alert('ไม่สามารถอัปเดตข้อมูลได้')
   }
 }
 

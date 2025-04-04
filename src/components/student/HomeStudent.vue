@@ -78,8 +78,8 @@ const user = ref({
 // Decode JWT and check expiration
 const isTokenExpired = (token: string) => {
   const decoded: any = jwtDecode(token)
-  const currentTime = Date.now() / 1000 // Convert to seconds
-  return decoded.exp < currentTime // Compare expiration time
+  const currentTime = Date.now() / 1000
+  return decoded.exp < currentTime
 }
 
 // Refresh Token สำหรับการขอใหม่จาก Backend
@@ -89,7 +89,6 @@ const refreshToken = async () => {
     try {
       const response = await axios.post('http://bookfair.buu.in.th:8043/refresh', { refreshToken })
       const { access_token, refresh_token } = response.data
-      // เก็บ Access Token และ Refresh Token ใหม่
       localStorage.setItem('token', access_token)
       localStorage.setItem('refresh_token', refresh_token)
       return access_token // คืนค่าใหม่ของ access_token
@@ -166,7 +165,7 @@ const menuItems = [
 // Logout function
 const handleLogout = async () => {
   try {
-    console.log('Attempting to logout...') // ตรวจสอบว่าฟังก์ชันทำงาน
+    console.log('Attempting to logout...')
     const response = await axios.post(
       'http://bookfair.buu.in.th:8043/auth/logout',
       {},
@@ -176,11 +175,11 @@ const handleLogout = async () => {
         },
       },
     )
-    console.log(response.data) // ตรวจสอบ response จาก API
-    localStorage.clear() // ลบข้อมูลจาก LocalStorage
-    window.location.href = '/' // เปลี่ยนเส้นทางไปยังหน้า login
+    console.log(response.data)
+    localStorage.clear()
+    window.location.href = '/'
   } catch (error) {
-    console.error('Logout error:', error) // ดู error ใน console
+    console.error('Logout error:', error)
     alert('การออกจากระบบล้มเหลว กรุณาลองใหม่')
   }
 }

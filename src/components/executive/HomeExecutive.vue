@@ -153,11 +153,10 @@ const user = ref({
 // Decode JWT and check expiration
 const isTokenExpired = (token: string) => {
   const decoded: any = jwtDecode(token)
-  const currentTime = Date.now() / 1000 // Convert to seconds
-  return decoded.exp < currentTime // Compare expiration time
+  const currentTime = Date.now() / 1000
+  return decoded.exp < currentTime
 }
 
-// Refresh Token สำหรับการขอใหม่จาก Backend
 const refreshToken = async () => {
   const refreshToken = localStorage.getItem('refresh_token')
   if (refreshToken) {
@@ -166,7 +165,6 @@ const refreshToken = async () => {
         refreshToken,
       })
       const { access_token, refresh_token } = response.data
-      // เก็บ Access Token และ Refresh Token ใหม่
       localStorage.setItem('token', access_token)
       localStorage.setItem('refresh_token', refresh_token)
       return access_token // คืนค่าใหม่ของ access_token
@@ -201,7 +199,7 @@ const fetchUserData = async () => {
 
   const getUserRole = (decoded: any) => {
     if (decoded.role === 'Executive' && decoded.executive) {
-      return `${decoded.executive.duty_name || ''}`.trim()
+      return `${decoded.executive.duty_name || ''} ${decoded.executive.faculty_name || ''}`.trim()
     } else {
       return decoded.role || 'ไม่ทราบตำแหน่ง'
     }
@@ -213,10 +211,14 @@ const fetchUserData = async () => {
       const decoded: any = jwtDecode(newAccessToken)
       user.value.name = getUserName(decoded)
       user.value.role = getUserRole(decoded)
+      user.value.name = getUserName(decoded)
+      user.value.role = getUserRole(decoded)
     }
   } else {
     try {
       const decoded: any = jwtDecode(token)
+      user.value.name = getUserName(decoded)
+      user.value.role = getUserRole(decoded)
       user.value.name = getUserName(decoded)
       user.value.role = getUserRole(decoded)
     } catch (error) {
@@ -254,7 +256,7 @@ const shopItems = [
 // Logout function
 const handleLogout = async () => {
   try {
-    console.log('Attempting to logout...') // ตรวจสอบว่าฟังก์ชันทำงาน
+    console.log('Attempting to logout...')
     const response = await axios.post(
       'http://bookfair.buu.in.th:8043/auth/logout',
       {},
@@ -264,20 +266,13 @@ const handleLogout = async () => {
         },
       },
     )
-    console.log(response.data) // ตรวจสอบ response จาก API
-    localStorage.clear() // ลบข้อมูลจาก LocalStorage
-    window.location.href = '/' // เปลี่ยนเส้นทางไปยังหน้า login
+    console.log(response.data)
+    localStorage.clear()
+    window.location.href = '/'
   } catch (error) {
-    console.error('Logout error:', error) // ดู error ใน console
+    console.error('Logout error:', error)
     alert('การออกจากระบบล้มเหลว กรุณาลองใหม่')
   }
-}
-
-const closeDrawer = async () => {
-  await nextTick()
-  setTimeout(() => {
-    drawer.value = false
-  }, 300) // เพิ่มเวลาเล็กน้อยให้ UI โหลดก่อนปิด sidebar
 }
 </script>
 

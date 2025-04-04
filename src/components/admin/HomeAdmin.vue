@@ -113,7 +113,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, nextTick } from 'vue'
 import axios from 'axios'
 import { jwtDecode } from 'jwt-decode'
 
@@ -144,11 +144,10 @@ const user = ref({
 // Decode JWT and check expiration
 const isTokenExpired = (token: string) => {
   const decoded: any = jwtDecode(token)
-  const currentTime = Date.now() / 1000 // Convert to seconds
-  return decoded.exp < currentTime // Compare expiration time
+  const currentTime = Date.now() / 1000
+  return decoded.exp < currentTime
 }
 
-// Refresh Token สำหรับการขอใหม่จาก Backend
 const refreshToken = async () => {
   const refreshToken = localStorage.getItem('refresh_token')
   if (refreshToken) {
@@ -157,7 +156,6 @@ const refreshToken = async () => {
         refreshToken,
       })
       const { access_token, refresh_token } = response.data
-      // เก็บ Access Token และ Refresh Token ใหม่
       localStorage.setItem('token', access_token)
       localStorage.setItem('refresh_token', refresh_token)
       return access_token // คืนค่าใหม่ของ access_token
@@ -192,7 +190,7 @@ const fetchUserData = async () => {
 
   const getUserRole = (decoded: any) => {
     if (decoded.role === 'Admin' && decoded.admin) {
-      return `${decoded.admin.duty_name || ''}`.trim()
+      return `${decoded.admin.duty_name || ''} ${decoded.admin.faculty_name || ''}`.trim()
     } else {
       return decoded.role || 'ไม่ทราบตำแหน่ง'
     }
@@ -204,10 +202,14 @@ const fetchUserData = async () => {
       const decoded: any = jwtDecode(newAccessToken)
       user.value.name = getUserName(decoded)
       user.value.role = getUserRole(decoded)
+      user.value.name = getUserName(decoded)
+      user.value.role = getUserRole(decoded)
     }
   } else {
     try {
       const decoded: any = jwtDecode(token)
+      user.value.name = getUserName(decoded)
+      user.value.role = getUserRole(decoded)
       user.value.name = getUserName(decoded)
       user.value.role = getUserRole(decoded)
     } catch (error) {
@@ -249,7 +251,7 @@ const shopItems = [
 // Logout function
 const handleLogout = async () => {
   try {
-    console.log('Attempting to logout...') // ตรวจสอบว่าฟังก์ชันทำงาน
+    console.log('Attempting to logout...')
     const response = await axios.post(
       'http://bookfair.buu.in.th:8043/auth/logout',
       {},

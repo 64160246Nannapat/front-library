@@ -67,6 +67,7 @@ const loading = ref(true) // สถานะการโหลดข้อมู
 const errorMessage = ref('') // เก็บข้อความ Error ถ้าโหลดไม่ได้
 
 const user = ref({
+  user_id: '',
   prefix: '',
   firstname: '',
   lastname: '',
@@ -113,14 +114,15 @@ const fetchUserData = async () => {
 
       // กำหนดค่าให้ user.value รวมถึง tel และ email
       user.value = {
+        user_id: userData.user_id || '-',
         prefix: userData.user_prefix || '-',
         firstname: userData.user_firstName || '-',
         lastname: userData.user_lastName || '-',
         role_offer: userData.role_offer || '-',
         tel: decoded.tel || '-', // ดึง tel จาก decoded
         email: decoded.email || '-', // ดึง email จาก decoded
-        faculty_id: decoded.faculty_id || '-',
-        department_id: decoded.department_id || '-',
+        faculty_id: userData.faculty_id || '-',
+        department_id: userData.department_id || '-',
         faculty_name: userData.faculty_name || 'ไม่ระบุคณะ',
         department_name: userData.department_name || 'ไม่ระบุสาขาวิชา',
         e_coupon: userData.e_coupon || 0, // ให้ e_coupon มีค่า

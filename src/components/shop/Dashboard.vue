@@ -76,7 +76,7 @@
                   <td>{{ item.faculty }}</td>
                   <td>{{ item.book }}</td>
                   <td>{{ item.quantity }}</td>
-                  <td>{{ item.price }}</td>
+                  <td style="text-align: end">{{ item.price }}</td>
                 </tr>
               </template>
             </v-data-table>

@@ -110,7 +110,7 @@ const formattedDate = computed(() => {
   const date = new Date(selectedDate.value)
   const day = String(date.getDate()).padStart(2, '0')
   const month = String(date.getMonth() + 1).padStart(2, '0')
-  const year = date.getFullYear() + 543
+  const year = date.getFullYear() + 543 // ใช้ปี พ.ศ.
   return `${day}/${month}/${year}`
 })
 
@@ -217,17 +217,7 @@ const onSearch = () => {
       // กรองตามวันที่
       if (formattedDate.value) {
         filteredItems = filteredItems.filter((item) => {
-          // แยกวันที่จาก item.date (รูปแบบ dd/mm/yyyy)
-          const itemDateParts = item.date.split('/') // แยกวัน/เดือน/ปี
-          const itemDay = itemDateParts[0]
-          const itemMonth = itemDateParts[1]
-          const itemYear = itemDateParts[2] // ปี พ.ศ. จากข้อมูล API
-
-          // เปลี่ยนปีจาก พ.ศ. เป็น ค.ศ.
-          const itemDate = `${itemDay}/${itemMonth}/${parseInt(itemYear, 10) - 543}` // แปลงปีให้เป็น ค.ศ.
-
-          // เปรียบเทียบวันที่ในรูปแบบเดียวกัน
-          return itemDate === formattedDate.value
+          return item.date === formattedDate.value // เปรียบเทียบโดยตรงกับ พ.ศ.
         })
       }
 

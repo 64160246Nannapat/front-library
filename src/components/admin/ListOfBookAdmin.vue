@@ -156,7 +156,7 @@ const fetchTeachersData = async () => {
       data = data.filter((item) => searchFaculty.value.includes(item.faculty_name))
     }
 
-    // กรองข้อมูลตามชื่อ (ถ้ามีการพิมพ์)
+    // ✅ กรองข้อมูลตามชื่อ (ถ้ามีการพิมพ์)
     if (searchText.value) {
       const searchValue = searchText.value.toLowerCase()
       data = data.filter((item) =>

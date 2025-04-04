@@ -152,10 +152,14 @@ const fetchUserData = async () => {
       const decoded: any = jwtDecode(newAccessToken)
       user.value.name = getUserName(decoded)
       user.value.role = getUserRole(decoded)
+      user.value.name = getUserName(decoded)
+      user.value.role = getUserRole(decoded)
     }
   } else {
     try {
       const decoded: any = jwtDecode(token)
+      user.value.name = getUserName(decoded)
+      user.value.role = getUserRole(decoded)
       user.value.name = getUserName(decoded)
       user.value.role = getUserRole(decoded)
     } catch (error) {
@@ -181,6 +185,7 @@ const couponItems = [
 // ฟังก์ชันออกจากระบบ
 const handleLogout = async () => {
   try {
+    console.log('Attempting to logout...')
     console.log('Attempting to logout...')
     const response = await axios.post(
       'http://bookfair.buu.in.th:8043/auth/logout',
